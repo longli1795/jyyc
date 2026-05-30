@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分组管理 - 企业经营预测分析平台</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --primary-hover: #3498db;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .main-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 900px;
+            overflow: hidden;
+        }
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: #fff;
+            padding: 28px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-header h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .page-header .header-actions { display: flex; gap: 10px; }
+        .page-header .btn { border-radius: 8px; font-size: 14px; }
+        .content { padding: 24px 32px 32px; }
+        .table thead th {
+            background: var(--light-bg);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+            padding: 12px 16px;
+            white-space: nowrap;
+        }
+        .table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .table tbody tr:hover { background: #f1f5f9; }
+        .badge-count { background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+        .btn-sm { border-radius: 6px; font-size: 13px; padding: 4px 10px; }
+        .modal-header { background: var(--light-bg); }
+        .modal-content { border-radius: 12px; border: none; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="page-header">
+            <div>
+                <h2><i class="fas fa-layer-group me-2"></i>分组管理</h2>
+            </div>
+            <div class="header-actions">
+                <a href="/admin/users" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-users me-1"></i> 用户管理
+                </a>
+                <a href="/" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-home me-1"></i> 返回首页
+                </a>
+                <button class="btn btn-light btn-sm" onclick="showCreateModal()">
+                    <i class="fas fa-plus me-1"></i> 新建分组
+                </button>
+            </div>
+        </div>
+
+        <div class="content">
+            <table class="table" id="groupsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>分组名称</th>
+                        <th>描述</th>
+                        <th>用户数</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="groupsBody">
+                    <tr><td colspan="6"><div class="empty-state"><i class="fas fa-spinner fa-spin d-block"></i>加载中...</div></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 新建/编辑 Modal -->
+    <div class="modal fade" id="groupModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">新建分组</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editGroupId">
+                    <div class="mb-3">
+                        <label class="form-label">分组名称 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="inputName" placeholder="如：市场部">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">描述</label>
+                        <textarea class="form-control" id="inputDesc" rows="2" placeholder="可选"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button class="btn btn-primary" onclick="saveGroup()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function loadGroups() {
+            try {
+                const res = await fetch('/admin/api/groups');
+                const json = await res.json();
+                const tbody = document.getElementById('groupsBody');
+
+                if (!json.success || !json.data.length) {
+                    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-layer-group d-block"></i>暂无分组</div></td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = json.data.map(g => `
+                    <tr>
+                        <td>${g.id}</td>
+                        <td><strong>${esc(g.name)}</strong></td>
+                        <td class="text-muted">${esc(g.description) || '-'}</td>
+                        <td><span class="badge-count">${g.user_count}</span></td>
+                        <td class="text-muted" style="font-size:13px">${formatTime(g.created_at)}</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm me-1" onclick='showEditModal(${JSON.stringify(g)})' title="编辑"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteGroup(${g.id}, '${esc(g.name)}')" title="删除"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        function showCreateModal() {
+            document.getElementById('modalTitle').textContent = '新建分组';
+            document.getElementById('editGroupId').value = '';
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputDesc').value = '';
+            new bootstrap.Modal(document.getElementById('groupModal')).show();
+        }
+
+        function showEditModal(g) {
+            document.getElementById('modalTitle').textContent = '编辑分组';
+            document.getElementById('editGroupId').value = g.id;
+            document.getElementById('inputName').value = g.name;
+            document.getElementById('inputDesc').value = g.description || '';
+            new bootstrap.Modal(document.getElementById('groupModal')).show();
+        }
+
+        async function saveGroup() {
+            const gid = document.getElementById('editGroupId').value;
+            const isEdit = !!gid;
+            const body = {
+                name: document.getElementById('inputName').value.trim(),
+                description: document.getElementById('inputDesc').value.trim()
+            };
+
+            const url = isEdit ? `/admin/api/groups/${gid}` : '/admin/api/groups';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+                const json = await res.json();
+                if (json.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('groupModal')).hide();
+                    loadGroups();
+                } else {
+                    alert(json.message);
+                }
+            } catch(e) { alert('操作失败'); }
+        }
+
+        async function deleteGroup(gid, name) {
+            if (!confirm(`确定要删除分组「${name}」吗？`)) return;
+            try {
+                const res = await fetch(`/admin/api/groups/${gid}`, { method: 'DELETE' });
+                const json = await res.json();
+                if (json.success) loadGroups();
+                else alert(json.message);
+            } catch(e) { alert('操作失败'); }
+        }
+
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function formatTime(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            return d.toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+        }
+
+        loadGroups();
+    </script>
+</body>
+</html>

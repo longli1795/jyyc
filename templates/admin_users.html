@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 企业经营预测分析平台</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --primary-hover: #3498db;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .main-container {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: #fff;
+            padding: 28px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-header h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .page-header .header-actions { display: flex; gap: 10px; }
+        .page-header .btn { border-radius: 8px; font-size: 14px; }
+        .content { padding: 24px 32px 32px; }
+        .table-container { overflow-x: auto; }
+        .table { margin-bottom: 0; }
+        .table thead th {
+            background: var(--light-bg);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+            padding: 12px 16px;
+            white-space: nowrap;
+        }
+        .table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .table tbody tr:hover { background: #f1f5f9; }
+        .badge-active { background: #d1fae5; color: #065f46; font-weight: 500; padding: 4px 10px; border-radius: 6px; }
+        .badge-disabled { background: #fee2e2; color: #991b1b; font-weight: 500; padding: 4px 10px; border-radius: 6px; }
+        .badge-admin { background: #dbeafe; color: #1e40af; font-weight: 500; padding: 4px 10px; border-radius: 6px; }
+        .btn-sm { border-radius: 6px; font-size: 13px; padding: 4px 10px; }
+        .modal-header { background: var(--light-bg); }
+        .modal-content { border-radius: 12px; border: none; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 头部 -->
+        <div class="page-header">
+            <div>
+                <h2><i class="fas fa-users me-2"></i>用户管理</h2>
+            </div>
+            <div class="header-actions">
+                <a href="/admin/groups" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-layer-group me-1"></i> 分组管理
+                </a>
+                <a href="/" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-home me-1"></i> 返回首页
+                </a>
+                <button class="btn btn-light btn-sm" onclick="showCreateModal()">
+                    <i class="fas fa-plus me-1"></i> 新建用户
+                </button>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="content">
+            <div class="table-container">
+                <table class="table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>姓名</th>
+                            <th>所属分组</th>
+                            <th>角色</th>
+                            <th>状态</th>
+                            <th>最后登录</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody">
+                        <tr><td colspan="8"><div class="empty-state"><i class="fas fa-spinner fa-spin d-block"></i>加载中...</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建/编辑 Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">新建用户</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-3">
+                        <label class="form-label">用户名 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="inputUsername" placeholder="请输入用户名">
+                    </div>
+                    <div class="mb-3" id="passwordGroup">
+                        <label class="form-label">密码 <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="inputPassword" placeholder="请输入密码（至少4位）">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" id="inputDisplayName" placeholder="可选，不填则使用用户名">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">所属分组</label>
+                        <select class="form-select" id="inputGroupId">
+                            <option value="">-- 未分配 --</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="inputIsAdmin">
+                        <label class="form-check-label" for="inputIsAdmin">管理员权限</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="inputIsReadOnly">
+                        <label class="form-check-label" for="inputIsReadOnly">只读用户（仅可查看，不可上传/计算）</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="inputIsDataMaintainer">
+                        <label class="form-check-label" for="inputIsDataMaintainer">基础数据维护员（可编辑基础数据并执行全员发布）</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">可访问页面</label>
+                        <p class="text-muted small mb-2">勾选「首页（全部）」或单独勾选子模块；不勾选首页相关权限则登录后进入基础数据管理（需同时勾选数据管理相关页面）。管理员无需配置即拥有全部权限。</p>
+                        <div id="inputAllowedPages" class="border rounded p-2" style="max-height:320px; overflow-y:auto;">
+                            <span class="text-muted">加载中...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button class="btn btn-primary" id="btnSave" onclick="saveUser()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重置密码 Modal -->
+    <div class="modal fade" id="resetPwdModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">重置密码</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="resetUserId">
+                    <p class="mb-2">用户: <strong id="resetUsername"></strong></p>
+                    <div class="mb-3">
+                        <label class="form-label">新密码 <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="inputNewPassword" placeholder="至少4位">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button class="btn btn-warning" onclick="doResetPassword()">确认重置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let groups = [];
+        let pagePermissions = [];
+
+        // ── 加载数据 ──
+        async function loadPagePermissions() {
+            try {
+                const res = await fetch('/admin/api/page-permissions');
+                const json = await res.json();
+                if (json.success) pagePermissions = json.data;
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadGroups() {
+            try {
+                const res = await fetch('/admin/api/groups');
+                const json = await res.json();
+                if (json.success) groups = json.data;
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/admin/api/users');
+                const json = await res.json();
+                if (!json.success) { usersBody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-exclamation-triangle d-block"></i>加载失败</div></td></tr>'; return; }
+
+                const users = json.data;
+                const tbody = document.getElementById('usersBody');
+
+                if (!users.length) {
+                    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-users d-block"></i>暂无用户</div></td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = users.map(u => `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td><strong>${esc(u.username)}</strong></td>
+                        <td>${esc(u.display_name)}</td>
+                        <td>${esc(u.group_name) || '<span class="text-muted">未分配</span>'}</td>
+                        <td>${u.is_admin ? '<span class="badge-admin"><i class="fas fa-shield-alt me-1"></i>管理员</span>' : (u.is_data_maintainer ? '<span class="badge bg-info text-dark">维护员</span>' : (u.is_read_only ? '<span class="badge bg-secondary">只读</span>' : '普通用户'))}</td>
+                        <td>${u.is_active ? '<span class="badge-active">启用</span>' : '<span class="badge-disabled">禁用</span>'}</td>
+                        <td class="text-muted" style="font-size:13px">${u.last_login ? formatTime(u.last_login) : '-'}</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm me-1" onclick='showEditModal(${JSON.stringify(u)})' title="编辑"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline-warning btn-sm me-1" onclick='showResetPwd(${u.id}, "${esc(u.username)}")' title="重置密码"><i class="fas fa-key"></i></button>
+                            <button class="btn btn-outline-${u.is_active ? 'secondary' : 'success'} btn-sm me-1" onclick="toggleActive(${u.id}, ${!u.is_active})" title="${u.is_active ? '禁用' : '启用'}"><i class="fas fa-${u.is_active ? 'ban' : 'check'}"></i></button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteUser(${u.id}, '${esc(u.username)}')" title="删除"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        // ── 弹窗 ──
+        function fillGroupSelect(selectedId) {
+            const sel = document.getElementById('inputGroupId');
+            sel.innerHTML = '<option value="">-- 未分配 --</option>' +
+                groups.map(g => `<option value="${g.id}" ${g.id == selectedId ? 'selected' : ''}>${esc(g.name)}</option>`).join('');
+        }
+
+        function getGroupSubKeys(groupKey) {
+            const group = pagePermissions.find(p => p.type === 'group' && p.key === groupKey);
+            if (!group || !group.children) return [];
+            return group.children.flatMap(cat => cat.items.map(i => i.key));
+        }
+
+        function syncGroupMaster(groupKey) {
+            const container = document.getElementById('inputAllowedPages');
+            const master = container.querySelector(`.perm-group-master[data-group-key="${groupKey}"]`);
+            if (!master) return;
+            const subs = container.querySelectorAll(`.perm-group-sub[data-group-key="${groupKey}"]`);
+            const total = subs.length;
+            const checked = Array.from(subs).filter(cb => cb.checked).length;
+            master.checked = checked === total && total > 0;
+            master.indeterminate = checked > 0 && checked < total;
+        }
+
+        function bindGroupMasterEvents() {
+            const container = document.getElementById('inputAllowedPages');
+            container.querySelectorAll('.perm-group-master').forEach(master => {
+                const groupKey = master.getAttribute('data-group-key');
+                master.addEventListener('change', function() {
+                    container.querySelectorAll(`.perm-group-sub[data-group-key="${groupKey}"]`).forEach(cb => {
+                        cb.checked = master.checked;
+                    });
+                    master.indeterminate = false;
+                });
+            });
+            container.querySelectorAll('.perm-group-sub').forEach(cb => {
+                const groupKey = cb.getAttribute('data-group-key');
+                cb.addEventListener('change', () => syncGroupMaster(groupKey));
+            });
+        }
+
+        function fillAllowedPagesCheckboxes(selectedKeys) {
+            const container = document.getElementById('inputAllowedPages');
+            if (!pagePermissions.length) {
+                container.innerHTML = '<span class="text-muted">暂无权限项</span>';
+                return;
+            }
+            const set = new Set(selectedKeys || []);
+
+            let html = '';
+            for (const p of pagePermissions) {
+                if (p.type === 'module') {
+                    html += `<div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="allowed_page" value="${esc(p.key)}" id="page_${esc(p.key)}" ${set.has(p.key) ? 'checked' : ''}>
+                        <label class="form-check-label" for="page_${esc(p.key)}">${esc(p.label)}</label>
+                    </div>`;
+                } else if (p.type === 'group') {
+                    const groupKey = p.key;
+                    const subKeys = getGroupSubKeys(groupKey);
+                    const hasFullGroup = set.has(groupKey);
+                    const subsAllChecked = hasFullGroup || (subKeys.length > 0 && subKeys.every(k => set.has(k)));
+                    const subsSomeChecked = hasFullGroup || subKeys.some(k => set.has(k));
+
+                    html += `<div class="mt-2 mb-1 border-top pt-2">
+                        <div class="form-check">
+                            <input class="form-check-input perm-group-master" type="checkbox" name="allowed_page" value="${esc(groupKey)}" id="page_${esc(groupKey)}" data-group-key="${esc(groupKey)}" ${subsAllChecked ? 'checked' : ''}>
+                            <label class="form-check-label fw-semibold" for="page_${esc(groupKey)}">${esc(p.label)}（全部）</label>
+                        </div>`;
+                    for (const cat of (p.children || [])) {
+                        html += `<div class="ms-3 mt-1">`;
+                        if (cat.category) {
+                            html += `<div class="text-muted small mb-1">${esc(cat.category)}</div>`;
+                        }
+                        for (const item of cat.items) {
+                            const checked = hasFullGroup || set.has(item.key);
+                            html += `<div class="form-check ms-2">
+                                <input class="form-check-input perm-group-sub" type="checkbox" name="allowed_page" value="${esc(item.key)}" id="page_${esc(item.key)}" data-group-key="${esc(groupKey)}" ${checked ? 'checked' : ''}>
+                                <label class="form-check-label" for="page_${esc(item.key)}">${esc(item.label)}</label>
+                            </div>`;
+                        }
+                        html += `</div>`;
+                    }
+                    html += `</div>`;
+                }
+            }
+            container.innerHTML = html;
+            for (const p of pagePermissions) {
+                if (p.type === 'group') {
+                    const groupKey = p.key;
+                    const subKeys = getGroupSubKeys(groupKey);
+                    const hasFullGroup = set.has(groupKey);
+                    const subsAllChecked = hasFullGroup || (subKeys.length > 0 && subKeys.every(k => set.has(k)));
+                    const subsSomeChecked = hasFullGroup || subKeys.some(k => set.has(k));
+                    const master = container.querySelector(`.perm-group-master[data-group-key="${groupKey}"]`);
+                    if (master && !subsAllChecked && subsSomeChecked) {
+                        master.indeterminate = true;
+                    }
+                }
+            }
+            bindGroupMasterEvents();
+        }
+
+        function showCreateModal() {
+            document.getElementById('modalTitle').textContent = '新建用户';
+            document.getElementById('editUserId').value = '';
+            document.getElementById('inputUsername').value = '';
+            document.getElementById('inputUsername').disabled = false;
+            document.getElementById('inputPassword').value = '';
+            document.getElementById('passwordGroup').style.display = '';
+            document.getElementById('inputDisplayName').value = '';
+            document.getElementById('inputIsAdmin').checked = false;
+            document.getElementById('inputIsReadOnly').checked = false;
+            document.getElementById('inputIsDataMaintainer').checked = false;
+            fillGroupSelect('');
+            fillAllowedPagesCheckboxes([]);
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        function showEditModal(u) {
+            document.getElementById('modalTitle').textContent = '编辑用户';
+            document.getElementById('editUserId').value = u.id;
+            document.getElementById('inputUsername').value = u.username;
+            document.getElementById('inputUsername').disabled = true;
+            document.getElementById('passwordGroup').style.display = 'none';
+            document.getElementById('inputDisplayName').value = u.display_name;
+            document.getElementById('inputIsAdmin').checked = u.is_admin;
+            document.getElementById('inputIsReadOnly').checked = !!u.is_read_only;
+            document.getElementById('inputIsDataMaintainer').checked = !!u.is_data_maintainer;
+            fillGroupSelect(u.group_id);
+            fillAllowedPagesCheckboxes(u.allowed_pages || []);
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        function showResetPwd(id, name) {
+            document.getElementById('resetUserId').value = id;
+            document.getElementById('resetUsername').textContent = name;
+            document.getElementById('inputNewPassword').value = '';
+            new bootstrap.Modal(document.getElementById('resetPwdModal')).show();
+        }
+
+        // ── CRUD 操作 ──
+        async function saveUser() {
+            const uid = document.getElementById('editUserId').value;
+            const isEdit = !!uid;
+            const allowedPages = Array.from(document.querySelectorAll('input[name="allowed_page"]:checked')).map(el => el.value);
+            const body = {
+                display_name: document.getElementById('inputDisplayName').value.trim(),
+                group_id: document.getElementById('inputGroupId').value || null,
+                is_admin: document.getElementById('inputIsAdmin').checked,
+                is_read_only: document.getElementById('inputIsReadOnly').checked,
+                is_data_maintainer: document.getElementById('inputIsDataMaintainer').checked,
+                allowed_pages: allowedPages
+            };
+            if (!isEdit) {
+                body.username = document.getElementById('inputUsername').value.trim();
+                body.password = document.getElementById('inputPassword').value;
+            }
+
+            const url = isEdit ? `/admin/api/users/${uid}` : '/admin/api/users';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+                const json = await res.json();
+                if (json.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+                    loadUsers();
+                } else {
+                    alert(json.message);
+                }
+            } catch(e) { alert('操作失败'); }
+        }
+
+        async function doResetPassword() {
+            const uid = document.getElementById('resetUserId').value;
+            const pwd = document.getElementById('inputNewPassword').value;
+            try {
+                const res = await fetch(`/admin/api/users/${uid}/reset-password`, {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ password: pwd })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('resetPwdModal')).hide();
+                    alert('密码已重置');
+                } else { alert(json.message); }
+            } catch(e) { alert('操作失败'); }
+        }
+
+        async function toggleActive(uid, active) {
+            try {
+                const res = await fetch(`/admin/api/users/${uid}`, {
+                    method: 'PUT', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ is_active: active })
+                });
+                const json = await res.json();
+                if (json.success) loadUsers();
+                else alert(json.message);
+            } catch(e) { alert('操作失败'); }
+        }
+
+        async function deleteUser(uid, name) {
+            if (!confirm(`确定要删除用户「${name}」吗？此操作不可撤销。`)) return;
+            try {
+                const res = await fetch(`/admin/api/users/${uid}`, { method: 'DELETE' });
+                const json = await res.json();
+                if (json.success) loadUsers();
+                else alert(json.message);
+            } catch(e) { alert('操作失败'); }
+        }
+
+        // ── 工具 ──
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function formatTime(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            return d.toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+        }
+
+        // ── 初始化 ──
+        (async function() {
+            await loadPagePermissions();
+            await loadGroups();
+            await loadUsers();
+            fillAllowedPagesCheckboxes([]);
+        })();
+    </script>
+</body>
+</html>

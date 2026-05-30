@@ -1,0 +1,1804 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>当期拆解收益测算分析表</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* 页脚Logo样式（品牌色） */
+        .footer-logo-section {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-logo {
+            height: 60px;
+            max-width: 120px;
+            min-width: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: var(--brand-light);
+            padding: 8px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .footer-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: var(--brand-light);
+        }
+        
+        .footer-company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-company-english {
+            font-size: 14px;
+            font-style: italic;
+            margin: 0 0 8px 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: rgba(250, 249, 245, 0.95);
+        }
+        .footer-slogan {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        :root {
+            /* 品牌色（与首页、brand-and-themes 一致） */
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 40px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+        
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-nav {
+            position: relative;
+            z-index: 99998;
+        }
+        
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单（品牌色） */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+        
+        .content {
+            padding: 40px 32px;
+            overflow: hidden;
+        }
+        
+        .toolbar {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+        
+        #search-input {
+            width: 300px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .section-card {
+            background: var(--brand-light);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .summary-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .table-container {
+            background: var(--brand-light);
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+            max-height: 60vh;
+            width: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--brand-light-gray);
+            border-radius: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--brand-mid-gray);
+            border-radius: 6px;
+            border: 2px solid var(--brand-light-gray);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-mid-gray) var(--brand-light-gray);
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        .table-cost {
+            margin: 0;
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--brand-light);
+            font-size: 14px;
+            table-layout: auto;
+            min-width: 2000px;
+        }
+        
+        .table-cost thead {
+            background: var(--primary-color);
+            color: var(--brand-light);
+        }
+        
+        .table-cost th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .table-cost tbody td {
+            padding: 10px 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        .table-cost tbody td:first-child,
+        .table-cost tbody td:nth-child(2),
+        .table-cost tbody td:nth-child(3) {
+            text-align: left;
+        }
+        
+        .table-cost tbody td:first-child {
+            font-weight: 600;
+        }
+        
+        .table-cost tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .table-cost tbody tr:hover {
+            background: rgba(106, 155, 204, 0.06);
+        }
+        
+        .table-cost tbody tr.total-row {
+            background: var(--brand-light-gray) !important;
+            font-weight: 600;
+        }
+        
+        .table-cost tbody tr.total-row td {
+            border-top: 2px solid var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .calculated-value {
+            background: rgba(120, 140, 93, 0.15) !important;
+            font-weight: 600;
+            color: var(--brand-green);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+        
+        .formula-card {
+            background: linear-gradient(135deg, rgba(106, 155, 204, 0.08) 0%, rgba(232, 230, 220, 0.9) 100%);
+            border: 1px solid var(--brand-light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .formula-card h5 {
+            color: var(--primary-color);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .formula-item {
+            background: var(--brand-light);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--brand-blue);
+        }
+        
+        .formula-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .formula-item .label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+        
+        .formula-item .source {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .formula-item .source .page-link {
+            color: var(--info-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .formula-item .source .page-link:hover {
+            text-decoration: underline;
+        }
+        
+        .formula-item .formula {
+            font-size: 13px;
+            color: var(--brand-green);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .toggle-formula {
+            background: transparent;
+            border: 1px solid var(--info-color);
+            color: var(--info-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-formula:hover {
+            background: var(--info-color);
+            color: var(--brand-light);
+        }
+
+        /* 计算基准切换按钮激活态 */
+        .toggle-formula.is-active {
+            background: var(--info-color);
+            color: var(--brand-light);
+        }
+        
+        .summary-result {
+            background: linear-gradient(135deg, rgba(106, 155, 204, 0.08) 0%, rgba(232, 230, 220, 0.9) 100%);
+            border: 2px solid var(--brand-light-gray);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+        
+        .summary-result-title {
+            font-size: 22px;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .summary-item {
+            background: var(--brand-light);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .summary-item-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .summary-item-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--brand-green);
+        }
+        
+        .positive-value {
+            color: var(--brand-green);
+        }
+        
+        .negative-value {
+            color: var(--danger-color);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: rgba(197, 48, 48, 0.1);
+            color: var(--danger-color);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 24px 20px;
+            }
+            
+            .header {
+                padding: 32px 20px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .footer-logo {
+                height: 50px;
+                max-width: 100px;
+                min-width: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container animate__animated animate__fadeIn">
+            <!-- Header -->
+            <div class="header">
+                <h1>
+                    <i class="fas fa-chart-bar"></i>
+                    当期拆解收益测算分析表
+                </h1>
+                <div class="subtitle">按物料代码维度展示拆解收益的详细分析数据</div>
+                
+                <!-- 面包屑导航 -->
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link"><i class="fas fa-home"></i> 首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <span class="current">当期拆解收益测算分析表</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="text" id="search-input" placeholder="搜索物料代码、物料名称..." onkeyup="handleSearch()">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button class="toggle-formula" onclick="toggleFormula()">
+                            <i class="fas fa-info-circle"></i> 数据来源说明
+                        </button>
+                        <button type="button" class="toggle-formula" id="btn-calc-base" onclick="toggleCalcBase()" title="切换计算基准">
+                            <i class="fas fa-exchange-alt"></i> <span id="calc-base-label">考虑期初库存和库存结余</span>
+                        </button>
+                        <button class="btn btn-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> 导出Excel
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 数据来源及计算公式说明 -->
+                <div class="formula-card" id="formula-card" style="display: none;">
+                    <h5><i class="fas fa-book"></i> 数据来源及计算公式说明</h5>
+                    
+                    <div class="formula-item">
+                        <div class="label">有效物料代码清单</div>
+                        <div class="source">
+                            来源：<a href="/cost-forecast/material-cost/" class="page-link" target="_blank">拆解物原料成本</a> → 筛选条件：本期实际投产数量 > 0（对应字段：非限制使用的库存）
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">拆解数量</div>
+                        <div class="source">
+                            <strong>数据来源分为两类，物料代码相互独立：</strong><br>
+                            第一类（单位：台）：来源：<a href="/cost-forecast/material-cost/" class="page-link" target="_blank">拆解物原料成本</a> → 本期实际投产数量，按"物料代码"统计<br>
+                            第二类（单位：KG）：来源：<a href="/data-management/deducted-data/" class="page-link" target="_blank">被减扣数据（手工）</a> → 筛选类别为"一次拆解产物"、处置类别为"内转屏处置、内转印制板处置、深加工-打包铁、深加工-塑料一破"，按"原物料代码"统计"计算结果(KG)"列数据<br>
+                            <strong>注意：</strong>第二类的"原物料代码"是独立的物料代码，即使与第一类的"物料代码"相同，也会显示为独立的行
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">基金补贴收入</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/subsidy-income/" class="page-link" target="_blank">基金补贴收入</a> → 按物料代码统计"基金补贴收入(元)"
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">产物价值</div>
+                        <div class="formula">
+                            公式：产物价值 = 一次拆解产物产值 + 深加工产物产值
+                        </div>
+                        <div class="source" style="margin-top: 6px;">
+                            一次拆解产物产值：<a href="/revenue-forecast/disassembly-product-output-value/" class="page-link" target="_blank">一次拆解产物产值</a> → 按原物料代码统计<br>
+                            深加工产物产值：<a href="/revenue-forecast/deep-processing-product-output-value/" class="page-link" target="_blank">深加工拆解产物产值</a> → 按原物料代码统计
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">单台产物价值</div>
+                        <div class="formula">
+                            公式：单台产物价值 = 产物价值 ÷ 拆解数量
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">材料成本</div>
+                        <div class="source">
+                            <strong>数据来源分为两类：</strong><br>
+                            第一类（单位：台）：来源：<a href="/cost-forecast/material-cost/" class="page-link" target="_blank">拆解物原料成本</a> → 按物料代码统计"拆解物原料成本"<br>
+                            第二类（单位：KG，考虑期初库存和库存结余）：来源：收入预测 → 导出结果 →「提取结果」sheet → 按"原物料代码"匹配"单价"，公式：材料成本 = 单价 × 拆解数量(KG)
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">材料价差</div>
+                        <div class="formula">
+                            公式：材料价差 = 产物价值 - 材料成本
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">直接人工</div>
+                        <div class="source">
+                            来源：<a href="/cost-forecast/piece-rate-wage/" class="page-link" target="_blank">直接人工成本</a> → 生产工人计件工资 + 分摊固定工资、社保、公积金
+                        </div>
+                        <details class="formula-details formula-direct-labor-opening" style="margin-top: 6px;">
+                            <summary style="cursor: pointer; color: #64748b; font-size: 13px;">展开 6 部分明细（考虑期初库存）</summary>
+                            <ol style="margin: 6px 0 0 1em; padding-left: 1em; color: #475569; font-size: 12px; line-height: 1.6;">
+                                <li>① 旧机计件：直接人工成本页，类别旧机，按物料/产物编码统计工资</li>
+                                <li>② 一次拆解产物计件：按原物料代码匹配统计工资</li>
+                                <li>③ 打包铁/一破计件：直接人工成本页类别打包铁、一破，按原物料代码统计</li>
+                                <li>④ 分摊固定（黑电/白电/冰箱）：按物料/产物编码统计分摊固定成本</li>
+                                <li>⑤ 金属打包分摊：深加工产物编码匹配原物料代码统计；塑料：深加工与原始数据匹配原物料代码统计</li>
+                            </ol>
+                        </details>
+                        <details class="formula-details formula-direct-labor-no-opening" style="margin-top: 6px; display: none;">
+                            <summary style="cursor: pointer; color: #64748b; font-size: 13px;">展开 5 部分明细（不考虑期初库存）</summary>
+                            <ol style="margin: 6px 0 0 1em; padding-left: 1em; color: #475569; font-size: 12px; line-height: 1.6;">
+                                <li>① 旧机计件：同「直接人工成本」页，类别旧机，按物料/产物编码</li>
+                                <li>② 一次拆解产物计件：同页，按原物料代码</li>
+                                <li>③ 打包铁/一破计件：当前「被减扣数据（手工）」+ 深加工系数 ×「计件人工标准管理」一破/打包铁生产计件单价，按原物料代码（与「产物价值」列深加工换算所用被减扣快照可不同）</li>
+                                <li>④ 分摊固定（黑电/白电/冰箱）：同「直接人工成本」页卡片，按物料/产物编码</li>
+                                <li>⑤ 金属打包/塑料分摊：③ 中单物料打包铁计件÷打包铁类计件总额×金属打包岗薪酬池 +（② 单物料一次拆解计件 + ③ 单物料一破计件）÷（本表一次拆解计件合计 + ③ 一破计件合计）×塑料破碎分选岗薪酬池</li>
+                            </ol>
+                        </details>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">制造费用</div>
+                        <div class="source">
+                            来源：<a href="/cost-forecast/manufacturing-cost/" class="page-link" target="_blank">制造费用成本</a>
+                        </div>
+                        <details class="formula-details formula-mfg-opening" style="margin-top: 6px;">
+                            <summary style="cursor: pointer; color: #64748b; font-size: 13px;">考虑期初库存：7部分（间接人工提成含旧机/一次拆解/打包铁一破深加工表、分摊固定含塑料破碎比例、与拆解量相关、与电机入库量手工被减扣、预计月均、环保费、公共费用合并分摊）</summary>
+                        </details>
+                        <details class="formula-details formula-mfg-no-opening" style="margin-top: 6px; display: none;">
+                            <summary style="cursor: pointer; color: #64748b; font-size: 13px;">不考虑期初：①②④⑥⑧同左；③深加工换算×班组长提成单价(一破/打包铁)；⑤生产班组长(塑料破碎)薪酬池按(一次拆解班组长+一破班组长)/总额分摊；⑦电机费取被减扣数据（手工）；⑨环保费取被减扣数据（非手工）；⑩屏费用(直接人工屏+制造费用屏)×内转屏占比；⑪间接人工分摊与公共成本分摊分别按类产值占比</summary>
+                            <ol style="margin: 6px 0 0 1em; padding-left: 1em; color: #475569; font-size: 12px; line-height: 1.6;">
+                                <li>①旧机间接提成 ②一次拆解班组长 ③一破/打包铁班组长(深加工系数口径) ④旧机分摊固定 ⑤塑料破碎班组长薪酬池 ⑥与拆解量相关 ⑦与电机入库量(被减扣数据手工) ⑧预计月均 ⑨环保费(被减扣数据，类别=拆解产物，处置类别=付费处置/内转荧光灯处置) ⑩屏费用分摊 ⑪间接+公共分摊</li>
+                            </ol>
+                        </details>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">期间费用</div>
+                        <div class="source">
+                            来源：<a href="/cost-forecast/period-cost/" class="page-link" target="_blank">期间费用</a> → 按类别分摊
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">收入总额</div>
+                        <div class="formula">
+                            公式：收入总额 = 基金补贴收入 + 产物价值
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">成本总额</div>
+                        <div class="formula">
+                            公式：成本总额 = 材料成本 + 直接人工 + 制造费用（不包含期间费用）
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">毛利额</div>
+                        <div class="formula">
+                            公式：毛利额 = 收入总额 - 成本总额
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">毛利率</div>
+                        <div class="formula">
+                            公式：毛利率 = 毛利额 ÷ 收入总额 × 100%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 统计面板 -->
+                <div class="summary-panel">
+                    <div class="summary-card">
+                        <div class="summary-label">收入总额（元）</div>
+                        <div class="summary-value" id="total-revenue">0.00</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">成本总额（元）</div>
+                        <div class="summary-value" id="total-cost">0.00</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">毛利额（元）</div>
+                        <div class="summary-value" id="total-profit">0.00</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">毛利率</div>
+                        <div class="summary-value" id="total-margin">0.00%</div>
+                    </div>
+                </div>
+                
+                <!-- 详细数据表格 -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fas fa-table"></i>
+                        详细数据
+                    </div>
+                    
+                    <div id="loading" class="loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <div style="margin-top: 12px;">正在加载数据...</div>
+                    </div>
+                    
+                    <div id="error-message" class="error-message" style="display: none;"></div>
+                    
+                    <div class="table-container" id="table-container" style="display: none;">
+                        <table class="table table-cost">
+                            <thead>
+                                <tr>
+                                    <th>类别</th>
+                                    <th>物料代码</th>
+                                    <th>物料名称</th>
+                                    <th>拆解数量</th>
+                                    <th>单位</th>
+                                    <th>基金补贴收入</th>
+                                    <th>产物价值</th>
+                                    <th>单台产物价值</th>
+                                    <th>材料成本</th>
+                                    <th>材料价差</th>
+                                    <th>单台材料价差</th>
+                                    <th>直接人工</th>
+                                    <th class="mfg-no-opening-col" style="display: none;">屏费用分摊</th>
+                                    <th class="mfg-no-opening-col" style="display: none;">间接人工分摊</th>
+                                    <th class="mfg-no-opening-col" style="display: none;">公共成本分摊</th>
+                                    <th class="mfg-no-opening-col" style="display: none;">公共费用(⑪)</th>
+                                    <th>制造费用</th>
+                                    <th>期间费用</th>
+                                    <th>收入总额</th>
+                                    <th>成本总额</th>
+                                    <th>毛利额</th>
+                                    <th>毛利率</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr>
+                                    <td colspan="22" class="text-center text-muted py-4">
+                                        <i class="fas fa-spinner fa-spin"></i> 加载中...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 分类汇总 -->
+                <div class="summary-result">
+                    <div class="summary-result-title">
+                        <i class="fas fa-chart-bar"></i>
+                        分类汇总
+                    </div>
+                    <div class="summary-grid" id="category-summary">
+                        <!-- 动态生成分类汇总 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
+    <script src="/static/js/page_permissions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allData = [];
+        let filteredData = [];
+        
+        // 计算基准切换（占位：仅状态与按钮文案，无计算/接口逻辑）
+        window.calcBaseMode = 'current'; // 'current' | 'deducted'
+        
+        function toggleCalcBase() {
+            window.calcBaseMode = window.calcBaseMode === 'current' ? 'deducted' : 'current';
+            syncCalcBaseLabel();
+            // 强制重新拉数，避免命中旧缓存导致“看起来没切换”
+            sessionStorage.setItem('disassembly_profit_analysis_needs_reload', 'true');
+            sessionStorage.removeItem('disassembly_profit_analysis_data');
+            sessionStorage.removeItem('disassembly_profit_analysis_params');
+            loadData();
+        }
+        
+        function syncDirectLaborFormulaBlocks() {
+            const opening = document.querySelector('.formula-direct-labor-opening');
+            const noOpening = document.querySelector('.formula-direct-labor-no-opening');
+            const useNoOpening = window.calcBaseMode !== 'current';
+            if (opening) opening.style.display = useNoOpening ? 'none' : '';
+            if (noOpening) noOpening.style.display = useNoOpening ? '' : 'none';
+        }
+        
+        function syncCalcBaseLabel() {
+            const el = document.getElementById('calc-base-label');
+            if (el) el.textContent = window.calcBaseMode === 'current' ? '不考虑期初库存和库存结余' : '考虑期初库存和库存结余';
+            const btn = document.getElementById('btn-calc-base');
+            if (btn) {
+                const active = window.calcBaseMode !== 'current';
+                btn.classList.toggle('is-active', active);
+                btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+            }
+            syncDirectLaborFormulaBlocks();
+            syncManufacturingFormulaBlocks();
+            syncMfgTableColumns();
+        }
+        
+        function syncManufacturingFormulaBlocks() {
+            const opening = document.querySelector('.formula-mfg-opening');
+            const noOpening = document.querySelector('.formula-mfg-no-opening');
+            const useNoOpening = window.calcBaseMode !== 'current';
+            if (opening) opening.style.display = useNoOpening ? 'none' : '';
+            if (noOpening) noOpening.style.display = useNoOpening ? '' : 'none';
+        }
+        
+        function syncMfgTableColumns() {
+            const show = false;
+            document.querySelectorAll('.mfg-no-opening-col').forEach(el => {
+                el.style.display = show ? '' : 'none';
+            });
+        }
+        
+        // 检查并清除参数变化后的缓存
+        function checkAndClearDisassemblyProfitAnalysisCacheIfParamsChanged() {
+            const predictionPeriod = localStorage.getItem('cost_forecast_prediction_period') || '1';
+            const qualityManagerRatio = localStorage.getItem('coefficient_quality_manager') || '0.7';
+            const qualityGroupRatio = localStorage.getItem('coefficient_quality_group') || '0.9';
+            const warehouseGroupRatio = localStorage.getItem('coefficient_warehouse_group') || '0.9';
+            
+            const currentParams = {
+                predictionPeriod,
+                qualityManagerRatio,
+                qualityGroupRatio,
+                warehouseGroupRatio
+            };
+            
+            const cachedParams = sessionStorage.getItem('disassembly_profit_analysis_params');
+            if (cachedParams) {
+                try {
+                    const params = JSON.parse(cachedParams);
+                    // 如果参数不匹配，清除缓存
+                    if (params.predictionPeriod !== currentParams.predictionPeriod ||
+                        params.qualityManagerRatio !== currentParams.qualityManagerRatio ||
+                        params.qualityGroupRatio !== currentParams.qualityGroupRatio ||
+                        params.warehouseGroupRatio !== currentParams.warehouseGroupRatio) {
+                        console.log('检测到参数变化，清除当期拆解收益测算分析表缓存');
+                        sessionStorage.removeItem('disassembly_profit_analysis_data');
+                        sessionStorage.removeItem('disassembly_profit_analysis_params');
+                    }
+                } catch (e) {
+                    console.warn('解析缓存参数失败:', e);
+                }
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('当期拆解收益测算分析表页面初始化');
+            syncCalcBaseLabel();
+            
+            // 检查参数变化并清除缓存（如果需要）
+            checkAndClearDisassemblyProfitAnalysisCacheIfParamsChanged();
+            
+            // 监听参数变化事件（跨标签页）
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'cost_forecast_prediction_period' || 
+                    e.key === 'coefficient_quality_manager' || 
+                    e.key === 'coefficient_quality_group' || 
+                    e.key === 'coefficient_warehouse_group') {
+                    // 检测到参数变化，清除缓存
+                    console.log('检测到参数变化（跨标签页），清除当期拆解收益测算分析表缓存');
+                    checkAndClearDisassemblyProfitAnalysisCacheIfParamsChanged();
+                } else if (e.key === 'disassembly_profit_analysis_needs_reload') {
+                    // 检测到数据更新标志，设置刷新标志
+                    console.log('检测到数据更新标志（跨标签页），刷新当期拆解收益测算分析表');
+                    sessionStorage.setItem('disassembly_profit_analysis_needs_reload', 'true');
+                    loadData();
+                }
+            });
+            
+            // 监听数据更新事件（同标签页）
+            let lastDataUpdateTime = localStorage.getItem('disassembly_profit_analysis_data_updated') || '0';
+            setInterval(() => {
+                const currentUpdateTime = localStorage.getItem('disassembly_profit_analysis_data_updated');
+                if (currentUpdateTime && currentUpdateTime !== lastDataUpdateTime) {
+                    console.log('检测到数据更新（同标签页），刷新当期拆解收益测算分析表');
+                    lastDataUpdateTime = currentUpdateTime;
+                    sessionStorage.setItem('disassembly_profit_analysis_needs_reload', 'true');
+                    loadData();
+                }
+            }, 2000); // 每2秒检查一次
+            
+            // 监听参数变化事件（同标签页）
+            let lastParams = null;
+            setInterval(() => {
+                checkAndClearDisassemblyProfitAnalysisCacheIfParamsChanged();
+                // 如果参数变化导致缓存被清除，且当前页面可见，则重新加载
+                const cachedParams = sessionStorage.getItem('disassembly_profit_analysis_params');
+                if (!cachedParams && !document.hidden) {
+                    const currentParams = {
+                        predictionPeriod: localStorage.getItem('cost_forecast_prediction_period') || '1',
+                        qualityManagerRatio: localStorage.getItem('coefficient_quality_manager') || '0.7',
+                        qualityGroupRatio: localStorage.getItem('coefficient_quality_group') || '0.9',
+                        warehouseGroupRatio: localStorage.getItem('coefficient_warehouse_group') || '0.9'
+                    };
+                    const currentParamsStr = JSON.stringify(currentParams);
+                    if (lastParams && lastParams !== currentParamsStr) {
+                        console.log('检测到参数变化（同标签页），重新加载当期拆解收益测算分析表');
+                        loadData();
+                    }
+                    lastParams = currentParamsStr;
+                }
+            }, 2000); // 每2秒检查一次
+            
+            loadData();
+        });
+        
+        // 加载数据
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('error-message');
+            const tableContainer = document.getElementById('table-container');
+            
+            try {
+                // 获取当前参数
+                const predictionPeriod = localStorage.getItem('cost_forecast_prediction_period') || '1';
+                const qualityManagerRatio = localStorage.getItem('coefficient_quality_manager') || '0.7';
+                const qualityGroupRatio = localStorage.getItem('coefficient_quality_group') || '0.9';
+                const warehouseGroupRatio = localStorage.getItem('coefficient_warehouse_group') || '0.9';
+                const considerOpeningStock = window.calcBaseMode === 'current';
+                
+                // 构建当前参数对象（含计算基准，用于缓存 key）
+                const currentParams = {
+                    predictionPeriod,
+                    qualityManagerRatio,
+                    qualityGroupRatio,
+                    warehouseGroupRatio,
+                    considerOpeningStock
+                };
+                
+                // 检查是否需要强制刷新
+                const needsReload = sessionStorage.getItem('disassembly_profit_analysis_needs_reload') === 'true';
+                
+                // 检查缓存
+                if (!needsReload) {
+                    const cachedData = sessionStorage.getItem('disassembly_profit_analysis_data');
+                    const cachedParams = sessionStorage.getItem('disassembly_profit_analysis_params');
+                    
+                    if (cachedData && cachedParams) {
+                        try {
+                            const params = JSON.parse(cachedParams);
+                            // 检查参数是否匹配（含计算基准）
+                            if (params.predictionPeriod === currentParams.predictionPeriod &&
+                                params.qualityManagerRatio === currentParams.qualityManagerRatio &&
+                                params.qualityGroupRatio === currentParams.qualityGroupRatio &&
+                                params.warehouseGroupRatio === currentParams.warehouseGroupRatio &&
+                                params.considerOpeningStock === currentParams.considerOpeningStock) {
+                                // 参数匹配，使用缓存数据
+                                const data = JSON.parse(cachedData);
+                                allData = data || [];
+                                filteredData = allData;
+                                
+                                // 确保UI元素正确显示
+                                loading.style.display = 'none';
+                                errorMessage.style.display = 'none';
+                                tableContainer.style.display = 'block';
+                                
+                                updateDisplay();
+                                
+                                console.log('使用缓存的当期拆解收益测算分析表数据');
+                                return; // 直接返回，不发起API请求
+                            } else {
+                                // 参数不匹配，清除旧缓存
+                                console.log('参数已变化，清除旧缓存');
+                                sessionStorage.removeItem('disassembly_profit_analysis_data');
+                                sessionStorage.removeItem('disassembly_profit_analysis_params');
+                            }
+                        } catch (e) {
+                            console.warn('解析缓存数据失败，将重新加载:', e);
+                            sessionStorage.removeItem('disassembly_profit_analysis_data');
+                            sessionStorage.removeItem('disassembly_profit_analysis_params');
+                        }
+                    }
+                } else {
+                    // 需要强制刷新，清除缓存和标志
+                    console.log('检测到强制刷新标志，清除缓存并重新加载');
+                    sessionStorage.removeItem('disassembly_profit_analysis_data');
+                    sessionStorage.removeItem('disassembly_profit_analysis_params');
+                    sessionStorage.removeItem('disassembly_profit_analysis_needs_reload');
+                }
+                
+                // 从API获取数据
+                loading.style.display = 'block';
+                errorMessage.style.display = 'none';
+                tableContainer.style.display = 'none';
+                
+                const considerOpeningStockParam = considerOpeningStock ? 'true' : 'false';
+                const url = `/api/statistics/disassembly-profit-analysis?prediction_period=${predictionPeriod}&quality_manager_ratio=${qualityManagerRatio}&quality_group_ratio=${qualityGroupRatio}&warehouse_group_ratio=${warehouseGroupRatio}&consider_opening_stock=${considerOpeningStockParam}`;
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || '获取数据失败');
+                }
+                
+                // 保存到缓存
+                allData = result.data || [];
+                filteredData = allData;
+                sessionStorage.setItem('disassembly_profit_analysis_data', JSON.stringify(allData));
+                sessionStorage.setItem('disassembly_profit_analysis_params', JSON.stringify(currentParams));
+                
+                updateDisplay();
+                
+                loading.style.display = 'none';
+                tableContainer.style.display = 'block';
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                loading.style.display = 'none';
+                errorMessage.textContent = '加载数据失败: ' + error.message;
+                errorMessage.style.display = 'block';
+            }
+        }
+        
+        // 更新显示
+        function updateDisplay() {
+            syncMfgTableColumns();
+            updateSummaryPanel();
+            updateDataTable();
+            updateCategorySummary();
+        }
+        
+        // 更新统计面板
+        function updateSummaryPanel() {
+            const totalRevenue = filteredData.reduce((sum, item) => sum + (parseFloat(item['收入总额'] || 0)), 0);
+            const totalCost = filteredData.reduce((sum, item) => sum + (parseFloat(item['成本总额'] || 0)), 0);
+            const totalProfit = filteredData.reduce((sum, item) => sum + (parseFloat(item['毛利额'] || 0)), 0);
+            const totalMargin = totalRevenue > 0 ? (totalProfit / totalRevenue * 100) : 0;
+            
+            document.getElementById('total-revenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('total-cost').textContent = formatCurrency(totalCost);
+            document.getElementById('total-profit').textContent = formatCurrency(totalProfit);
+            document.getElementById('total-margin').textContent = formatPercent(totalMargin);
+        }
+        
+        // 更新数据表格
+        function updateDataTable() {
+            const tbody = document.getElementById('table-body');
+            
+            const colSpanEmpty = 17;
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${colSpanEmpty}" class="text-center text-muted py-4">
+                            暂无数据
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // 计算合计
+            const totals = {
+                类别: '合计',
+                物料代码: '',
+                物料名称: '',
+                拆解数量: 0,
+                拆解数量_台: 0,  // 单独统计"台"的数量
+                拆解数量_KG: 0,  // 单独统计"KG"的数量
+                基金补贴收入: 0,
+                产物价值: 0,
+                单台产物价值: 0,
+                材料成本: 0,
+                材料价差: 0,
+                单台材料价差: 0,
+                直接人工: 0,
+                屏费用分摊: 0,
+                制造费用间接人工分摊: 0,
+                制造费用公共成本分摊: 0,
+                公共费用分摊: 0,
+                制造费用: 0,
+                期间费用: 0,
+                收入总额: 0,
+                成本总额: 0,
+                毛利额: 0,
+                毛利率: 0
+            };
+            
+            const showMfg = false;
+            const useDirectLaborDetail = false;
+            let html = filteredData.map((row, index) => {
+                // 计算汇总
+                const qty = parseFloat(row['拆解数量'] || 0);
+                const unit = row['单位'] || '';
+                if (unit === '台') {
+                    totals.拆解数量_台 += qty;
+                } else if (unit === 'KG') {
+                    totals.拆解数量_KG += qty;
+                }
+                // 注意：拆解数量不累加，因为单位不同
+                totals.基金补贴收入 += parseFloat(row['基金补贴收入'] || 0);
+                totals.产物价值 += parseFloat(row['产物价值'] || 0);
+                totals.材料成本 += parseFloat(row['材料成本'] || 0);
+                totals.材料价差 += parseFloat(row['材料价差'] || 0);
+                totals.直接人工 += parseFloat(row['直接人工'] || 0);
+                totals.屏费用分摊 += parseFloat(row['屏费用分摊'] || 0);
+                totals.制造费用间接人工分摊 += parseFloat(row['制造费用间接人工分摊'] || 0);
+                totals.制造费用公共成本分摊 += parseFloat(row['制造费用公共成本分摊'] || 0);
+                totals.公共费用分摊 += parseFloat(row['公共费用分摊'] || 0);
+                totals.制造费用 += parseFloat(row['制造费用'] || 0);
+                totals.期间费用 += parseFloat(row['期间费用'] || 0);
+                totals.收入总额 += parseFloat(row['收入总额'] || 0);
+                totals.成本总额 += parseFloat(row['成本总额'] || 0);
+                totals.毛利额 += parseFloat(row['毛利额'] || 0);
+                
+                return `
+                    <tr>
+                        <td>${row['类别'] || ''}</td>
+                        <td>${row['物料代码'] || ''}</td>
+                        <td>${row['物料名称'] || ''}</td>
+                        <td>${formatNumber(row['拆解数量'])}</td>
+                        <td>${row['单位'] || ''}</td>
+                        <td>${formatCurrency(row['基金补贴收入'])}</td>
+                        <td>${formatCurrency(row['产物价值'])}</td>
+                        <td>${formatCurrency(row['单台产物价值'])}</td>
+                        <td>${formatCurrency(row['材料成本'])}</td>
+                        <td class="${parseFloat(row['材料价差'] || 0) >= 0 ? 'positive-value' : 'negative-value'}">${formatCurrency(row['材料价差'])}</td>
+                        <td class="${parseFloat(row['单台材料价差'] || 0) >= 0 ? 'positive-value' : 'negative-value'}">${formatCurrency(row['单台材料价差'])}</td>
+                        <td>${formatDirectLaborDisplay(row['直接人工'], useDirectLaborDetail)}</td>
+                        ${showMfg ? `<td class="mfg-no-opening-col">${formatCurrency(row['屏费用分摊'])}</td>
+                        <td class="mfg-no-opening-col">${formatCurrency(row['制造费用间接人工分摊'])}</td>
+                        <td class="mfg-no-opening-col">${formatCurrency(row['制造费用公共成本分摊'])}</td>
+                        <td class="mfg-no-opening-col">${formatCurrency(row['公共费用分摊'])}</td>` : ''}
+                        <td>${formatCurrency(row['制造费用'])}</td>
+                        <td>${formatCurrency(row['期间费用'])}</td>
+                        <td>${formatCurrency(row['收入总额'])}</td>
+                        <td>${formatCurrency(row['成本总额'])}</td>
+                        <td class="${parseFloat(row['毛利额'] || 0) >= 0 ? 'positive-value' : 'negative-value'}">${formatCurrency(row['毛利额'])}</td>
+                        <td>${formatPercent(row['毛利率'])}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // 计算合计行的单台产物价值和毛利率
+            // 由于拆解数量单位不同，使用"台"的数量计算单台产物价值
+            if (totals.拆解数量_台 > 0) {
+                totals.单台产物价值 = totals.产物价值 / totals.拆解数量_台;
+                totals.单台材料价差 = totals.材料价差 / totals.拆解数量_台;
+            }
+            if (totals.收入总额 > 0) {
+                totals.毛利率 = (totals.毛利额 / totals.收入总额) * 100;
+            }
+            
+            // 格式化拆解数量显示（分别显示台和KG）
+            let disassemblyQtyDisplay = '-';
+            if (totals.拆解数量_台 > 0 || totals.拆解数量_KG > 0) {
+                const parts = [];
+                if (totals.拆解数量_台 > 0) {
+                    parts.push(`${formatNumber(totals.拆解数量_台)} 台`);
+                }
+                if (totals.拆解数量_KG > 0) {
+                    parts.push(`${formatNumber(totals.拆解数量_KG)} KG`);
+                }
+                disassemblyQtyDisplay = parts.join(', ');
+            }
+            
+            // 添加合计行
+            html += `
+                <tr class="total-row">
+                    <td><strong>${totals.类别}</strong></td>
+                    <td></td>
+                    <td></td>
+                    <td><strong>${disassemblyQtyDisplay}</strong></td>
+                    <td><strong>-</strong></td>
+                    <td><strong>${formatCurrency(totals.基金补贴收入)}</strong></td>
+                    <td><strong>${formatCurrency(totals.产物价值)}</strong></td>
+                    <td><strong>${formatCurrency(totals.单台产物价值)}</strong></td>
+                    <td><strong>${formatCurrency(totals.材料成本)}</strong></td>
+                    <td class="${totals.材料价差 >= 0 ? 'positive-value' : 'negative-value'}"><strong>${formatCurrency(totals.材料价差)}</strong></td>
+                    <td class="${totals.单台材料价差 >= 0 ? 'positive-value' : 'negative-value'}"><strong>${formatCurrency(totals.单台材料价差)}</strong></td>
+                    <td><strong>${formatDirectLaborDisplay(totals.直接人工, useDirectLaborDetail)}</strong></td>
+                    ${showMfg ? `<td class="mfg-no-opening-col"><strong>${formatCurrency(totals.屏费用分摊)}</strong></td>
+                    <td class="mfg-no-opening-col"><strong>${formatCurrency(totals.制造费用间接人工分摊)}</strong></td>
+                    <td class="mfg-no-opening-col"><strong>${formatCurrency(totals.制造费用公共成本分摊)}</strong></td>
+                    <td class="mfg-no-opening-col"><strong>${formatCurrency(totals.公共费用分摊)}</strong></td>` : ''}
+                    <td><strong>${formatCurrency(totals.制造费用)}</strong></td>
+                    <td><strong>${formatCurrency(totals.期间费用)}</strong></td>
+                    <td><strong>${formatCurrency(totals.收入总额)}</strong></td>
+                    <td><strong>${formatCurrency(totals.成本总额)}</strong></td>
+                    <td class="${totals.毛利额 >= 0 ? 'positive-value' : 'negative-value'}"><strong>${formatCurrency(totals.毛利额)}</strong></td>
+                    <td><strong>${formatPercent(totals.毛利率)}</strong></td>
+                </tr>
+            `;
+            
+            tbody.innerHTML = html;
+        }
+        
+        // 更新分类汇总
+        function updateCategorySummary() {
+            const categorySummary = {};
+            
+            filteredData.forEach(item => {
+                const category = item['类别'] || '其他';
+                if (!categorySummary[category]) {
+                    categorySummary[category] = {
+                        count: 0,
+                        revenue: 0,
+                        cost: 0,
+                        profit: 0
+                    };
+                }
+                categorySummary[category].count++;
+                categorySummary[category].revenue += parseFloat(item['收入总额'] || 0);
+                categorySummary[category].cost += parseFloat(item['成本总额'] || 0);
+                categorySummary[category].profit += parseFloat(item['毛利额'] || 0);
+            });
+            
+            const summaryGrid = document.getElementById('category-summary');
+            const categories = Object.keys(categorySummary).sort();
+            
+            if (categories.length === 0) {
+                summaryGrid.innerHTML = '<div class="text-center text-muted">暂无分类数据</div>';
+                return;
+            }
+            
+            summaryGrid.innerHTML = categories.map(category => {
+                const summary = categorySummary[category];
+                const margin = summary.revenue > 0 ? (summary.profit / summary.revenue * 100) : 0;
+                return `
+                    <div class="summary-item">
+                        <div class="summary-item-label">${category}</div>
+                        <div class="summary-item-value">${formatCurrency(summary.profit)}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                            记录数: ${summary.count} | 收入: ${formatCurrency(summary.revenue)} | 成本: ${formatCurrency(summary.cost)}<br>
+                            毛利率: ${formatPercent(margin)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 搜索功能
+        function handleSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                filteredData = allData;
+            } else {
+                filteredData = allData.filter(item => {
+                    const materialCode = (item['物料代码'] || '').toLowerCase();
+                    const materialName = (item['物料名称'] || '').toLowerCase();
+                    return materialCode.includes(searchTerm) || materialName.includes(searchTerm);
+                });
+            }
+            
+            updateDisplay();
+        }
+        
+        // 切换数据来源说明
+        function toggleFormula() {
+            const formulaCard = document.getElementById('formula-card');
+            if (formulaCard.style.display === 'none') {
+                formulaCard.style.display = 'block';
+            } else {
+                formulaCard.style.display = 'none';
+            }
+        }
+        
+        // 格式化数字
+        function formatNumber(value) {
+            if (value === null || value === undefined || isNaN(value)) {
+                return '0';
+            }
+            return parseFloat(value).toLocaleString('zh-CN', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        // 格式化货币
+        function formatCurrency(value) {
+            if (value === null || value === undefined || isNaN(value)) {
+                return '0.00';
+            }
+            return parseFloat(value).toLocaleString('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        /** 不考虑期初时直接人工与 Excel SUMIF 对齐，可多显示小数位 */
+        function formatDirectLaborDisplay(value, useDetail) {
+            if (value === null || value === undefined || isNaN(value)) {
+                return '0.00';
+            }
+            const n = parseFloat(value);
+            if (useDetail) {
+                return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+            }
+            return formatCurrency(n);
+        }
+        
+        // 格式化百分比
+        function formatPercent(value) {
+            if (value === null || value === undefined || isNaN(value)) {
+                return '0.00%';
+            }
+            return parseFloat(value).toLocaleString('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + '%';
+        }
+        
+        // 导出Excel
+        async function exportToExcel() {
+            try {
+                const considerOpeningStock = window.calcBaseMode === 'current';
+                const considerParam = considerOpeningStock ? 'true' : 'false';
+                const predictionPeriod = localStorage.getItem('cost_forecast_prediction_period') || '1';
+                const qualityManagerRatio = localStorage.getItem('coefficient_quality_manager') || '0.7';
+                const qualityGroupRatio = localStorage.getItem('coefficient_quality_group') || '0.9';
+                const warehouseGroupRatio = localStorage.getItem('coefficient_warehouse_group') || '0.9';
+                const exportUrl = `/api/statistics/disassembly-profit-analysis/export?prediction_period=${predictionPeriod}&quality_manager_ratio=${qualityManagerRatio}&quality_group_ratio=${qualityGroupRatio}&warehouse_group_ratio=${warehouseGroupRatio}&consider_opening_stock=${considerParam}`;
+                const response = await fetch(exportUrl);
+                
+                if (!response.ok) {
+                    throw new Error('导出失败');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `当期拆解收益测算分析表_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败: ' + error.message);
+            }
+        }
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

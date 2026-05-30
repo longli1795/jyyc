@@ -1,0 +1,1888 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深加工产物成本计算</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 品牌色（与当期拆解收益测算分析表、brand-and-themes 一致） */
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 40px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+        
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-nav {
+            position: relative;
+            z-index: 99998;
+        }
+        
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单（品牌色，与当期拆解收益测算分析表一致） */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配（与当期拆解收益测算分析表一致） */
+        @media (max-width: 768px) {
+            .content {
+                padding: 24px 20px;
+            }
+            
+            .header {
+                padding: 32px 20px;
+            }
+            
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+        
+        .content {
+            padding: 40px 32px;
+            overflow: hidden;
+        }
+        
+        .toolbar {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+        
+        .table-container {
+            background: var(--brand-light);
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+            max-height: 60vh;
+            width: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+
+        .table-container-wrapper {
+            position: relative;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--brand-light-gray);
+            border-radius: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--brand-mid-gray);
+            border-radius: 6px;
+            border: 2px solid var(--brand-light-gray);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-mid-gray) var(--brand-light-gray);
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(20, 20, 19, 0.8);
+            color: var(--brand-light);
+            padding: 12px 8px;
+            border-radius: 6px;
+            z-index: 20;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            font-size: 18px;
+        }
+        
+        .scroll-indicator-right {
+            right: 10px;
+        }
+        
+        .scroll-indicator-left {
+            left: 10px;
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        .table {
+            margin: 0;
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 14px;
+            table-layout: auto;
+        }
+        
+        .table thead {
+            background: var(--primary-color);
+            color: var(--brand-light);
+        }
+        
+        .table thead th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .table tbody td {
+            padding: 10px 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        .table tbody td:first-child,
+        .table tbody td:nth-child(2),
+        .table tbody td:nth-child(3),
+        .table tbody td:nth-child(4) {
+            text-align: left;
+        }
+        
+        .table tbody td:first-child {
+            font-weight: 600;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(106, 155, 204, 0.06);
+        }
+        
+        .highlight-cell {
+            background-color: rgba(120, 140, 93, 0.15) !important;
+            font-weight: 600;
+            color: var(--brand-green);
+        }
+        
+        .table tbody tr.total-row {
+            background: var(--brand-light-gray) !important;
+            font-weight: 600;
+        }
+        
+        .table tbody tr.total-row td {
+            border-top: 2px solid var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .formula-card {
+            background: linear-gradient(135deg, rgba(106, 155, 204, 0.08) 0%, rgba(232, 230, 220, 0.9) 100%);
+            border: 1px solid var(--brand-light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .formula-card h5 {
+            color: var(--primary-color);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .formula-item {
+            background: var(--brand-light);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--brand-blue);
+        }
+        
+        .formula-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .formula-item .label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+        
+        .formula-item .source {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .formula-item .source .page-link {
+            color: var(--info-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .formula-item .source .page-link:hover {
+            text-decoration: underline;
+        }
+        
+        .formula-item .formula {
+            font-size: 13px;
+            color: var(--brand-green);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .toggle-formula {
+            background: transparent;
+            border: 1px solid var(--info-color);
+            color: var(--info-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-formula:hover {
+            background: var(--info-color);
+            color: var(--brand-light);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, #5a8abb 100%);
+            color: var(--brand-light);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-muted {
+            color: var(--text-secondary);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: rgba(197, 48, 48, 0.1);
+            color: var(--danger-color);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        /* 汇总统计面板（对齐当期拆解收益测算分析表 summary-panel / summary-card） */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--brand-green);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* 四机一脑分类统计（与当期拆解收益测算分析表 summary-result / summary-grid / summary-item 一致） */
+        .category-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 0;
+        }
+        
+        @media (max-width: 1200px) {
+            .category-stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .category-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .category-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .category-stat-card {
+            background: var(--brand-light);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .category-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        /* 统一标题行（无彩色条，与 summary-item 稳重风格一致） */
+        .category-stat-header {
+            padding: 12px 16px;
+            color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: var(--font-heading);
+        }
+        
+        .category-stat-header i {
+            font-size: 16px;
+            color: var(--brand-blue);
+        }
+        
+        .category-stat-body {
+            padding: 12px 16px;
+        }
+        
+        .category-stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .category-stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-item-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .stat-item-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .category-stat-footer {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .category-stat-footer span:first-child {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .category-stat-total {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--brand-green);
+        }
+        
+        /* 四机一脑区块（对齐当期拆解收益测算分析表 section-card） */
+        .cost-node {
+            background: var(--brand-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        
+        .cost-node-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .cost-node-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            color: var(--text-primary);
+        }
+        
+        .cost-node-icon {
+            font-size: 24px;
+            color: var(--info-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container animate__animated animate__fadeIn">
+            <!-- Header -->
+            <div class="header">
+                <h1>
+                    <i class="fas fa-cogs"></i>
+                    深加工产物成本计算
+                </h1>
+                <div class="subtitle">计算深加工产物期末单位成本</div>
+                
+                <!-- 面包屑导航 -->
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link"><i class="fas fa-home"></i> 首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <span class="current">深加工产物成本计算</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <input type="hidden" id="prediction-period" value="1">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button class="toggle-formula" onclick="toggleFormula()">
+                            <i class="fas fa-info-circle"></i> 数据来源说明
+                        </button>
+                        <button class="btn btn-success" onclick="exportToExcel()" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-file-excel"></i> 导出Excel
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 深加工产物期末单位成本统计面板 -->
+                <div class="stats-panel" id="summary-panel" style="display: none; margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-value" id="summary-total-records">0</div>
+                        <div class="stat-label">总记录数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="summary-avg-unit-cost">0.00</div>
+                        <div class="stat-label">平均期末单位成本（元/KG）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="summary-total-initial-amount">0.00</div>
+                        <div class="stat-label">期初库存金额合计（元）</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="summary-total-production-cost">0.00</div>
+                        <div class="stat-label">本期生产成本合计（元）</div>
+                    </div>
+                </div>
+                
+                <!-- 数据来源及计算公式说明 -->
+                <div class="formula-card" id="formula-card" style="display: none;">
+                    <h5><i class="fas fa-book"></i> 数据来源及计算公式说明</h5>
+                    
+                    <div class="formula-item">
+                        <div class="label">深加工产物编码</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/deep-processing-product-output-value/" class="page-link">深加工拆解产物产值页面</a> → "深加工产物编码"列
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">深加工产物名称</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/deep-processing-product-output-value/" class="page-link">深加工拆解产物产值页面</a> → "深加工产物名称"列，或从提取结果数据（类别为"打包铁"或"一破"）的"物料描述"列匹配
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">四机一脑类别</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/deep-processing-product-output-value/" class="page-link">深加工拆解产物产值页面</a> → 根据"深加工产物编码"匹配"四机一脑类别"，如果有重复的"深加工产物编码"，按照"深加工拆解产物产值"页"四机一脑类别"分成多行
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">类别</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/deep-processing-product-output-value/" class="page-link">深加工拆解产物产值页面</a> → 根据"深加工产物编码"匹配"类别"
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">期初库存数量</div>
+                        <div class="source">
+                            来源：<a href="/data-management/extracted-data-editor" class="page-link">提取结果数据</a> → 类别为"打包铁"、"一破"、"屏"或"印制板"，按物料代码统计"非限制使用的库存"列，如果有多个类别，默认归类为"电视"
+                        </div>
+                    </div>
+
+                    <div class="formula-item">
+                        <div class="label">期初库存金额</div>
+                        <div class="source">
+                            来源：<a href="/data-management/extracted-data-editor" class="page-link">提取结果数据</a> → 类别为"打包铁"、"一破"、"屏"或"印制板"，按物料代码统计"价值"列
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">当期生产重量</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/deep-processing-product-output-value/" class="page-link">深加工拆解产物产值页面</a> → 按"四机一脑类别"和"深加工产物编码"汇总"深加工结果(KG)"
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">物料产值</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/deep-processing-product-output-value/" class="page-link">深加工拆解产物产值页面</a> → 按"四机一脑类别"和"深加工产物编码"汇总"物料产值（元）"
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">分类产值总数</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/deep-processing-product-output-value/" class="page-link">深加工拆解产物产值页面</a> → 按"类别"汇总"物料产值"
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">分类深加工产物分摊成本</div>
+                        <div class="source">
+                            来源：<a href="/cost-forecast/disassembly-product-cost/" class="page-link">一次拆解产物成本计算页面</a> → 根据类别匹配对应的成本汇总数：<br>
+                            • "打包铁" → "深加工-打包铁（成本）"<br>
+                            • "一破" → "深加工-塑料一破（成本）"<br>
+                            • "屏" → "内转屏处置（成本）"<br>
+                            • "印制板" → "内转印制板处置（成本）"
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">本期生产成本</div>
+                        <div class="formula">
+                            公式：每个"深加工产物编码"对应的物料产值 / 分类产值总数 × 分类深加工产物分摊成本
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">期末单位成本</div>
+                        <div class="formula">
+                            公式：（期初库存金额 + 本期生产成本）/ （期初库存数量 + 当期生产重量）<br>
+                            如果有重复的"深加工产物编码"，期末单位成本 = （期初库存金额1 + 本期生产成本1 + 期初库存金额2 + 本期生产成本2 + ...）/ （期初库存数量1 + 当期生产重量1 + 期初库存数量2 + 当期生产重量2 + ...）
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">销售数量</div>
+                        <div class="source">
+                            来源：<a href="/revenue-forecast/sales-revenue/" class="page-link">销售收益页面</a> → 按照"拆解产物编码"统计"计算结果(KG)"，根据"原物料名称"品类映射规则分类到对应的"四机一脑"类别<br>
+                            映射规则：<br>
+                            • 电视：电视、彩电、CRT其它机壳破碎塑料、线路板边框破碎塑料、等离子、废旧玻璃电子枪、废旧金属荫罩压块铁、黑白<br>
+                            • 电脑：电脑、显示器、笔记本、主机、废旧金属黑色金属-铁及其合金-电子枪<br>
+                            • 冰箱：冰箱、冰柜 | 空调：空调 | 洗衣机：洗衣机、双缸
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">深加工产物销售成本</div>
+                        <div class="formula">
+                            公式：销售数量 × 期末单位成本
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">付费处置（数量）</div>
+                        <div class="source">
+                            默认全部为0
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">付费处置（成本）</div>
+                        <div class="source">
+                            默认全部为0
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">期末库存数量</div>
+                        <div class="formula">
+                            公式：期初库存数量 + 当期生产重量 - 销售数量 - 付费处置（数量）
+                        </div>
+                    </div>
+                    
+                    <div class="formula-item">
+                        <div class="label">期末库存成本</div>
+                        <div class="formula">
+                            公式：期末库存数量 × 期末单位成本
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 四机一脑分类统计卡片 -->
+                <div class="cost-node">
+                    <div class="cost-node-header">
+                        <div class="cost-node-title">
+                            <i class="fas fa-chart-bar cost-node-icon"></i>
+                            四机一脑分类统计
+                        </div>
+                    </div>
+                    
+                    <div class="category-stats-grid" id="four-category-stats-container">
+                        <!-- 电视 -->
+                        <div class="category-stat-card tv">
+                            <div class="category-stat-header">
+                                <i class="fas fa-tv"></i>
+                                <span>电视</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">深加工产物销售成本</span>
+                                    <span class="stat-item-value" id="stat-tv-sales-cost">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-tv-total">0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 电脑 -->
+                        <div class="category-stat-card computer">
+                            <div class="category-stat-header">
+                                <i class="fas fa-desktop"></i>
+                                <span>电脑</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">深加工产物销售成本</span>
+                                    <span class="stat-item-value" id="stat-computer-sales-cost">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-computer-total">0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 冰箱 -->
+                        <div class="category-stat-card fridge">
+                            <div class="category-stat-header">
+                                <i class="fas fa-snowflake"></i>
+                                <span>冰箱</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">深加工产物销售成本</span>
+                                    <span class="stat-item-value" id="stat-fridge-sales-cost">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-fridge-total">0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 空调 -->
+                        <div class="category-stat-card ac">
+                            <div class="category-stat-header">
+                                <i class="fas fa-wind"></i>
+                                <span>空调</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">深加工产物销售成本</span>
+                                    <span class="stat-item-value" id="stat-ac-sales-cost">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-ac-total">0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 洗衣机 -->
+                        <div class="category-stat-card washing">
+                            <div class="category-stat-header">
+                                <i class="fas fa-soap"></i>
+                                <span>洗衣机</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">深加工产物销售成本</span>
+                                    <span class="stat-item-value" id="stat-washing-sales-cost">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-washing-total">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 表格容器 -->
+                <div class="table-container-wrapper">
+                    <!-- 滚动提示（放在滚动容器外层，避免跟随内容横向漂移遮挡数据） -->
+                    <div class="scroll-indicator scroll-indicator-right" id="scroll-indicator-right" style="display: none;">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                    <div class="scroll-indicator scroll-indicator-left" id="scroll-indicator-left" style="display: none;">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="table-container" id="table-container">
+                        <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 100px; white-space: nowrap;">深加工产物编码</th>
+                                <th style="min-width: 150px; white-space: nowrap;">深加工产物名称</th>
+                                <th style="min-width: 100px; white-space: nowrap;">四机一脑类别</th>
+                                <th style="min-width: 80px; white-space: nowrap;">类别</th>
+                                <th style="min-width: 110px; white-space: nowrap;">期初库存数量</th>
+                                <th style="min-width: 110px; white-space: nowrap;">期初库存金额</th>
+                                <th style="min-width: 110px; white-space: nowrap;">当期生产重量</th>
+                                <th style="min-width: 110px; white-space: nowrap;">物料产值</th>
+                                <th style="min-width: 110px; white-space: nowrap;">分类产值总数</th>
+                                <th style="min-width: 140px; white-space: nowrap;">分类深加工产物分摊成本</th>
+                                <th style="min-width: 110px; white-space: nowrap;">本期生产成本</th>
+                                <th style="min-width: 110px; white-space: nowrap;">期末单位成本</th>
+                                <th style="min-width: 110px; white-space: nowrap;">销售数量</th>
+                                <th style="min-width: 140px; white-space: nowrap;">深加工产物销售成本</th>
+                                <th style="min-width: 130px; white-space: nowrap;">付费处置（数量）</th>
+                                <th style="min-width: 130px; white-space: nowrap;">付费处置（成本）</th>
+                                <th style="min-width: 130px; white-space: nowrap;">期末库存数量</th>
+                                <th style="min-width: 130px; white-space: nowrap;">期末库存成本</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-tbody">
+                            <tr>
+                                <td colspan="17" class="text-center text-muted py-4">
+                                    <i class="fas fa-spinner fa-spin"></i> 正在加载数据...
+                                </td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
+    <script src="/static/js/page_permissions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let tableData = [];
+        
+        // 页面加载完成后初始化
+        // 从 localStorage 同步预测期数到隐藏输入框
+        function syncPredictionPeriodFromStorage() {
+            try {
+                const saved = localStorage.getItem('cost_forecast_prediction_period');
+                const n = parseInt(saved, 10);
+                const input = document.getElementById('prediction-period');
+                if (input && !isNaN(n) && n >= 1 && n <= 120) {
+                    input.value = n;
+                }
+            } catch (e) {
+                console.error('读取预测期数失败:', e);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('深加工产物成本计算页面初始化');
+            syncPredictionPeriodFromStorage();
+            loadData();
+            setupScrollIndicators();
+            setupDeductedDataUpdateListeners();
+        });
+        
+        // 监听跨标签页的预测期数变化，自动刷新
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'cost_forecast_prediction_period' && e.newValue) {
+                const n = parseInt(e.newValue, 10);
+                if (!isNaN(n) && n >= 1 && n <= 120) {
+                    const input = document.getElementById('prediction-period');
+                    if (input) input.value = n;
+                    loadData(true);
+                }
+            }
+        });
+        
+        // 更新滚动指示器
+        function updateScrollIndicators() {
+            const container = document.getElementById('table-container');
+            const indicatorRight = document.getElementById('scroll-indicator-right');
+            const indicatorLeft = document.getElementById('scroll-indicator-left');
+            
+            if (!container || !indicatorRight || !indicatorLeft) return;
+            
+            const canScrollRight = container.scrollWidth > container.clientWidth && 
+                                 container.scrollLeft < (container.scrollWidth - container.clientWidth - 10);
+            const canScrollLeft = container.scrollLeft > 10;
+            
+            indicatorRight.style.display = canScrollRight ? 'block' : 'none';
+            indicatorLeft.style.display = canScrollLeft ? 'block' : 'none';
+        }
+        
+        // 设置滚动指示器
+        function setupScrollIndicators() {
+            const container = document.getElementById('table-container');
+            
+            if (!container) return;
+            
+            // 监听滚动事件
+            container.addEventListener('scroll', updateScrollIndicators);
+            
+            // 监听窗口大小变化
+            window.addEventListener('resize', updateScrollIndicators);
+            
+            // 初始检查
+            setTimeout(updateScrollIndicators, 100);
+        }
+        
+        // 设置被减扣数据和可销售量数据更新监听器
+        function setupDeductedDataUpdateListeners() {
+            // 防抖函数，避免频繁刷新
+            let reloadTimeout = null;
+            const debouncedReload = function(source) {
+                if (reloadTimeout) {
+                    clearTimeout(reloadTimeout);
+                }
+                reloadTimeout = setTimeout(() => {
+                    console.log(`检测到${source}数据更新，自动重新计算深加工产物成本...`);
+                    loadData(true); // 强制重新计算
+                }, 500); // 延迟500ms，确保后端数据已保存完成
+            };
+            
+            // 1. 监听 localStorage storage 事件（跨标签页）
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'deducted_data_updated') {
+                    console.log('检测到被减扣数据更新（跨标签页），自动重新计算深加工产物成本...');
+                    debouncedReload('被减扣');
+                } else if (e.key === 'saleable_data_updated') {
+                    console.log('检测到可销售量数据更新（跨标签页），自动重新计算深加工产物成本...');
+                    debouncedReload('可销售量');
+                } else if (e.key === 'product_cost_data_updated_time') {
+                    console.log('检测到全局重算完成（跨标签页），自动重新计算深加工产物成本...');
+                    debouncedReload('全局重算');
+                }
+            });
+            
+            // 2. 使用 setInterval 轮询检查（同标签页）- 被减扣数据
+            let lastDeductedDataUpdateTime = localStorage.getItem('deducted_data_updated_time') || '0';
+            setInterval(() => {
+                const currentUpdateTime = localStorage.getItem('deducted_data_updated_time');
+                if (currentUpdateTime && currentUpdateTime !== lastDeductedDataUpdateTime) {
+                    console.log('检测到被减扣数据更新（同标签页），自动重新计算深加工产物成本...');
+                    lastDeductedDataUpdateTime = currentUpdateTime;
+                    debouncedReload('被减扣');
+                }
+            }, 2000); // 每2秒检查一次
+            
+            // 2. 使用 setInterval 轮询检查（同标签页）- 可销售量数据
+            let lastSaleableDataUpdateTime = localStorage.getItem('saleable_data_updated_time') || '0';
+            setInterval(() => {
+                const currentUpdateTime = localStorage.getItem('saleable_data_updated_time');
+                if (currentUpdateTime && currentUpdateTime !== lastSaleableDataUpdateTime) {
+                    console.log('检测到可销售量数据更新（同标签页），自动重新计算深加工产物成本...');
+                    lastSaleableDataUpdateTime = currentUpdateTime;
+                    debouncedReload('可销售量');
+                }
+            }, 2000); // 每2秒检查一次
+
+            // 2. 使用 setInterval 轮询检查（同标签页）- 全局重算
+            let lastProductCostUpdateTime = localStorage.getItem('product_cost_data_updated_time') || '0';
+            setInterval(() => {
+                const currentUpdateTime = localStorage.getItem('product_cost_data_updated_time');
+                if (currentUpdateTime && currentUpdateTime !== lastProductCostUpdateTime) {
+                    console.log('检测到全局重算完成（同标签页），自动重新计算深加工产物成本...');
+                    lastProductCostUpdateTime = currentUpdateTime;
+                    debouncedReload('全局重算');
+                }
+            }, 2000);
+            
+            // 3. 使用 BroadcastChannel 监听数据更新（如果支持）
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    const updateChannel = new BroadcastChannel('data_updates');
+                    updateChannel.addEventListener('message', function(event) {
+                        if (event.data && event.data.type === 'deducted_data_updated') {
+                            console.log('检测到被减扣数据更新（BroadcastChannel），自动重新计算深加工产物成本...');
+                            debouncedReload('被减扣');
+                        } else if (event.data && event.data.type === 'saleable_data_updated') {
+                            console.log('检测到可销售量数据更新（BroadcastChannel），自动重新计算深加工产物成本...');
+                            debouncedReload('可销售量');
+                        } else if (event.data && event.data.type === 'product_cost_updated') {
+                            console.log('检测到全局重算完成（BroadcastChannel），自动重新计算深加工产物成本...');
+                            debouncedReload('全局重算');
+                        }
+                    });
+                } catch (error) {
+                    console.warn('BroadcastChannel 初始化失败:', error);
+                }
+            }
+        }
+        
+        // 切换公式说明显示
+        function toggleFormula() {
+            const formulaCard = document.getElementById('formula-card');
+            const btn = document.querySelector('.toggle-formula');
+            if (formulaCard.style.display === 'none') {
+                formulaCard.style.display = 'block';
+                btn.innerHTML = '<i class="fas fa-times-circle"></i> 隐藏说明';
+            } else {
+                formulaCard.style.display = 'none';
+                btn.innerHTML = '<i class="fas fa-info-circle"></i> 数据来源说明';
+            }
+        }
+        
+        // 加载数据
+        async function loadData(forceRefresh = false) {
+            const tbody = document.getElementById('data-tbody');
+            const predictionPeriod = document.getElementById('prediction-period').value || 1;
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="17" class="text-center text-muted py-4">
+                        <i class="fas fa-spinner fa-spin"></i> ${forceRefresh ? '正在重新计算...' : '正在加载数据...'}
+                    </td>
+                </tr>
+            `;
+            
+            try {
+                const url = `/api/cost-forecast/deep-processing-product-cost?prediction_period=${predictionPeriod}${forceRefresh ? '&force_refresh=true' : ''}`;
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    tableData = result.data;
+                    renderTable(tableData);
+                    updateSummaryPanel(tableData);
+                    calculateFourCategoryStats(tableData);
+                    // 数据加载后更新滚动指示器
+                    setTimeout(updateScrollIndicators, 200);
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="17" class="text-center text-muted py-4">
+                                <i class="fas fa-info-circle"></i> ${result.error || '暂无数据'}
+                            </td>
+                        </tr>
+                    `;
+                    updateSummaryPanel([]);
+                    calculateFourCategoryStats([]);
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="17" class="text-center text-muted py-4">
+                            <i class="fas fa-exclamation-circle"></i> 加载数据失败: ${error.message}
+                        </td>
+                    </tr>
+                `;
+                updateSummaryPanel([]);
+                calculateFourCategoryStats([]);
+            }
+        }
+        
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('data-tbody');
+            tbody.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="17" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 暂无数据
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                
+                // 深加工产物编码
+                const td1 = document.createElement('td');
+                td1.textContent = row['深加工产物编码'] || '-';
+                tr.appendChild(td1);
+                
+                // 深加工产物名称
+                const td2 = document.createElement('td');
+                td2.textContent = row['深加工产物名称'] || '-';
+                tr.appendChild(td2);
+                
+                // 四机一脑类别
+                const td3 = document.createElement('td');
+                td3.textContent = row['四机一脑类别'] || '-';
+                tr.appendChild(td3);
+                
+                // 类别
+                const td4 = document.createElement('td');
+                td4.textContent = row['类别'] || '-';
+                tr.appendChild(td4);
+                
+                // 期初库存数量
+                const td5 = document.createElement('td');
+                td5.textContent = formatNumber(row['期初库存数量'] || 0, 6);
+                tr.appendChild(td5);
+                
+                // 期初库存金额
+                const td6 = document.createElement('td');
+                td6.textContent = formatNumber(row['期初库存金额'] || 0);
+                tr.appendChild(td6);
+                
+                // 当期生产重量
+                const td7 = document.createElement('td');
+                td7.textContent = formatNumber(row['当期生产重量'] || 0, 6);
+                tr.appendChild(td7);
+                
+                // 物料产值
+                const td8 = document.createElement('td');
+                td8.textContent = formatNumber(row['物料产值'] || 0);
+                tr.appendChild(td8);
+                
+                // 分类产值总数
+                const td9 = document.createElement('td');
+                td9.textContent = formatNumber(row['分类产值总数'] || 0);
+                tr.appendChild(td9);
+                
+                // 分类深加工产物分摊成本
+                const td10 = document.createElement('td');
+                td10.textContent = formatNumber(row['分类深加工产物分摊成本'] || 0);
+                tr.appendChild(td10);
+                
+                // 本期生产成本
+                const td11 = document.createElement('td');
+                td11.textContent = formatNumber(row['本期生产成本'] || 0);
+                tr.appendChild(td11);
+                
+                // 期末单位成本
+                const td12 = document.createElement('td');
+                td12.textContent = formatNumber(row['期末单位成本'] || 0, 6);
+                td12.className = 'highlight-cell';
+                tr.appendChild(td12);
+                
+                // 销售数量
+                const td13 = document.createElement('td');
+                td13.textContent = formatNumber(row['销售数量'] || 0, 6);
+                tr.appendChild(td13);
+                
+                // 深加工产物销售成本
+                const td14 = document.createElement('td');
+                td14.textContent = formatNumber(row['深加工产物销售成本'] || 0, 2);
+                tr.appendChild(td14);
+                
+                // 付费处置（数量）
+                const td15 = document.createElement('td');
+                td15.textContent = formatNumber(row['付费处置（数量）'] || 0, 6);
+                tr.appendChild(td15);
+                
+                // 付费处置（成本）
+                const td16 = document.createElement('td');
+                td16.textContent = formatNumber(row['付费处置（成本）'] || 0, 2);
+                tr.appendChild(td16);
+                
+                // 期末库存数量
+                const td17 = document.createElement('td');
+                td17.textContent = formatNumber(row['期末库存数量'] || 0, 6);
+                tr.appendChild(td17);
+                
+                // 期末库存成本
+                const td18 = document.createElement('td');
+                td18.textContent = formatNumber(row['期末库存成本'] || 0, 2);
+                tr.appendChild(td18);
+                
+                tbody.appendChild(tr);
+            });
+            
+            // 渲染合计行
+            renderTotalRow(data);
+        }
+        
+        // 渲染合计行
+        function renderTotalRow(data) {
+            const tbody = document.getElementById('data-tbody');
+            if (!data || data.length === 0) return;
+            
+            const columns = [
+                { key: '深加工产物编码',         type: 'label',    label: '合计' },
+                { key: '深加工产物名称',         type: 'text' },
+                { key: '四机一脑类别',           type: 'text' },
+                { key: '类别',                   type: 'text' },
+                { key: '期初库存数量',           type: 'sum', decimals: 6 },
+                { key: '期初库存金额',           type: 'sum', decimals: 2 },
+                { key: '当期生产重量',           type: 'sum', decimals: 6 },
+                { key: '物料产值',               type: 'sum', decimals: 2 },
+                { key: '分类产值总数',           type: 'sum', decimals: 2 },
+                { key: '分类深加工产物分摊成本', type: 'sum', decimals: 2 },
+                { key: '本期生产成本',           type: 'sum', decimals: 2 },
+                { key: '期末单位成本',           type: 'dash' },
+                { key: '销售数量',               type: 'sum', decimals: 6 },
+                { key: '深加工产物销售成本',     type: 'sum', decimals: 2 },
+                { key: '付费处置（数量）',       type: 'sum', decimals: 6 },
+                { key: '付费处置（成本）',       type: 'sum', decimals: 2 },
+                { key: '期末库存数量',           type: 'sum', decimals: 6 },
+                { key: '期末库存成本',           type: 'sum', decimals: 2 }
+            ];
+            
+            const totalTr = document.createElement('tr');
+            totalTr.className = 'total-row';
+            
+            columns.forEach(col => {
+                const td = document.createElement('td');
+                if (col.type === 'label') {
+                    td.textContent = col.label;
+                    td.style.textAlign = 'center';
+                } else if (col.type === 'text') {
+                    td.textContent = '';
+                } else if (col.type === 'dash') {
+                    td.textContent = '-';
+                    td.style.textAlign = 'center';
+                } else if (col.type === 'sum') {
+                    let sum = 0;
+                    data.forEach(row => {
+                        const v = parseFloat(row[col.key] || 0);
+                        if (!isNaN(v)) sum += v;
+                    });
+                    td.textContent = formatNumber(sum, col.decimals);
+                }
+                totalTr.appendChild(td);
+            });
+            
+            tbody.appendChild(totalTr);
+        }
+        
+        // 格式化数字
+        function formatNumber(num, decimals = 2) {
+            if (num === null || num === undefined || isNaN(num)) {
+                return '0.' + '0'.repeat(decimals);
+            }
+            return parseFloat(num).toLocaleString('zh-CN', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+        
+        // 更新统计面板
+        function updateSummaryPanel(data) {
+            const summaryPanel = document.getElementById('summary-panel');
+            if (!data || data.length === 0) {
+                summaryPanel.style.display = 'none';
+                return;
+            }
+            
+            summaryPanel.style.display = 'grid';
+            
+            const totalRecords = data.length;
+            let totalInitialAmount = 0;
+            let totalProductionCost = 0;
+            let totalUnitCost = 0;
+            let validUnitCostCount = 0;
+            
+            data.forEach(row => {
+                totalInitialAmount += parseFloat(row['期初库存金额'] || 0);
+                totalProductionCost += parseFloat(row['本期生产成本'] || 0);
+                const unitCost = parseFloat(row['期末单位成本'] || 0);
+                if (unitCost > 0) {
+                    totalUnitCost += unitCost;
+                    validUnitCostCount++;
+                }
+            });
+            
+            const avgUnitCost = validUnitCostCount > 0 ? totalUnitCost / validUnitCostCount : 0;
+            
+            document.getElementById('summary-total-records').textContent = totalRecords;
+            document.getElementById('summary-avg-unit-cost').textContent = formatNumber(avgUnitCost, 6);
+            document.getElementById('summary-total-initial-amount').textContent = formatNumber(totalInitialAmount);
+            document.getElementById('summary-total-production-cost').textContent = formatNumber(totalProductionCost);
+        }
+        
+        // 计算四机一脑分类统计
+        function calculateFourCategoryStats(data) {
+            const stats = {
+                '电视': { salesCost: 0 },
+                '电脑': { salesCost: 0 },
+                '冰箱': { salesCost: 0 },
+                '空调': { salesCost: 0 },
+                '洗衣机': { salesCost: 0 }
+            };
+            
+            if (!data || data.length === 0) {
+                // 数据为空时，将所有值设为0
+                updateFourCategoryStatsDisplay(stats);
+                return;
+            }
+            
+            // 遍历数据，按四机一脑类别汇总深加工产物销售成本
+            data.forEach(row => {
+                const category = String(row['四机一脑类别'] || '').trim();
+                const salesCost = parseFloat(row['深加工产物销售成本'] || 0);
+                
+                if (category && stats.hasOwnProperty(category)) {
+                    stats[category].salesCost += salesCost;
+                }
+            });
+            
+            // 更新页面显示
+            updateFourCategoryStatsDisplay(stats);
+        }
+        
+        // 更新四机一脑分类统计显示
+        function updateFourCategoryStatsDisplay(stats) {
+            const categoryMap = {
+                '电视': 'tv',
+                '电脑': 'computer',
+                '冰箱': 'fridge',
+                '空调': 'ac',
+                '洗衣机': 'washing'
+            };
+            
+            for (const [category, categoryId] of Object.entries(categoryMap)) {
+                const salesCost = stats[category]?.salesCost || 0;
+                const total = salesCost; // 当前只有销售成本，合计等于销售成本
+                
+                // 更新销售成本显示
+                const salesCostElement = document.getElementById(`stat-${categoryId}-sales-cost`);
+                if (salesCostElement) {
+                    salesCostElement.textContent = formatNumber(salesCost, 2);
+                }
+                
+                // 更新合计显示
+                const totalElement = document.getElementById(`stat-${categoryId}-total`);
+                if (totalElement) {
+                    totalElement.textContent = formatNumber(total, 2);
+                }
+            }
+        }
+        
+        // 导出Excel
+        async function exportToExcel(event) {
+            try {
+                // 显示加载提示
+                const exportBtn = event ? event.target.closest('button') : document.querySelector('button[onclick*="exportToExcel"]');
+                const originalText = exportBtn ? exportBtn.innerHTML : '';
+                if (exportBtn) {
+                    exportBtn.disabled = true;
+                    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在导出...';
+                }
+                
+                const predictionPeriod = document.getElementById('prediction-period').value || 1;
+                const response = await fetch(`/api/cost-forecast/deep-processing-product-cost/export?prediction_period=${predictionPeriod}`);
+                
+                if (response.ok) {
+                    // 获取文件名
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let filename = '深加工产物成本计算.xlsx';
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (filenameMatch && filenameMatch[1]) {
+                            filename = filenameMatch[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    // 下载文件
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    // 恢复按钮状态
+                    if (exportBtn) {
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = originalText;
+                    }
+                    
+                    // 显示成功提示
+                    alert('深加工产物成本计算数据导出成功！');
+                } else {
+                    const result = await response.json();
+                    alert('导出失败: ' + (result.error || '未知错误'));
+                    
+                    // 恢复按钮状态
+                    if (exportBtn) {
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = originalText;
+                    }
+                }
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败: ' + error.message);
+                
+                // 恢复按钮状态
+                const exportBtn = event ? event.target.closest('button') : document.querySelector('button[onclick*="exportToExcel"]');
+                if (exportBtn) {
+                    exportBtn.disabled = false;
+                    exportBtn.innerHTML = '<i class="fas fa-file-excel"></i> 导出Excel';
+                }
+            }
+        }
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
+

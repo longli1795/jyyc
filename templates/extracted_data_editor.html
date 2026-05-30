@@ -1,0 +1,2436 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提取结果数据编辑 - 企业经营预测分析平台</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 品牌色（与当期拆解收益测算分析表、brand-and-themes 一致） */
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 40px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+        
+        .header-actions .btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: var(--brand-light);
+        }
+        
+        .header-actions .btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+            color: var(--brand-light);
+        }
+        
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 99998;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-weight: 500;
+        }
+        
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单（品牌色，与当期拆解收益测算分析表一致） */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+        
+        .content {
+            padding: 40px 32px;
+        }
+        
+        /* 统计面板样式（对齐当期拆解收益测算分析表 summary-card） */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* 工具栏样式（与当期拆解收益测算分析表一致） */
+        .toolbar {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+        
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .toolbar-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        /* 表格样式（对齐当期拆解收益测算分析表） */
+        .table-container {
+            background: var(--brand-light);
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+            max-height: 70vh;
+            width: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--brand-light-gray);
+            border-radius: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--brand-mid-gray);
+            border-radius: 6px;
+            border: 2px solid var(--brand-light-gray);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-mid-gray) var(--brand-light-gray);
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        .table-editable {
+            margin: 0;
+            width: 100%;
+            min-width: 1400px;
+            table-layout: auto;
+            border-collapse: collapse;
+        }
+        
+        .table-editable th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table-editable th.editable-header::after {
+            content: "✏️";
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+        }
+        
+        .table-editable th.readonly-header::after {
+            content: "🔒";
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+        }
+        
+        .table-editable td {
+            padding: 8px;
+            font-size: 13px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .table-editable tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .table-editable tbody tr:hover {
+            background: rgba(106, 155, 204, 0.06);
+        }
+        
+        .editable-cell {
+            background-color: var(--brand-light-gray);
+            border: 2px dashed var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+        
+        .editable-cell:hover {
+            background-color: rgba(106, 155, 204, 0.1);
+            border-color: var(--primary-hover);
+        }
+        
+        .editable-cell.modified {
+            background-color: rgba(196, 122, 46, 0.15);
+            border-color: var(--warning-color);
+        }
+        
+        .readonly-cell {
+            background-color: var(--brand-light-gray);
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .calculated-cell {
+            background: rgba(120, 140, 93, 0.15) !important;
+            font-weight: 600;
+            color: var(--brand-green);
+        }
+        
+        /* 只读数据表格表头与斑马纹（#readonly-data-table） */
+        #readonly-data-table {
+            min-width: 900px;
+        }
+        
+        #readonly-data-table thead {
+            background: var(--primary-color);
+            color: var(--brand-light);
+        }
+        
+        #readonly-data-table th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        #readonly-data-table tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        #readonly-data-table tbody tr:hover {
+            background: rgba(106, 155, 204, 0.06);
+        }
+        
+        #readonly-data-table td {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* 按钮（品牌色，与当期拆解收益测算分析表一致） */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            border: none;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+        
+        .btn-info {
+            background: var(--brand-blue);
+            color: var(--brand-light);
+            border: none;
+        }
+        
+        .btn-info:hover:not(:disabled) {
+            filter: brightness(1.1);
+            color: var(--brand-light);
+        }
+        
+        .btn-warning {
+            background: var(--brand-orange);
+            color: var(--brand-light);
+            border: none;
+        }
+        
+        .btn-warning:hover:not(:disabled) {
+            filter: brightness(1.1);
+            color: var(--brand-light);
+        }
+        
+        .btn-outline-warning {
+            border: 1px solid var(--brand-orange);
+            color: var(--brand-orange);
+            background: transparent;
+        }
+        
+        .btn-outline-warning:hover {
+            background: rgba(217, 119, 87, 0.15);
+            color: var(--brand-orange);
+        }
+        
+        /* 标签页（品牌色） */
+        .nav-tabs .nav-link {
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: var(--primary-color);
+            border-color: var(--border-color);
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.08) 100%);
+            color: var(--primary-color);
+            border-color: var(--border-color);
+            border-bottom-color: var(--brand-light);
+            font-weight: 600;
+        }
+        
+        /* 提示与说明区块（品牌浅色系） */
+        .alert-info {
+            background: linear-gradient(135deg, rgba(106, 155, 204, 0.12) 0%, rgba(232, 230, 220, 0.95) 100%);
+            border: 1px solid var(--brand-light-gray);
+            color: var(--text-primary);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(120, 140, 93, 0.12) 0%, rgba(232, 230, 220, 0.95) 100%);
+            border: 1px solid var(--brand-light-gray);
+            color: var(--text-primary);
+        }
+        
+        .alert-light.bg-light-subtle,
+        .alert-light {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%) !important;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .alert-warning {
+            background: rgba(196, 122, 46, 0.12);
+            border: 1px solid var(--brand-light-gray);
+            color: var(--text-primary);
+        }
+        
+        /* 模态框样式（品牌色） */
+        .modal-header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            border-bottom: none;
+        }
+        
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+        
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+        
+        .modal .table-dark,
+        .modal #import-preview-table thead {
+            background: var(--primary-color) !important;
+            color: var(--brand-light);
+        }
+        
+        .modal #import-preview-table th {
+            background: var(--primary-color) !important;
+            color: var(--brand-light);
+            border: none;
+        }
+        
+        /* 加载动画（品牌色） */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 20, 19, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            background: var(--brand-light);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            max-width: 300px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .loading-spinner {
+            border: 4px solid var(--brand-light-gray);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 页脚Logo样式（品牌色，与当期拆解收益测算分析表一致） */
+        .footer-logo-section {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-logo {
+            height: 60px;
+            max-width: 120px;
+            min-width: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: var(--brand-light);
+            padding: 8px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .footer-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: var(--brand-light);
+        }
+        
+        .footer-company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-company-english {
+            font-size: 14px;
+            font-style: italic;
+            margin: 0 0 8px 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: rgba(250, 249, 245, 0.95);
+        }
+        
+        .footer-slogan {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 移动端适配（与当期拆解收益测算分析表一致） */
+        @media (max-width: 768px) {
+            .content {
+                padding: 24px 20px;
+            }
+            
+            .header {
+                padding: 32px 20px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .footer-logo {
+                height: 50px;
+                max-width: 100px;
+                min-width: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container animate__animated animate__fadeIn">
+            <!-- Header -->
+            <div class="header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1>
+                            <i class="fas fa-edit"></i>
+                            提取结果数据编辑
+                        </h1>
+                        <div class="subtitle">编辑"本期计划采购数量"，系统自动计算"本期计划投产数量"和"本期实际投产数量"</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-light btn-sm" onclick="window.location.href='/'">
+                            <i class="fas fa-arrow-left"></i> 返回首页
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link"><i class="fas fa-home"></i> 首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <a href="/revenue-forecast/data-management"><i class="fas fa-database"></i> 基础数据管理</a>
+                    <span class="separator">></span>
+                    <span class="current">提取结果数据编辑</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- 数据统计面板 -->
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-records">0</div>
+                        <div class="stat-label">旧机总记录数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="with-inventory-count">0</div>
+                        <div class="stat-label">有期初库存</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="original-inventory">0</div>
+                        <div class="stat-label">原始总库存</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="current-inventory">0</div>
+                        <div class="stat-label">当前总库存</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="inventory-difference">0</div>
+                        <div class="stat-label">库存变化</div>
+                    </div>
+                    <div class="stat-card" id="modification-status" style="display: none;">
+                        <div class="stat-value text-warning">
+                            <i class="fas fa-edit"></i> 已修改
+                        </div>
+                        <div class="stat-label" id="modification-time">修改时间</div>
+                    </div>
+                </div>
+
+                <!-- 数据类型标签页 -->
+                <div class="nav-tabs-container mb-4">
+                    <ul class="nav nav-tabs nav-fill" id="dataTypeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="readonly-tab" data-bs-toggle="tab" data-bs-target="#readonly-pane" type="button" role="tab">
+                                <i class="fas fa-eye"></i> 提取结果 (只读)
+                                <span class="badge bg-secondary ms-2" id="readonly-count">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab">
+                                <i class="fas fa-edit"></i> 提取结果 (手工)
+                                <span class="badge bg-primary ms-2" id="manual-count">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tab-content" id="dataTypeTabContent">
+                    <!-- 只读数据标签页 -->
+                    <div class="tab-pane fade" id="readonly-pane" role="tabpanel">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>只读模式：</strong>此数据为原始提取结果数据（仅显示"旧机"类别），仅供查看，不参与计算。如需修改请切换到"提取结果(手工)"标签页。
+                        </div>
+                        
+                        <!-- 只读数据的工具栏 -->
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <input type="text" id="search-input-readonly" class="form-control" placeholder="搜索物料代码或名称..." style="min-width: 200px;">
+                            </div>
+                            <div class="toolbar-right">
+                                <button class="btn btn-success" onclick="exportToExcel('readonly')">
+                                    <i class="fas fa-file-excel"></i> 导出Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 只读数据表格 -->
+                        <div class="table-container">
+                            <table class="table table-hover" id="readonly-data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">序号</th>
+                                        <th style="width: 120px;">物料代码</th>
+                                        <th style="width: 180px;">物料描述</th>
+                                        <th style="width: 140px;">本期实际投产数量</th>
+                                        <th style="width: 80px;">单位</th>
+                                        <th style="width: 100px;">类别</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="readonly-tbody">
+                                    <!-- 动态生成的只读数据行 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 手工数据标签页 -->
+                    <div class="tab-pane fade show active" id="manual-pane" role="tabpanel">
+                        <div class="alert alert-success">
+                            <i class="fas fa-tools"></i>
+                            <strong>编辑模式：</strong>此数据为手工编辑的提取结果数据（仅编辑"旧机"类别），可编辑"本期计划采购数量"和"本期实际投产数量"。
+                            <br><small><i class="fas fa-magic"></i> <strong>计算逻辑：</strong>
+                            • 编辑"本期计划采购数量" → 自动计算：本期计划投产数量 = 初始数据 + 本期计划采购数量，本期实际投产数量 = 本期计划投产数量；
+                            • 编辑"本期实际投产数量" → 手工调整最终投产数量，不影响其他列。</small>
+                            <br><small><i class="fas fa-exclamation-triangle text-warning"></i> <strong>编辑顺序：</strong>建议先编辑"本期计划采购数量"，再根据实际情况调整"本期实际投产数量"（可选）。</small>
+                            <br><small><i class="fas fa-filter"></i> <strong>数据范围：</strong>显示内置映射表中全部「旧机」物料；期初库存未上传或库存为 0 的物料初始数据为 0，仍可编辑计划采购数量、计划采购单价、计划投产数量。其他类别（如「一次拆解产物」）不在此编辑。</small>
+                            <br><small><i class="fas fa-save"></i> <strong>保存说明：</strong>修改数据后会自动保存；如需更新完整流程（旧机拆解 → 深加工 → 可销售量），请返回首页点击“重新计算”。</small>
+                        </div>
+
+                        <!-- 操作工具栏 -->
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <input type="text" id="search-input" class="form-control" placeholder="搜索物料代码或名称..." style="min-width: 200px;">
+                            </div>
+                            <div class="toolbar-right">
+                                <!-- Excel操作区域 -->
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-success" onclick="exportToExcel()">
+                                        <i class="fas fa-file-excel"></i> 导出Excel
+                                    </button>
+                                    <button class="btn btn-info" onclick="downloadTemplate()">
+                                        <i class="fas fa-download"></i> 下载模板
+                                    </button>
+                                </div>
+                                <div class="import-section">
+                                    <input type="file" id="excel-import" accept=".xlsx,.xls" style="display: none;" onchange="handleExcelImport(event)">
+                                    <button class="btn btn-warning" onclick="document.getElementById('excel-import').click()">
+                                        <i class="fas fa-file-upload"></i> 导入Excel
+                                    </button>
+                                </div>
+                                <button type="button" class="btn btn-outline-success" id="add-material-row-btn" onclick="openAddRowModal()" disabled title="需先完成「从只读数据初始化」">
+                                    <i class="fas fa-plus"></i> 新增物料行
+                                </button>
+                                
+                                <!-- 其他操作按钮 -->
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-primary" onclick="initializeFromReadonly()" id="init-from-readonly-btn">
+                                        <i class="fas fa-copy"></i> 从只读数据初始化
+                                    </button>
+                                    <button class="btn btn-outline-warning" onclick="resetToOriginal()" id="reset-btn" style="display: none;">
+                                        <i class="fas fa-undo"></i> 恢复原始数据
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 简化使用说明 -->
+                        <div class="alert alert-light border-0 bg-light-subtle mb-3">
+                            <div class="row g-2 text-sm">
+                                <div class="col-md-4">
+                                    <i class="fas fa-edit text-primary"></i> <strong>直接编辑：</strong>点击表格中的"本期计划采购数量"进行修改
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-file-excel text-success"></i> <strong>批量处理：</strong>使用Excel导入导出功能
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-home text-info"></i> <strong>重算入口：</strong>修改后请回首页点击“重新计算”
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 数据编辑表格 -->
+                        <div class="table-container">
+                            <table class="table table-editable table-hover" id="extracted-data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">序号</th>
+                                        <th style="width: 120px;">物料代码</th>
+                                        <th style="width: 150px;">物料描述</th>
+                                        <th class="readonly-header" style="width: 120px;">初始数据</th>
+                                        <th class="editable-header" style="width: 140px;">本期计划采购数量</th>
+                                        <th class="editable-header" style="width: 140px;">计划采购单价</th>
+                                        <th class="readonly-header" style="width: 140px;">本期计划投产数量</th>
+                                        <th class="editable-header" style="width: 140px;">本期实际投产数量</th>
+                                        <th style="width: 80px;">单位</th>
+                                        <th style="width: 100px;">类别</th>
+                                        <th style="width: 100px;">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-tbody">
+                                    <!-- 动态生成的数据行 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excel导入预览和确认模态框 -->
+    <div class="modal fade" id="excelImportModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-file-excel text-success"></i> 
+                        Excel数据导入预览
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 导入统计信息 -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-value text-primary" id="import-total-count">0</div>
+                                <div class="stat-label">导入记录数</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-value text-success" id="import-valid-count">0</div>
+                                <div class="stat-label">有效记录</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-value text-warning" id="import-error-count">0</div>
+                                <div class="stat-label">错误记录</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-value text-info" id="current-count">0</div>
+                                <div class="stat-label">当前数据量</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 导入模式选择 -->
+                    <div class="mb-4">
+                        <h6><i class="fas fa-cog"></i> 导入模式</h6>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="import-mode" id="mode-replace" value="replace" checked>
+                            <label class="form-check-label" for="mode-replace">
+                                <strong>完全覆盖</strong> - 清空现有数据，使用导入数据替换
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="import-mode" id="mode-merge" value="merge">
+                            <label class="form-check-label" for="mode-merge">
+                                <strong>合并更新</strong> - 保留现有数据，更新重复项
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 错误信息显示 -->
+                    <div id="import-errors-section" class="mb-4" style="display: none;">
+                        <h6 class="text-warning"><i class="fas fa-exclamation-triangle"></i> 数据验证错误</h6>
+                        <div class="alert alert-warning">
+                            <div id="import-error-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- 数据预览表格 -->
+                    <div class="table-container" style="max-height: 400px;">
+                        <table class="table table-sm table-striped" id="import-preview-table">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th>状态</th>
+                                    <th>序号</th>
+                                    <th>物料代码</th>
+                                    <th>本期计划采购数量</th>
+                                    <th>错误信息</th>
+                                </tr>
+                            </thead>
+                            <tbody id="import-preview-tbody">
+                                <!-- 动态生成预览数据 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> 取消导入
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="confirmImport()">
+                        <i class="fas fa-upload"></i> 确认导入
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 单行编辑模态框 -->
+    <div class="modal fade" id="editRowModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit"></i> 
+                        编辑本期计划采购数量
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-form">
+                        <div class="mb-3">
+                            <h6><i class="fas fa-info-circle text-info"></i> 基本信息</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">物料代码</label>
+                                    <input type="text" class="form-control" id="edit-material-code" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">物料描述</label>
+                                    <input type="text" class="form-control" id="edit-material-name" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-info-circle text-info"></i> 只读数据</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">初始数据</label>
+                                    <input type="text" class="form-control" id="edit-initial-data" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">本期计划投产数量（自动计算）</label>
+                                    <input type="text" class="form-control" id="edit-production-qty" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="alert alert-warning mb-3">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>编辑顺序说明：</strong>
+                            <br>① 先编辑"本期计划采购数量" → 系统自动计算投产数量
+                            <br>② 再编辑"本期实际投产数量"（可选） → 手工调整最终值，不影响其他列
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-edit text-success"></i> ① 编辑采购信息</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">本期计划采购数量</label>
+                                    <input type="number" class="form-control form-control-lg" id="edit-purchase-qty" step="0.000001" placeholder="输入采购数量">
+                                    <div class="form-text">
+                                        <i class="fas fa-magic text-primary"></i> 
+                                        修改后自动计算：本期计划投产数量 = 初始数据 + 本期计划采购数量
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">计划采购单价</label>
+                                    <input type="number" class="form-control form-control-lg" id="edit-purchase-price" step="0.000001" placeholder="输入采购单价">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle text-info"></i> 
+                                        用于计算单位投料成本
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-edit text-warning"></i> ② 编辑实际投产数量（可选）</h6>
+                            <label class="form-label">本期实际投产数量</label>
+                            <input type="number" class="form-control form-control-lg" id="edit-actual-qty" step="0.000001" placeholder="手工调整最终投产数量">
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb text-warning"></i> 
+                                手工调整最终投产数量，不会反向影响采购数量和计划投产数量
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-light rounded">
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>本期计划投产数量（自动）:</span>
+                                    <strong id="production-preview" class="text-primary">0.000000</strong>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>本期实际投产数量（最终）:</span>
+                                    <strong id="actual-preview" class="text-success">0.000000</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveRowEdit()">
+                        <i class="fas fa-save"></i> 保存修改
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增物料行模态框 -->
+    <div class="modal fade" id="addRowModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle text-success"></i>
+                        新增旧机物料行
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-row-form" onsubmit="event.preventDefault(); saveNewRow();">
+                        <div class="mb-3">
+                            <h6><i class="fas fa-info-circle text-info"></i> 基本信息</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">物料代码 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="add-material-code" required autocomplete="off">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">物料描述 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="add-material-name" required autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">单位</label>
+                                    <input type="text" class="form-control" id="add-unit" placeholder="可选" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="alert alert-light border mb-3">
+                            <small><i class="fas fa-magic text-primary"></i> 本期计划投产数量 = 初始数据 + 本期计划采购数量；留空「本期实际投产数量」时，默认等于计划投产数量。</small>
+                        </div>
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">初始数据</label>
+                                    <input type="number" class="form-control" id="add-initial-data" step="0.000001" value="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">本期计划采购数量</label>
+                                    <input type="number" class="form-control" id="add-purchase-qty" step="0.000001" value="0">
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">计划采购单价</label>
+                                    <input type="number" class="form-control" id="add-purchase-price" step="0.000001" value="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">本期实际投产数量（可选）</label>
+                                    <input type="number" class="form-control" id="add-actual-qty" step="0.000001" placeholder="留空则与计划投产一致">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>本期计划投产数量（预览）:</span>
+                                <strong id="add-production-preview" class="text-primary">0.000000</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>本期实际投产数量（预览）:</span>
+                                <strong id="add-actual-preview" class="text-success">0.000000</strong>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" onclick="saveNewRow()">
+                        <i class="fas fa-save"></i> 保存新增
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div id="loading-text">正在处理...</div>
+        </div>
+    </div>
+
+    <!-- 警告提示区域 -->
+    <div id="alert-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+    <!-- 页脚Logo区域 -->
+    <footer class="footer-logo-section">
+        <div class="container">
+            <div class="footer-content">
+                <img src="/logo/logo.png" alt="四川长虹格润环保科技股份有限公司" class="footer-logo">
+                <div class="footer-text">
+                    <p class="footer-company-name">四川长虹格润环保科技股份有限公司</p>
+                    <p class="footer-company-english">Sichuan Changhong Green Environmental Technology Co., Ltd.</p>
+                    <p class="footer-slogan">专业的环保科技解决方案提供商</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+        <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
+    <script src="/static/js/page_permissions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        let currentData = [];
+        let readonlyData = [];
+        let modifiedData = new Map();
+        let editingRowId = null;
+        let originalPurchaseQty = 0;
+        let originalActualQty = 0;
+        let originalProductionQty = 0;
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('提取结果数据编辑页面初始化');
+            initEventListeners();
+            loadAllData(true);  // 首次加载时自动初始化
+        });
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(filterData, 300));
+            }
+
+            const searchInputReadonly = document.getElementById('search-input-readonly');
+            if (searchInputReadonly) {
+                searchInputReadonly.addEventListener('input', debounce(filterReadonlyData, 300));
+            }
+            
+            // 编辑输入监听
+            const editPurchaseQty = document.getElementById('edit-purchase-qty');
+            if (editPurchaseQty) {
+                editPurchaseQty.addEventListener('input', updateResultPreview);
+            }
+            
+            const editPurchasePrice = document.getElementById('edit-purchase-price');
+            if (editPurchasePrice) {
+                editPurchasePrice.addEventListener('input', updateResultPreview);
+            }
+            
+            const editActualQty = document.getElementById('edit-actual-qty');
+            if (editActualQty) {
+                editActualQty.addEventListener('input', updateResultPreview);
+            }
+
+            ['add-initial-data', 'add-purchase-qty', 'add-purchase-price', 'add-actual-qty'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updateAddRowPreview);
+            });
+        }
+
+        // 防抖函数
+        function debounce(func, delay) {
+            let timeoutId;
+            return function (...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        // 加载所有数据
+        async function loadAllData(autoInitialize = false) {
+            try {
+                showLoading('正在加载数据...');
+                
+                const [readonlyResponse, manualResponse] = await Promise.all([
+                    fetch('/api/data-management/extracted-data?per_page=10000'),
+                    fetch('/api/data-management/extracted-data-manual?per_page=10000')
+                ]);
+                
+                const readonlyResult = await readonlyResponse.json();
+                const manualResult = await manualResponse.json();
+                
+                hideLoading();
+                
+                if (readonlyResult.success && readonlyResult.data) {
+                    readonlyData = readonlyResult.data;
+                } else {
+                    readonlyData = [];
+                }
+                
+                if (manualResult.success && manualResult.data) {
+                    currentData = manualResult.data;
+                } else {
+                    currentData = [];
+                }
+                
+                renderReadonlyTable(readonlyData);
+                renderTable(currentData);
+                updateStatistics();
+                updateTabCounts();
+                await updateComparisonStats();
+                updateButtonStates();
+                
+                // 首次加载时自动初始化
+                if (autoInitialize && currentData.length === 0 && readonlyData.length > 0) {
+                    console.log('🚀 首次进入，自动从只读数据初始化...');
+                    await initializeFromReadonly(true);
+                }
+                
+            } catch (error) {
+                hideLoading();
+                console.error('加载数据失败:', error);
+                showAlert('error', '加载数据失败: ' + error.message);
+            }
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('data-tbody');
+            tbody.innerHTML = '';
+
+            console.log('='.repeat(80));
+            console.log('Rendering Table with data:', data);
+            console.log('Data length:', data ? data.length : 0);
+            if (data && data.length > 0) {
+                console.log('First row:', data[0]);
+                console.log('First row keys:', Object.keys(data[0]));
+                console.log('初始数据 value:', data[0]['初始数据']);
+            }
+            console.log('='.repeat(80));
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            暂无提取结果数据<br>
+                            <small>请先进行数据提取或从只读数据初始化</small>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                const rowId = row['序号'] || (index + 1);
+                
+                const initialData = formatNumber(row['初始数据'] || 0);
+                const purchaseQty = formatNumber(row['本期计划采购数量'] || 0);
+                const purchasePrice = formatNumber(row['计划采购单价'] || 0);
+                const productionQty = formatNumber(row['本期计划投产数量'] || 0);
+                const inventory = formatNumber(row['非限制使用的库存'] || 0);
+                
+                if (index < 3) {
+                    console.log(`Row ${index}:`, {
+                        '初始数据': row['初始数据'],
+                        '本期计划采购数量': row['本期计划采购数量'],
+                        '本期计划投产数量': row['本期计划投产数量'],
+                        '非限制使用的库存': row['非限制使用的库存']
+                    });
+                }
+                
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${row['物料代码'] || ''}</td>
+                    <td title="${row['物料描述'] || ''}">${truncateText(row['物料描述'] || '', 20)}</td>
+                    <td class="readonly-cell">${initialData}</td>
+                    <td class="editable-cell" data-field="本期计划采购数量" data-row-id="${rowId}">
+                        ${purchaseQty}
+                    </td>
+                    <td class="editable-cell" data-field="计划采购单价" data-row-id="${rowId}">
+                        ${purchasePrice}
+                    </td>
+                    <td class="calculated-cell">${productionQty}</td>
+                    <td class="editable-cell" data-field="本期实际投产数量" data-row-id="${rowId}">
+                        ${inventory}
+                    </td>
+                    <td>${row['单位'] || ''}</td>
+                    <td>${row['类别'] || ''}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="openEditModal(${rowId})" title="编辑">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteExtractedRow(${rowId})" title="删除本行">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+
+            // 绑定可编辑单元格事件
+            document.querySelectorAll('.editable-cell').forEach(cell => {
+                cell.addEventListener('click', function() {
+                    const rowId = this.getAttribute('data-row-id');
+                    openEditModal(rowId);
+                });
+            });
+        }
+
+        // 渲染只读表格
+        function renderReadonlyTable(data) {
+            const tbody = document.getElementById('readonly-tbody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            暂无提取结果数据(只读)<br>
+                            <small>请先进行数据提取</small>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                const rowId = row['序号'] || (index + 1);
+                const inventory = formatNumber(row['非限制使用的库存'] || 0);
+                
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${row['物料代码'] || ''}</td>
+                    <td title="${row['物料描述'] || ''}">${truncateText(row['物料描述'] || '', 20)}</td>
+                    <td>${inventory}</td>
+                    <td>${row['单位'] || ''}</td>
+                    <td>${row['类别'] || ''}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 格式化数字显示
+        function formatNumber(value) {
+            if (value === '' || value === null || value === undefined) return '0.000000';
+            const num = parseFloat(value);
+            if (isNaN(num)) return '0.000000';
+            return num.toFixed(6);
+        }
+
+        // 截断文本显示
+        function truncateText(text, maxLength) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // 更新标签页计数
+        function updateTabCounts() {
+            document.getElementById('readonly-count').textContent = readonlyData.length;
+            document.getElementById('manual-count').textContent = currentData.length;
+        }
+
+        // 筛选只读数据
+        function filterReadonlyData() {
+            const searchTerm = document.getElementById('search-input-readonly').value.toLowerCase();
+            
+            let filteredData = readonlyData;
+            
+            if (searchTerm) {
+                filteredData = filteredData.filter(row => {
+                    return (row['物料代码'] && row['物料代码'].toString().toLowerCase().includes(searchTerm)) ||
+                           (row['物料描述'] && row['物料描述'].toLowerCase().includes(searchTerm));
+                });
+            }
+            
+            renderReadonlyTable(filteredData);
+        }
+
+        // 筛选数据
+        function filterData() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+            let filteredData = currentData;
+
+            if (searchTerm) {
+                filteredData = filteredData.filter(row => {
+                    return (row['物料代码'] && row['物料代码'].toString().toLowerCase().includes(searchTerm)) ||
+                           (row['物料描述'] && row['物料描述'].toString().toLowerCase().includes(searchTerm));
+                });
+            }
+
+            renderTable(filteredData);
+        }
+
+        // 打开编辑模态框
+        function openEditModal(rowId) {
+            editingRowId = rowId;
+            
+            const rowData = currentData.find(row => (row['序号'] || 0) == rowId);
+            if (!rowData) {
+                showAlert('error', '未找到行数据');
+                return;
+            }
+            
+            // 保存原始值，用于判断是否手动修改
+            originalPurchaseQty = parseFloat(rowData['本期计划采购数量'] || 0);
+            originalActualQty = parseFloat(rowData['非限制使用的库存'] || 0);
+            originalProductionQty = parseFloat(rowData['本期计划投产数量'] || 0);
+            
+            document.getElementById('edit-material-code').value = rowData['物料代码'] || '';
+            document.getElementById('edit-material-name').value = rowData['物料描述'] || '';
+            document.getElementById('edit-initial-data').value = formatNumber(rowData['初始数据'] || 0);
+            document.getElementById('edit-production-qty').value = formatNumber(rowData['本期计划投产数量'] || 0);
+            document.getElementById('edit-purchase-qty').value = formatNumber(rowData['本期计划采购数量'] || 0);
+            document.getElementById('edit-purchase-price').value = formatNumber(rowData['计划采购单价'] || 0);
+            document.getElementById('edit-actual-qty').value = formatNumber(rowData['非限制使用的库存'] || 0);
+            
+            updateResultPreview();
+            
+            const modal = new bootstrap.Modal(document.getElementById('editRowModal'));
+            modal.show();
+        }
+        
+        // 更新结果预览
+        function updateResultPreview() {
+            const initialData = parseFloat(document.getElementById('edit-initial-data').value) || 0;
+            const purchaseQty = parseFloat(document.getElementById('edit-purchase-qty').value) || 0;
+            const actualQty = parseFloat(document.getElementById('edit-actual-qty').value) || 0;
+            
+            // 计算本期计划投产数量
+            const productionQty = initialData + purchaseQty;
+            document.getElementById('production-preview').textContent = formatNumber(productionQty);
+            
+            // 显示本期实际投产数量（如果用户修改了就显示用户输入的，否则显示计划投产数量）
+            const finalActualQty = actualQty > 0 ? actualQty : productionQty;
+            document.getElementById('actual-preview').textContent = formatNumber(finalActualQty);
+        }
+
+        function updateAddRowPreview() {
+            const initialEl = document.getElementById('add-initial-data');
+            const purchaseEl = document.getElementById('add-purchase-qty');
+            const actualEl = document.getElementById('add-actual-qty');
+            if (!initialEl || !purchaseEl || !actualEl) return;
+            const initialData = parseFloat(initialEl.value) || 0;
+            const purchaseQty = parseFloat(purchaseEl.value) || 0;
+            const productionQty = initialData + purchaseQty;
+            const actualRaw = actualEl.value;
+            const actualQty = (actualRaw === '' || isNaN(parseFloat(actualRaw)))
+                ? productionQty
+                : parseFloat(actualRaw);
+            document.getElementById('add-production-preview').textContent = formatNumber(productionQty);
+            document.getElementById('add-actual-preview').textContent = formatNumber(actualQty);
+        }
+
+        function openAddRowModal() {
+            const addBtn = document.getElementById('add-material-row-btn');
+            if (addBtn && addBtn.disabled) {
+                showAlert('warning', '请先点击「从只读数据初始化」创建手工数据');
+                return;
+            }
+            document.getElementById('add-material-code').value = '';
+            document.getElementById('add-material-name').value = '';
+            document.getElementById('add-unit').value = '';
+            document.getElementById('add-initial-data').value = '0';
+            document.getElementById('add-purchase-qty').value = '0';
+            document.getElementById('add-purchase-price').value = '0';
+            document.getElementById('add-actual-qty').value = '';
+            updateAddRowPreview();
+            const modal = new bootstrap.Modal(document.getElementById('addRowModal'));
+            modal.show();
+        }
+
+        async function saveNewRow() {
+            const code = document.getElementById('add-material-code').value.trim();
+            const name = document.getElementById('add-material-name').value.trim();
+            if (!code || !name) {
+                showAlert('error', '请填写物料代码和物料描述');
+                return;
+            }
+            const initialData = parseFloat(document.getElementById('add-initial-data').value);
+            const purchaseQty = parseFloat(document.getElementById('add-purchase-qty').value);
+            const purchasePrice = parseFloat(document.getElementById('add-purchase-price').value);
+            if (isNaN(initialData) || isNaN(purchaseQty) || isNaN(purchasePrice)) {
+                showAlert('error', '请输入有效的数值');
+                return;
+            }
+            const payload = {
+                '物料代码': code,
+                '物料描述': name,
+                '单位': document.getElementById('add-unit').value.trim(),
+                '初始数据': initialData,
+                '本期计划采购数量': purchaseQty,
+                '计划采购单价': purchasePrice
+            };
+            const actualRaw = document.getElementById('add-actual-qty').value.trim();
+            if (actualRaw !== '' && !isNaN(parseFloat(actualRaw))) {
+                payload['本期实际投产数量'] = parseFloat(actualRaw);
+            }
+            try {
+                showLoading('正在保存...');
+                const response = await fetch('/api/data-management/extracted-data/row', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                hideLoading();
+                if (result.success) {
+                    showAlert('success', result.message || '已新增物料行');
+                    const addModalEl = document.getElementById('addRowModal');
+                    const inst = bootstrap.Modal.getInstance(addModalEl);
+                    if (inst) inst.hide();
+                    await loadAllData(false);
+                } else {
+                    showAlert('error', '新增失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '新增失败: ' + error.message);
+            }
+        }
+
+        async function deleteExtractedRow(rowId) {
+            const id = rowId != null && rowId !== '' ? Number(rowId) : NaN;
+            if (isNaN(id)) {
+                showAlert('error', '无效的行序号');
+                return;
+            }
+            const rowData = currentData.find(row => Number(row['序号']) === id);
+            const code = rowData && rowData['物料代码'] != null ? String(rowData['物料代码']) : '';
+            const desc = rowData && rowData['物料描述'] != null ? String(rowData['物料描述']) : '';
+            const label = [code, desc].filter(Boolean).join(' / ') || `序号 ${id}`;
+            if (!confirm(`确定删除以下旧机物料行吗？\n${label}\n\n删除后请返回首页点击「重新计算」使结果生效。`)) {
+                return;
+            }
+            try {
+                showLoading('正在删除...');
+                const response = await fetch('/api/data-management/extracted-data/row', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ '序号': id })
+                });
+                const result = await response.json();
+                hideLoading();
+                if (result.success) {
+                    showAlert('success', result.message || '已删除');
+                    await loadAllData(false);
+                } else {
+                    showAlert('error', '删除失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '删除失败: ' + error.message);
+            }
+        }
+
+        // 保存行编辑
+        async function saveRowEdit() {
+            if (!editingRowId) {
+                showAlert('error', '没有正在编辑的行');
+                return;
+            }
+            
+            const purchaseQty = parseFloat(document.getElementById('edit-purchase-qty').value);
+            const purchasePrice = parseFloat(document.getElementById('edit-purchase-price').value) || 0;
+            let actualQty = parseFloat(document.getElementById('edit-actual-qty').value);
+            
+            if (isNaN(purchaseQty) || isNaN(actualQty)) {
+                showAlert('error', '请输入有效的数值');
+                return;
+            }
+            
+            // 如果修改了"本期计划采购数量"，且"本期实际投产数量"没有手动修改（仍然是原始值），
+            // 则自动将"本期实际投产数量"设置为新的"本期计划投产数量"
+            const initialData = parseFloat(document.getElementById('edit-initial-data').value) || 0;
+            const newProductionQty = initialData + purchaseQty;
+            const purchaseQtyChanged = Math.abs(purchaseQty - originalPurchaseQty) > 0.000001;
+            const actualQtyNotChanged = Math.abs(actualQty - originalActualQty) < 0.000001;
+            
+            if (purchaseQtyChanged && actualQtyNotChanged) {
+                // 用户修改了"本期计划采购数量"但没有手动修改"本期实际投产数量"
+                // 自动将"本期实际投产数量"设置为新的"本期计划投产数量"
+                actualQty = newProductionQty;
+            }
+            
+            try {
+                showLoading('正在保存...');
+                
+                // 构建修改记录，包含可编辑字段
+                const modifiedRecord = {
+                    '序号': editingRowId,
+                    '本期计划采购数量': purchaseQty,
+                    '计划采购单价': purchasePrice,
+                    '本期实际投产数量': actualQty
+                };
+                
+                const response = await fetch('/api/data-management/extracted-data', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        modified_records: [modifiedRecord]
+                    })
+                });
+                
+                const result = await response.json();
+                hideLoading();
+                
+                console.log('保存响应:', result);
+                console.log('响应状态:', response.status);
+                
+                if (result.success) {
+                    showAlert('success', '数据保存成功，请返回首页点击“重新计算”使结果链路生效');
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editRowModal'));
+                    modal.hide();
+                    
+                    await loadAllData();
+                } else {
+                    console.error('保存失败:', result.error);
+                    showAlert('error', '保存失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '保存失败: ' + error.message);
+            }
+        }
+
+        // 更新统计信息
+        function updateStatistics() {
+            const totalRecords = currentData.length;
+            document.getElementById('total-records').textContent = totalRecords;
+
+            const withInventory = currentData.filter(row => {
+                const initial = parseFloat(row['初始数据']) || 0;
+                return initial > 0;
+            }).length;
+            document.getElementById('with-inventory-count').textContent = withInventory;
+        }
+
+        // 更新对比统计信息（「恢复原始数据」按钮由 updateButtonStates 统一控制，避免与手工表有无冲突）
+        async function updateComparisonStats() {
+            try {
+                const response = await fetch('/api/data-management/extracted-data/comparison');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const stats = result.data;
+                    
+                    document.getElementById('original-inventory').textContent = (stats.original.total_inventory || 0).toFixed(2);
+                    document.getElementById('current-inventory').textContent = (stats.current.total_inventory || 0).toFixed(2);
+                    
+                    const inventoryDiff = stats.difference.inventory || 0;
+                    document.getElementById('inventory-difference').textContent = (inventoryDiff >= 0 ? '+' : '') + inventoryDiff.toFixed(2);
+                    
+                    const modificationStatus = document.getElementById('modification-status');
+                    
+                    if (stats.modified) {
+                        modificationStatus.style.display = 'block';
+                        if (stats.modification_timestamp) {
+                            const modTime = new Date(stats.modification_timestamp);
+                            document.getElementById('modification-time').textContent = '修改于 ' + modTime.toLocaleString('zh-CN');
+                        }
+                    } else {
+                        modificationStatus.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('获取对比统计失败:', error);
+            }
+        }
+
+        // 从只读数据初始化手工数据
+        async function initializeFromReadonly(skipConfirm = false) {
+            try {
+                if (!readonlyData || readonlyData.length === 0) {
+                    showAlert('warning', '没有只读数据可以复制，请先进行数据提取');
+                    return;
+                }
+                
+                // 如果已有数据且不是自动初始化，需要确认
+                if (!skipConfirm && currentData && currentData.length > 0) {
+                    if (!confirm(`当前手工数据中有 ${currentData.length} 条记录，确定要用只读数据覆盖吗？此操作不可撤销。`)) {
+                        return;
+                    }
+                }
+                
+                showLoading('正在初始化手工数据...');
+                
+                const response = await fetch('/api/data-management/extracted-data/initialize-manual', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.success) {
+                    showAlert('success', `手工数据初始化成功！复制了 ${result.copied_count} 条记录。请返回首页点击“重新计算”`);
+                    await loadAllData();
+                    updateButtonStates();
+                } else {
+                    showAlert('error', result.error || '初始化失败');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '初始化失败: ' + error.message);
+            }
+        }
+        
+        // 更新按钮状态
+        function updateButtonStates() {
+            const initBtn = document.getElementById('init-from-readonly-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            
+            console.log('Updating button states:', {
+                currentDataLength: currentData ? currentData.length : 0,
+                readonlyDataLength: readonlyData ? readonlyData.length : 0
+            });
+            
+            if (currentData && currentData.length > 0) {
+                // 有手工数据，显示恢复按钮
+                initBtn.style.display = 'none';
+                resetBtn.style.display = 'inline-block';
+                console.log('Showing reset button (has manual data)');
+            } else {
+                // 没有手工数据，显示初始化按钮
+                initBtn.style.display = 'inline-block';
+                resetBtn.style.display = 'none';
+                console.log('Showing init button (no manual data)');
+            }
+            const addMaterialBtn = document.getElementById('add-material-row-btn');
+            if (addMaterialBtn) {
+                addMaterialBtn.disabled = (resetBtn.style.display !== 'inline-block');
+                if (addMaterialBtn.disabled) {
+                    addMaterialBtn.title = '需先完成「从只读数据初始化」';
+                } else {
+                    addMaterialBtn.removeAttribute('title');
+                }
+            }
+        }
+
+        // 重置到原始数据
+        async function resetToOriginal() {
+            if (!confirm('此操作将恢复所有数据到原始状态，所有修改将丢失。确定要继续吗？')) {
+                return;
+            }
+            
+            try {
+                showLoading('正在重置数据...');
+                
+                const response = await fetch('/api/data-management/extracted-data/reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.success) {
+                    showAlert('success', (result.message || '重置成功') + ' 请返回首页点击“重新计算”');
+                    // 重新加载所有数据
+                    await loadAllData();
+                    // 更新按钮状态
+                    updateButtonStates();
+                } else {
+                    showAlert('error', result.error);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '重置失败: ' + error.message);
+            }
+        }
+
+        // Excel导出功能
+        async function exportToExcel(dataType = 'manual') {
+            try {
+                showLoading('正在生成Excel文件...');
+                
+                let apiUrl = `/api/data-management/export-extracted-data?type=${dataType}`;
+                let filename = dataType === 'readonly' ? 
+                    '提取结果数据(只读).xlsx' : 
+                    '提取结果数据(手工).xlsx';
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('导出失败');
+                }
+
+                // 从响应头获取文件名
+                const contentDisposition = response.headers.get('content-disposition');
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (filenameMatch) {
+                        filename = filenameMatch[1].replace(/['"]/g, '');
+                    }
+                }
+
+                // 下载文件
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                hideLoading();
+                showAlert('success', `Excel文件导出成功: ${filename}`);
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '导出失败: ' + error.message);
+            }
+        }
+
+        // 下载Excel模板
+        async function downloadTemplate() {
+            try {
+                const response = await fetch('/api/data-management/extracted-data/template');
+                if (!response.ok) {
+                    throw new Error('模板下载失败');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '提取结果数据导入模板.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showAlert('success', '模板下载成功');
+            } catch (error) {
+                showAlert('error', '模板下载失败: ' + error.message);
+            }
+        }
+
+        // Excel文件导入处理
+        async function handleExcelImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const validTypes = [
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-excel'
+            ];
+            if (!validTypes.includes(file.type)) {
+                showAlert('error', '请选择有效的Excel文件 (.xlsx 或 .xls)');
+                return;
+            }
+
+            if (file.size > 16 * 1024 * 1024) {
+                showAlert('error', '文件大小不能超过16MB');
+                return;
+            }
+
+            try {
+                showLoading('正在解析Excel文件...');
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/api/data-management/parse-extracted-excel', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    showImportPreview(result.data, result.errors || []);
+                } else {
+                    showAlert('error', result.error || 'Excel文件解析失败');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', 'Excel文件处理失败: ' + error.message);
+            }
+
+            event.target.value = '';
+        }
+
+        // 显示导入预览
+        function showImportPreview(data, errors) {
+            document.getElementById('import-total-count').textContent = data.length;
+            document.getElementById('import-valid-count').textContent = data.filter(row => !row.error).length;
+            document.getElementById('import-error-count').textContent = data.filter(row => row.error).length;
+            document.getElementById('current-count').textContent = currentData.length;
+
+            const errorsSection = document.getElementById('import-errors-section');
+            const errorList = document.getElementById('import-error-list');
+            
+            if (errors.length > 0) {
+                errorsSection.style.display = 'block';
+                errorList.innerHTML = errors.map(error => `<div>• ${error}</div>`).join('');
+            } else {
+                errorsSection.style.display = 'none';
+            }
+
+            const tbody = document.getElementById('import-preview-tbody');
+            tbody.innerHTML = '';
+
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = row.error ? 'table-danger' : 'table-success';
+                
+                tr.innerHTML = `
+                    <td>
+                        ${row.error ? 
+                            '<i class="fas fa-exclamation-circle text-danger"></i>' : 
+                            '<i class="fas fa-check-circle text-success"></i>'
+                        }
+                    </td>
+                    <td>${index + 1}</td>
+                    <td>${row['物料代码'] || ''}</td>
+                    <td>${row['本期计划采购数量'] || ''}</td>
+                    <td class="text-danger">${row.error || ''}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('excelImportModal'));
+            modal.show();
+
+            window.pendingImportData = data.filter(row => !row.error);
+        }
+
+        // 确认导入数据
+        async function confirmImport() {
+            if (!window.pendingImportData || window.pendingImportData.length === 0) {
+                showAlert('warning', '没有有效的数据可以导入');
+                return;
+            }
+
+            const importMode = document.querySelector('input[name="import-mode"]:checked').value;
+            
+            try {
+                showLoading('正在导入数据...');
+
+                const response = await fetch('/api/data-management/import-extracted-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: window.pendingImportData,
+                        mode: importMode
+                    })
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('excelImportModal')).hide();
+                    showAlert('success', `数据导入成功！处理了 ${result.imported_count} 条记录。请返回首页点击“重新计算”`);
+                    await loadAllData();
+                    delete window.pendingImportData;
+                } else {
+                    showAlert('error', result.error || '数据导入失败');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '数据导入失败: ' + error.message);
+            }
+        }
+
+        // 显示加载动画
+        function showLoading(text = '正在处理...') {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        // 隐藏加载动画
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        // 显示警告提示
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertId = 'alert-' + Date.now();
+            
+            const alertHtml = `
+                <div id="${alertId}" class="alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            alertContainer.insertAdjacentHTML('beforeend', alertHtml);
+            
+            setTimeout(() => {
+                const alert = document.getElementById(alertId);
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+        
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
+

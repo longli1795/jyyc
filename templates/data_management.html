@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据管理 - 经营预测系统</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* 品牌色（与当期拆解收益测算分析表、brand-and-themes 一致） */
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 28px 32px 20px;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        .header-user-bar {
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            z-index: 10;
+        }
+
+        .header-user-bar .user-name {
+            opacity: 0.9;
+        }
+
+        .header-user-bar .user-group {
+            opacity: 0.7;
+            margin-left: 4px;
+        }
+
+        .header-user-bar a {
+            color: #fff;
+            opacity: 0.85;
+            text-decoration: none;
+            padding: 3px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 6px;
+            font-size: 12px;
+            transition: opacity 0.2s;
+        }
+
+        .header-user-bar a:hover {
+            opacity: 1;
+            color: #fff;
+        }
+        
+        /* 企业Logo品牌区域 */
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 页脚Logo样式（品牌色） */
+        .footer-logo-section {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-logo {
+            height: 60px;
+            max-width: 120px;
+            min-width: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: var(--brand-light);
+            padding: 8px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .footer-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: var(--brand-light);
+        }
+        
+        .footer-company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-company-english {
+            font-size: 14px;
+            font-style: italic;
+            margin: 0 0 8px 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: rgba(250, 249, 245, 0.95);
+        }
+        .footer-slogan {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .company-info {
+            flex: 1;
+        }
+        
+        .company-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--brand-light);
+            letter-spacing: 0.5px;
+            font-family: var(--font-heading);
+        }
+        
+        .company-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 4px 0 0 0;
+            font-weight: 400;
+        }
+        
+        .system-title-section {
+            padding-right: 300px;
+        }
+
+        .title-block h1 {
+            margin: 0;
+        }
+
+        .header-toolbar {
+            margin-top: 18px;
+            background: rgba(250, 249, 245, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px 4px;
+            box-shadow: 0 6px 20px rgba(20, 20, 19, 0.12);
+        }
+
+        .header-toolbar-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .header-toolbar-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            padding-right: 2px;
+        }
+
+        .header-toolbar-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--border-color);
+            margin: 0 6px;
+            flex-shrink: 0;
+        }
+
+        .header-toolbar-spacer {
+            flex: 1 1 auto;
+            min-width: 8px;
+        }
+
+        .header-toolbar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            background: var(--brand-light);
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .header-toolbar-btn:hover {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(106, 155, 204, 0.15);
+        }
+
+        .header-toolbar-btn.primary {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            border-color: var(--brand-dark);
+            color: var(--brand-light);
+        }
+
+        .header-toolbar-btn.primary:hover {
+            color: var(--brand-light);
+            box-shadow: 0 4px 12px rgba(106, 155, 204, 0.35);
+        }
+
+        .header-toolbar-btn.primary:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .header-toolbar-btn.danger-outline {
+            border-color: rgba(197, 48, 48, 0.45);
+            color: var(--danger-color);
+            background: transparent;
+        }
+
+        .header-toolbar-btn.danger-outline:hover {
+            background: rgba(197, 48, 48, 0.08);
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .header-toolbar-btn i {
+            font-size: 13px;
+        }
+
+        .header-toolbar-period {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--brand-light);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .header-toolbar-period i {
+            color: var(--brand-blue);
+            font-size: 13px;
+        }
+
+        .header-toolbar-period label {
+            margin: 0;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .header-toolbar-period input {
+            width: 56px;
+            padding: 4px 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: #fff;
+            text-align: center;
+            outline: none;
+        }
+
+        .header-toolbar-period input:focus {
+            border-color: var(--brand-blue);
+        }
+
+        .opening-inventory-persist-inline {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .opening-inventory-persist-inline i {
+            margin-right: 4px;
+            color: var(--brand-blue);
+        }
+
+        .opening-inventory-persist-inline a {
+            margin-left: 8px;
+            color: var(--brand-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .opening-inventory-persist-inline a:hover {
+            text-decoration: underline;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+        }
+        
+        .header .subtitle {
+            opacity: 0.88;
+            font-size: 15px;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        
+        /* 面包屑导航样式 */
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 5px 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 99998;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单（品牌色，与当期拆解收益测算分析表一致） */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+        
+        .content {
+            padding: 40px 32px;
+            overflow: hidden;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            border: none;
+            color: var(--brand-light);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+
+        .btn-primary-custom:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-outline-custom {
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            background: transparent;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-outline-custom:hover {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+            transform: translateY(-1px);
+        }
+        
+        .dashboard-card {
+            background: var(--brand-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        /* 收入区块卡片强调色 */
+        .dashboard-card-revenue {
+            border: 2px solid var(--brand-blue);
+            box-shadow: 0 8px 25px rgba(106, 155, 204, 0.15);
+        }
+        .dashboard-card-revenue .card-title,
+        .dashboard-card-revenue .card-stats,
+        .dashboard-card-revenue .badge,
+        .dashboard-card-revenue .fa-star {
+            color: var(--brand-blue) !important;
+        }
+        .dashboard-card-revenue .badge {
+            background: var(--brand-blue) !important;
+        }
+        
+        /* 成本区块卡片强调色 */
+        .dashboard-card-cost {
+            border: 2px solid var(--brand-green);
+            box-shadow: 0 8px 25px rgba(120, 140, 93, 0.15);
+        }
+        .dashboard-card-cost .card-title,
+        .dashboard-card-cost .card-stats,
+        .dashboard-card-cost .badge,
+        .dashboard-card-cost .fa-star {
+            color: var(--brand-green) !important;
+        }
+        .dashboard-card-cost .badge {
+            background: var(--brand-green) !important;
+        }
+        
+        .card-stats {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 40px 0 24px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-heading);
+        }
+        
+        .section-title:first-child {
+            margin-top: 0;
+        }
+        
+        .section-title i {
+            color: var(--primary-color);
+        }
+        
+        .section-title.revenue {
+            border-bottom-color: var(--brand-blue);
+        }
+        
+        .section-title.revenue i {
+            color: var(--brand-blue);
+        }
+        
+        .section-title.cost {
+            border-bottom-color: var(--brand-green);
+        }
+        
+        .section-title.cost i {
+            color: var(--brand-green);
+        }
+        
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .sync-notification-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: #e8f4fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            color: #1565c0;
+            font-size: 14px;
+        }
+
+        .sync-notification-bar .sync-notification-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .sync-notification-bar .btn-sync-accept,
+        .sync-notification-bar .btn-sync-dismiss {
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .sync-notification-bar .btn-sync-accept {
+            background: #1976d2;
+            color: #fff;
+        }
+
+        .sync-notification-bar .btn-sync-dismiss {
+            background: #fff;
+            color: #546e7a;
+            border: 1px solid #cfd8dc;
+        }
+        
+        #dashboard-content {
+            display: block;
+            width: 100%;
+            clear: both;
+        }
+        
+        #dashboard-content .row {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--brand-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-bar {
+            background: var(--brand-light-gray);
+            border-top: 1px solid var(--border-color);
+            padding: 16px 32px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-section {
+            background: linear-gradient(135deg, rgba(106, 155, 204, 0.08) 0%, rgba(232, 230, 220, 0.9) 100%);
+            border: 1px solid var(--brand-light-gray);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+        
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* 内容区 alert 品牌浅色 */
+        .content .alert.alert-light.border {
+            background: rgba(106, 155, 204, 0.08);
+            border-color: var(--brand-light-gray) !important;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            /* 移动端品牌区域调整 */
+            .brand-section {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+                margin-bottom: 16px;
+                padding-bottom: 16px;
+            }
+            
+
+            
+            .company-name {
+                font-size: 16px;
+            }
+            
+            .company-subtitle {
+                font-size: 12px;
+            }
+            
+            /* 移动端头部按钮响应式 */
+            .system-title-section {
+                padding-right: 0;
+            }
+
+            .header-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .header-toolbar-group {
+                width: 100%;
+            }
+
+            .header-toolbar-divider {
+                width: 100%;
+                height: 1px;
+                margin: 0;
+            }
+
+            .header-toolbar-spacer {
+                display: none;
+            }
+
+            .header-toolbar-btn,
+            .header-toolbar-period {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header-toolbar-label {
+                width: 100%;
+                padding-bottom: 2px;
+            }
+            
+            /* 移动端卡片网格调整 */
+            .dashboard-card {
+                margin-bottom: 16px;
+            }
+            
+            .dashboard-card .card-title {
+                font-size: 16px;
+            }
+            
+            .dashboard-card .card-description {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+            
+            /* 移动端页脚样式 */
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .footer-logo {
+                height: 50px;
+                max-width: 100px;
+                min-width: 50px;
+            }
+            
+            .footer-company-name {
+                font-size: 16px;
+            }
+            
+            .footer-company-english {
+                font-size: 12px;
+            }
+            
+            .footer-slogan {
+                font-size: 12px;
+            }
+        }
+
+        /* 脉冲动画效果 */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container animate__animated animate__fadeIn">
+            <!-- Header -->
+            <div class="header">
+                {% if current_user %}
+                <div class="header-user-bar">
+                    <span class="user-name">
+                        <i class="fas fa-user-circle me-1"></i>
+                        {{ current_user.display_name or current_user.username }}
+                        {% if current_user.group %}
+                            <span class="user-group">({{ current_user.group.name }})</span>
+                        {% endif %}
+                    </span>
+                    {% if current_user.is_admin %}
+                    <a href="/admin/users">
+                        <i class="fas fa-cog me-1"></i>管理后台
+                    </a>
+                    {% endif %}
+                    <a href="/docs/operation-manual/" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-book me-1"></i>操作手册
+                    </a>
+                    <a href="#" onclick="openChangePasswordModal(); return false;">
+                        <i class="fas fa-key me-1"></i>修改密码
+                    </a>
+                    <a href="/logout">
+                        <i class="fas fa-sign-out-alt me-1"></i>退出
+                    </a>
+                </div>
+                {% endif %}
+                <!-- 系统标题区域 -->
+                <div class="system-title-section">
+                    <div class="title-block">
+                        <h1>
+                            <i class="fas fa-database"></i>
+                            基础数据管理
+                        </h1>
+                        <div class="subtitle">管理营业收入预测基础数据，支持增删改查和版本控制</div>
+                    </div>
+                </div>
+
+                {% if current_user %}
+                <div class="header-toolbar">
+                    {% if not user_is_read_only %}
+                    <div class="header-toolbar-group">
+                        <span class="header-toolbar-label">数据</span>
+                        <button type="button" class="header-toolbar-btn" id="uploadBtn" title="上传期初库存Excel或CSV文件">
+                            <i class="fas fa-upload"></i>
+                            <span>期初库存上传</span>
+                        </button>
+                        <button type="button" class="header-toolbar-btn primary" id="autoProcessBtn"
+                            {% if not status_info.can_run_calculation %}disabled{% endif %}
+                            title="加载数据并执行计算">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>{% if status_info.has_persistent_data %}重新计算{% else %}加载数据并自动计算{% endif %}</span>
+                        </button>
+                    </div>
+                    <div class="header-toolbar-divider"></div>
+                    <div class="header-toolbar-group">
+                        <span class="header-toolbar-label">共享</span>
+                        <button type="button" class="header-toolbar-btn" id="syncDataBtn" title="将当前数据同步到指定用户或用户组">
+                            <i class="fas fa-share-alt"></i>
+                            <span>同步数据</span>
+                        </button>
+                    </div>
+                    <div class="header-toolbar-divider"></div>
+                    {% endif %}
+                    <div class="header-toolbar-group">
+                        <span class="header-toolbar-label">快照</span>
+                        {% if not user_is_read_only %}
+                        <button type="button" class="header-toolbar-btn" id="saveSnapshotBtn" title="保存当前全部页面数据为复盘快照">
+                            <i class="fas fa-save"></i>
+                            <span>保存快照</span>
+                        </button>
+                        {% endif %}
+                        <button type="button" class="header-toolbar-btn" id="loadSnapshotBtn" title="加载已保存的快照，还原复盘时的全部数据">
+                            <i class="fas fa-folder-open"></i>
+                            <span>加载快照</span>
+                        </button>
+                    </div>
+                    {% if not user_is_read_only %}
+                    <div class="header-toolbar-divider"></div>
+                    <div class="header-toolbar-group">
+                        <div class="header-toolbar-period" title="设置预测期数，影响成本/收入预测计算">
+                            <i class="fas fa-calendar-alt"></i>
+                            <label for="headerPredictionPeriod">预测期数（月）</label>
+                            <input type="number" id="headerPredictionPeriod" min="1" max="120" value="1">
+                        </div>
+                    </div>
+                    <div class="header-toolbar-spacer"></div>
+                    <button type="button" class="header-toolbar-btn danger-outline" id="clearDataBtn" title="清除所有数据"
+                        {% if not status_info.has_persistent_data %}style="display:none;"{% endif %}>
+                        <i class="fas fa-trash-alt"></i>
+                        <span>清除数据</span>
+                    </button>
+                    {% endif %}
+                </div>
+                {% if not user_is_read_only %}
+                <input type="file" id="fileInput" class="d-none" accept=".xlsx,.xls,.csv">
+                {% endif %}
+                {% endif %}
+                
+                <!-- 面包屑导航 -->
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link"><i class="fas fa-home"></i> 首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <span class="current">基础数据管理</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                {% if user_is_read_only %}
+                <div class="alert alert-secondary mb-3" role="alert">
+                    只读模式：仅可查看数据。暂无数据时请联系管理员或有权限同事在<strong>本页或首页</strong>使用「同步数据」为您同步。
+                </div>
+                {% elif current_user %}
+                <div class="alert alert-light border mb-3 py-2 small" role="alert">
+                    可使用「同步数据」将当前数据同步到指定用户或用户组。
+                </div>
+                <div id="firstRunHint" class="alert alert-info mb-3 py-2 small" role="alert"{% if status_info.can_run_calculation %} style="display:none;"{% endif %}>
+                    <i class="fas fa-info-circle me-2"></i>首次使用请先上传期初库存文件，再点击「加载数据并自动计算」。
+                </div>
+                {% endif %}
+                <div id="openingInventoryPersistBar" class="opening-inventory-persist-inline mb-3"{% if not status_info.has_opening_inventory_file %} style="display:none;"{% endif %}>
+                    <i class="fas fa-file-excel"></i>
+                    <span id="openingInventoryHintText">
+                        {% if status_info.has_opening_inventory_file and status_info.opening_inventory_meta %}
+                        已固化：{{ status_info.opening_inventory_meta.original_filename or 'opening_inventory' }}
+                        {% if status_info.opening_inventory_meta.uploaded_at %}（{{ status_info.opening_inventory_meta.uploaded_at[:10] }}）{% endif %}
+                        <a href="/api/opening-inventory/download" title="下载固化文件">下载</a>
+                        {% endif %}
+                    </span>
+                </div>
+                <div id="syncNotificationBar" class="sync-notification-bar">
+                    <span id="syncNotificationText"></span>
+                    <div class="sync-notification-actions">
+                        <button type="button" class="btn-sync-accept" id="syncNotificationAccept">立即刷新</button>
+                        <button type="button" class="btn-sync-dismiss" id="syncNotificationChoose">选择版本</button>
+                        <button type="button" class="btn-sync-dismiss" id="syncNotificationDismiss">稍后</button>
+                    </div>
+                </div>
+                <div id="alertArea"></div>
+        <!-- 加载状态 -->
+        <div class="loading-spinner text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">加载中...</span>
+            </div>
+            <p class="mt-3">正在加载数据统计信息...</p>
+        </div>
+
+                <!-- 数据模块卡片 -->
+                <div id="dashboard-content" style="display: none;">
+                    <!-- 收入预测数据分类 -->
+                    <div class="section-title revenue">
+                        <i class="fas fa-chart-line"></i>
+                        <span>收入预测数据</span>
+                    </div>
+                    <div class="row g-4 mb-5">
+                    <!-- 提取结果编辑（第一位） -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_extracted_data">
+                        <a href="/data-management/extracted-data-editor" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">提取结果编辑</h5>
+                            <div class="card-stats" id="extracted-data-count">-</div>
+                            <p class="card-description">编辑本期计划采购数量，自动计算投产数量和库存<br>支持Excel导入导出、在线编辑和数据追溯</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    重点功能
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">数据编辑</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 被减扣数据编辑（第二位） -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_deducted_data">
+                        <a href="/data-management/deducted-data" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">被减扣数据编辑</h5>
+                            <div class="card-stats" id="deducted-data-count">-</div>
+                            <p class="card-description">编辑被减扣数据并重新计算<br>支持Excel导入导出、在线编辑和应用到主流程</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    重点功能
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">编辑重算</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 可销售量数据编辑 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_saleable_data">
+                        <a href="/revenue-forecast/data-management/saleable-data-editor" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">可销售量数据编辑</h5>
+                            <div class="card-stats" id="saleable-data-count">-</div>
+                            <p class="card-description">编辑最终可销售量数据的重量值<br>支持Excel导入导出、在线编辑和实时统计</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    重点功能
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">编辑调整</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 内置映射表 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_mapping">
+                        <a href="/revenue-forecast/data-management/mapping" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">内置映射表</h5>
+                            <div class="card-stats" id="mapping-count">-</div>
+                            <p class="card-description">电废拆解产物映射表数据<br>管理R3系统代码与产物的对应关系</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    最后更新: <span id="mapping-updated">-</span>
+                                </span>
+                                <span class="badge">查看管理</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 减扣规则 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_deduction">
+                        <a href="/revenue-forecast/data-management/deduction" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">减扣规则</h5>
+                            <div class="card-stats" id="deduction-count">-</div>
+                            <p class="card-description">一次拆解收发存及深加工投入产出数据<br>管理需要在计算结果中减去的编码</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    最后更新: <span id="deduction-updated">-</span>
+                                </span>
+                                <span class="badge">查看管理</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 深加工数据 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_deep_processing">
+                        <a href="/revenue-forecast/data-management/deep-processing" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">深加工数据</h5>
+                            <div class="card-stats" id="deep-processing-count">-</div>
+                            <p class="card-description">深加工拆解系数表数据<br>管理深加工投入产出比例和拆解系数</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    最后更新: <span id="deep-processing-updated">-</span>
+                                </span>
+                                <span class="badge">查看管理</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 产品拆解系数 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_product">
+                        <a href="/revenue-forecast/data-management/product" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">产品拆解系数</h5>
+                            <div class="card-stats" id="product-count">-</div>
+                            <p class="card-description">产品拆解系数数据字典<br>管理产品重量、投入产出比例和拆解明细</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    最后更新: <span id="product-updated">-</span>
+                                </span>
+                                <span class="badge">查看管理</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 销售价格 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_price">
+                        <a href="/revenue-forecast/data-management/price" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">销售价格</h5>
+                            <div class="card-stats" id="price-count">-</div>
+                            <p class="card-description">销售价格数据管理<br>管理产物销售单价，支持在线编辑和Excel导入导出</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    重点数据
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">价格管理</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 基金补贴单价 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_subsidy">
+                        <a href="/revenue-forecast/data-management/subsidy" class="dashboard-card dashboard-card-revenue text-center">
+                            <h5 class="card-title mb-2">基金补贴单价</h5>
+                            <div class="card-stats" id="subsidy-count">-</div>
+                            <p class="card-description">基金补贴单价标准管理<br>管理旧机拆解基金补贴单价，用于计算补贴收入</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    补贴管理
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">补贴标准</span>
+                            </div>
+                        </a>
+                    </div>
+                    </div>
+                    
+                    <!-- 成本预测数据分类 -->
+                    <div class="section-title cost" style="clear: both; margin-top: 40px;">
+                        <i class="fas fa-calculator"></i>
+                        <span>成本预测数据</span>
+                    </div>
+                    <div class="row g-4">
+                    <!-- 计件人工标准数据 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_labor_cost">
+                        <a href="/revenue-forecast/data-management/labor-cost" class="dashboard-card dashboard-card-cost text-center">
+                            <h5 class="card-title mb-2">计件人工标准数据</h5>
+                            <div class="card-stats" id="labor-cost-count">-</div>
+                            <p class="card-description">计件人工标准数据管理<br>管理计件人工标准数据，类别为"旧机"的单位：元/台 TAI；其它类别（非旧机）的单位：元/KG</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    直接人工
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">人工成本</span>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- 薪酬核算基础数据 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_salary_accounting">
+                        <a href="/cost-forecast/data-management/salary-accounting" class="dashboard-card dashboard-card-cost text-center">
+                            <h5 class="card-title mb-2">薪酬核算基础数据</h5>
+                            <div class="card-stats" id="salary-accounting-count">-</div>
+                            <p class="card-description">薪酬核算基础数据管理<br>管理薪酬核算基础数据，数据来源：薪酬核算基础数据.xlsx</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    薪酬核算
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">基础数据</span>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- 制造费用基础数据 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_manufacturing_cost">
+                        <a href="/cost-forecast/data-management/manufacturing-cost" class="dashboard-card dashboard-card-cost text-center">
+                            <h5 class="card-title mb-2">制造费用基础数据</h5>
+                            <div class="card-stats" id="manufacturing-cost-count">-</div>
+                            <p class="card-description">制造费用基础数据管理<br>管理制造费用基础数据，数据来源：制造费用基础数据.xlsx</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    制造费用
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">基础数据</span>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <!-- 期间费用基础数据 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_period_cost">
+                        <a href="/cost-forecast/data-management/period-cost" class="dashboard-card dashboard-card-cost text-center">
+                            <h5 class="card-title mb-2">期间费用基础数据</h5>
+                            <div class="card-stats" id="period-cost-count">-</div>
+                            <p class="card-description">期间费用基础数据管理<br>管理期间费用基础数据，数据来源：期间费用基础数据.xlsx</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    期间费用
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">基础数据</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 税金及附加基础数据 -->
+                    <div class="col-lg-6 col-md-6" data-page-permission="data_management_tax_surcharge">
+                        <a href="/cost-forecast/data-management/tax-surcharge" class="dashboard-card dashboard-card-cost text-center">
+                            <h5 class="card-title mb-2">税金及附加基础数据</h5>
+                            <div class="card-stats" id="tax-surcharge-count">-</div>
+                            <p class="card-description">税金及附加基础数据管理<br>管理房产税、土地使用税及与收入相关的税费费率等基础数据</p>
+                            <div class="d-flex justify-content-between mt-3" style="font-size: 12px;">
+                                <span style="color: var(--text-secondary);">
+                                    税金及附加
+                                </span>
+                                <span class="badge" style="animation: pulse 2s infinite;">基础数据</span>
+                            </div>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- 操作说明 -->
+                <div class="info-section">
+                    <div class="info-header">
+                        使用说明
+                        <a href="/docs/operation-manual/" target="_blank" rel="noopener noreferrer" style="margin-left:auto;font-size:13px;font-weight:500;color:var(--brand-blue,#6a9bcc);text-decoration:none;">
+                            查看完整操作手册 <i class="fas fa-external-link-alt" style="font-size:11px;"></i>
+                        </a>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 style="color: var(--text-primary); margin-bottom: 16px;">
+                                功能说明
+                            </h6>
+                            <ul class="list-unstyled">
+                                <li style="margin-bottom: 8px;">
+                                    查看和编辑各模块数据
+                                </li>
+                                <li style="margin-bottom: 8px;">
+                                    支持搜索和筛选功能
+                                </li>
+                                <li style="margin-bottom: 8px;">
+                                    数据分页显示，提高性能
+                                </li>
+                                <li style="margin-bottom: 8px;">
+                                    自动备份和版本管理
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 style="color: var(--text-primary); margin-bottom: 16px;">
+                                注意事项
+                            </h6>
+                            <ul class="list-unstyled">
+                                <li style="margin-bottom: 8px;">
+                                    修改数据前会自动创建备份
+                                </li>
+                                <li style="margin-bottom: 8px;">
+                                    删除操作不可恢复，请谨慎操作
+                                </li>
+                                <li style="margin-bottom: 8px;">
+                                    数据修改会影响计算结果
+                                </li>
+                                <li style="margin-bottom: 8px;">
+                                    建议在非生产时间进行数据维护
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span>数据管理系统 - 版本 3.0</span>
+                <div class="loading-spinner" id="loadingSpinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+        <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
+    <script src="/static/js/page_permissions.js"></script>
+    <script src="/static/js/user_ui_settings.js"></script>
+    <script src="/static/js/sync_notification.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/sync_data.js"></script>
+    <script src="/static/js/snapshot.js"></script>
+    <script src="/static/js/clear_data.js"></script>
+    
+    <script>
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const autoProcessBtn = document.getElementById('autoProcessBtn');
+        const alertArea = document.getElementById('alertArea');
+        const firstRunHint = document.getElementById('firstRunHint');
+
+        function showAlert(type, message) {
+            if (!alertArea) return;
+
+            const alertClass = type === 'success' ? 'alert-success'
+                : type === 'danger' ? 'alert-danger'
+                : type === 'info' ? 'alert-info'
+                : 'alert-secondary';
+            const iconClass = type === 'success' ? 'fas fa-check-circle'
+                : type === 'danger' ? 'fas fa-exclamation-circle'
+                : 'fas fa-info-circle';
+
+            alertArea.innerHTML = `
+                <div class="alert ${alertClass} alert-dismissible fade show mb-3" role="alert">
+                    <i class="${iconClass} me-2"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+
+            if (type !== 'info') {
+                setTimeout(() => {
+                    const alert = alertArea.querySelector('.alert');
+                    if (alert) {
+                        alert.classList.remove('show');
+                        setTimeout(() => {
+                            if (alertArea.contains(alert)) {
+                                alert.remove();
+                            }
+                        }, 150);
+                    }
+                }, 5000);
+            }
+        }
+
+        function updateOpeningInventoryHint(statusInfo) {
+            const bar = document.getElementById('openingInventoryPersistBar');
+            const hint = document.getElementById('openingInventoryHintText');
+            if (!bar || !hint) return;
+            const meta = statusInfo && statusInfo.opening_inventory_meta;
+            const hasFile = statusInfo && (statusInfo.has_opening_inventory_file || meta);
+            if (!hasFile || !meta) {
+                bar.style.display = 'none';
+                return;
+            }
+            const name = meta.original_filename || 'opening_inventory';
+            const dateStr = meta.uploaded_at ? String(meta.uploaded_at).slice(0, 10) : '';
+            hint.innerHTML = `已固化：${name}${dateStr ? '（' + dateStr + '）' : ''} <a href="/api/opening-inventory/download" title="下载固化文件">下载</a>`;
+            bar.style.display = '';
+        }
+
+        function updateFirstRunHint(canRunCalc) {
+            if (!firstRunHint) return;
+            firstRunHint.style.display = canRunCalc ? 'none' : '';
+        }
+
+        function updateAutoProcessButton() {
+            if (!autoProcessBtn) return;
+
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(statusInfo => {
+                    const hasCalcData = statusInfo.has_persistent_data || false;
+                    const canRunCalc = statusInfo.can_run_calculation || hasCalcData || false;
+                    autoProcessBtn.disabled = !canRunCalc;
+                    const btnText = autoProcessBtn.querySelector('span');
+                    if (btnText) {
+                        btnText.textContent = hasCalcData ? '重新计算' : '加载数据并自动计算';
+                    }
+                    updateOpeningInventoryHint(statusInfo);
+                    updateFirstRunHint(canRunCalc);
+
+                    const clearDataBtn = document.getElementById('clearDataBtn');
+                    if (clearDataBtn) {
+                        clearDataBtn.style.display = hasCalcData ? '' : 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('获取状态失败:', error);
+                });
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+            e.target.value = '';
+        }
+
+        function handleFileUpload(file) {
+            const allowedTypes = ['xlsx', 'xls', 'csv'];
+            const fileName = file.name.toLowerCase();
+            const fileExt = fileName.split('.').pop();
+
+            if (!allowedTypes.includes(fileExt)) {
+                showAlert('danger', `不支持的文件格式: .${fileExt}<br>请选择Excel文件(.xlsx, .xls)或CSV文件(.csv)`);
+                return;
+            }
+
+            const maxSize = 50 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showAlert('danger', '文件过大，请选择小于50MB的文件');
+                return;
+            }
+
+            if (file.size === 0) {
+                showAlert('danger', '文件为空，请检查文件内容');
+                return;
+            }
+
+            showAlert('info', `<i class="fas fa-spinner fa-spin me-2"></i>正在上传文件: ${file.name} (${(file.size / 1024).toFixed(1)} KB)...`);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message || '期初库存已固化并加载');
+                    updateAutoProcessButton();
+                } else {
+                    showAlert('danger', data.message || '文件上传失败');
+                }
+            })
+            .catch(error => {
+                console.error('文件上传错误:', error);
+                let errorMessage = '文件上传失败';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = '网络连接失败，请检查服务器是否正常运行';
+                } else if (error.message.includes('HTTP')) {
+                    errorMessage = `服务器错误: ${error.message}`;
+                } else {
+                    errorMessage = `上传失败: ${error.message}`;
+                }
+                showAlert('danger', errorMessage);
+            });
+        }
+
+        function notifyCostPagesUpdated() {
+            const ts = Date.now().toString();
+            localStorage.setItem('product_cost_data_updated_time', ts);
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    new BroadcastChannel('data_updates').postMessage({ type: 'product_cost_updated' });
+                } catch (e) {
+                    console.warn('BroadcastChannel 通知失败:', e);
+                }
+            }
+        }
+
+        function handleAutoProcess() {
+            if (!autoProcessBtn) return;
+
+            showAlert('info', '<i class="fas fa-spinner fa-spin me-2"></i>正在自动处理数据...');
+            autoProcessBtn.disabled = true;
+
+            fetch('/auto_process', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', data.message || '自动处理完成！');
+                    loadDataInfo();
+                    sessionStorage.setItem('profit_summary_needs_reload', 'true');
+                    localStorage.setItem('profit_summary_needs_reload', Date.now().toString());
+                    localStorage.setItem('disassembly_profit_analysis_data_updated', Date.now().toString());
+                    notifyCostPagesUpdated();
+                    updateAutoProcessButton();
+                } else {
+                    showAlert('danger', data.message || '自动处理失败');
+                    updateAutoProcessButton();
+                }
+            })
+            .catch(error => {
+                showAlert('danger', '自动处理失败: ' + error.message);
+                updateAutoProcessButton();
+            });
+        }
+
+        // 页面加载完成后获取数据统计信息
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (typeof applySyncedUserUiSettings === 'function') {
+                await applySyncedUserUiSettings();
+            }
+            loadDataInfo();
+            if (uploadBtn && fileInput) {
+                uploadBtn.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', handleFileSelect);
+            }
+            if (autoProcessBtn) {
+                autoProcessBtn.addEventListener('click', handleAutoProcess);
+            }
+            updateAutoProcessButton();
+            if (typeof initSyncNotification === 'function') {
+                initSyncNotification({
+                    onAccept: function() {
+                        loadDataInfo();
+                        updateAutoProcessButton();
+                    }
+                });
+            }
+            if (typeof initSyncDataFeature === 'function') {
+                initSyncDataFeature();
+            }
+            if (typeof initSnapshotFeature === 'function') {
+                initSnapshotFeature();
+            }
+            if (typeof initPredictionPeriodInput === 'function') {
+                initPredictionPeriodInput();
+            }
+            if (typeof initClearDataFeature === 'function') {
+                initClearDataFeature({
+                    showLoading: function (message) {
+                        showAlert('info', '<i class="fas fa-spinner fa-spin me-2"></i>' + message);
+                    },
+                    hideLoading: function () {},
+                    showAlert: showAlert
+                });
+            }
+        });
+
+        async function loadDataInfo() {
+            try {
+                // 显示加载状态
+                const loadingElement = document.querySelector('.loading-spinner');
+                const dashboardContent = document.getElementById('dashboard-content');
+                const statusLoadingSpinner = document.getElementById('loadingSpinner');
+                
+                if (loadingElement) loadingElement.style.display = 'block';
+                if (dashboardContent) dashboardContent.style.display = 'none';
+                if (statusLoadingSpinner) statusLoadingSpinner.style.display = 'block';
+
+                const response = await fetch('/api/data-management/info');
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    
+                    // 更新数据统计
+                    document.getElementById('mapping-count').textContent = data.mapping.count.toLocaleString() + ' 条记录';
+                    document.getElementById('deduction-count').textContent = data.deduction.count.toLocaleString() + ' 条记录';
+                    document.getElementById('saleable-data-count').textContent = data.saleable_data.count.toLocaleString() + ' 条记录';
+                    document.getElementById('deep-processing-count').textContent = data.deep_processing.count.toLocaleString() + ' 条记录';
+                    document.getElementById('product-count').textContent = data.product.count.toLocaleString() + ' 条记录';
+                    
+                    // 更新时间戳（这里使用当前时间作为示例）
+                    const now = new Date().toLocaleDateString('zh-CN');
+                    document.getElementById('mapping-updated').textContent = now;
+                    document.getElementById('deduction-updated').textContent = now;
+                    document.getElementById('deep-processing-updated').textContent = now;
+                    document.getElementById('product-updated').textContent = now;
+                    
+                    // 获取提取结果数据统计
+                    loadExtractedDataCount();
+                    
+                    // 获取被减扣数据统计
+                    loadDeductedDataCount();
+                    
+                    // 获取价格数据统计
+                    loadPriceDataCount();
+                    
+                    // 获取补贴数据统计
+                    loadSubsidyDataCount();
+                    
+                    // 获取人工提成单价数据统计
+                    loadLaborCostDataCount();
+                    
+                    // 获取薪酬核算基础数据统计
+                    loadSalaryAccountingDataCount();
+                    
+                    // 获取制造费用基础数据统计
+                    loadManufacturingCostDataCount();
+                    
+                    // 获取期间费用基础数据统计
+                    loadPeriodCostDataCount();
+                    loadTaxSurchargeDataCount();
+                    
+                    // 隐藏加载状态，显示内容
+                    if (loadingElement) loadingElement.style.display = 'none';
+                    if (dashboardContent) dashboardContent.style.display = 'block';
+                    if (statusLoadingSpinner) statusLoadingSpinner.style.display = 'none';
+                } else {
+                    throw new Error(result.error || '获取数据失败');
+                }
+            } catch (error) {
+                console.error('Error loading data info:', error);
+                if (loadingElement) loadingElement.style.display = 'none';
+                if (statusLoadingSpinner) statusLoadingSpinner.style.display = 'none';
+                
+                // 显示错误信息
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>加载失败:</strong> ${error.message}
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-3" onclick="location.reload()">
+                        <i class="fas fa-redo me-1"></i>重新加载
+                    </button>
+                `;
+                
+                const container = document.querySelector('.container');
+                container.insertBefore(alertDiv, container.firstChild.nextSibling);
+            }
+        }
+
+        // 获取提取结果数据统计
+        async function loadExtractedDataCount() {
+            try {
+                const response = await fetch('/api/data-management/extracted-data?per_page=10000');
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const count = result.total || result.data.length;
+                    const totalInventory = result.data.reduce((sum, item) => {
+                        const inventory = parseFloat(item['非限制使用的库存']) || 0;
+                        return sum + inventory;
+                    }, 0);
+                    
+                    document.getElementById('extracted-data-count').innerHTML = `
+                        <div>${count.toLocaleString()} 条记录</div>
+                        <small style="font-size: 0.8em; opacity: 0.8;">总库存: ${totalInventory.toFixed(2)}</small>
+                    `;
+                } else {
+                    document.getElementById('extracted-data-count').textContent = '0 条记录';
+                }
+            } catch (error) {
+                console.error('获取提取结果数据统计失败:', error);
+                document.getElementById('extracted-data-count').textContent = '- 条记录';
+            }
+        }
+
+        // 获取被减扣数据统计
+        async function loadDeductedDataCount() {
+            try {
+                const response = await fetch('/api/get_data/deducted');
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    const count = data.length;
+                    const totalWeight = data.reduce((sum, item) => {
+                        const weight = parseFloat(item['计算结果(KG)']) || 0;
+                        return sum + weight;
+                    }, 0);
+                    
+                    document.getElementById('deducted-data-count').innerHTML = `
+                        <div>${count.toLocaleString()} 条记录</div>
+                        <small style="font-size: 0.8em; opacity: 0.8;">${totalWeight.toFixed(2)} KG</small>
+                    `;
+                } else {
+                    document.getElementById('deducted-data-count').textContent = '0 条记录';
+                }
+            } catch (error) {
+                console.error('获取被减扣数据统计失败:', error);
+                document.getElementById('deducted-data-count').textContent = '- 条记录';
+            }
+        }
+
+        // 获取价格数据统计
+        async function loadPriceDataCount() {
+            try {
+                const response = await fetch('/api/data-management/price/statistics');
+                const result = await response.json();
+                
+                if (result.success && result.statistics) {
+                    const stats = result.statistics;
+                    const count = stats.total_count || 0;
+                    const avgPrice = stats.avg_price || 0;
+                    
+                    document.getElementById('price-count').innerHTML = `
+                        <div>${count.toLocaleString()} 条记录</div>
+                        <small style="font-size: 0.8em; opacity: 0.8;">平均: ${avgPrice.toFixed(2)} 元/KG</small>
+                    `;
+                } else {
+                    document.getElementById('price-count').textContent = '0 条记录';
+                }
+            } catch (error) {
+                console.error('获取价格数据统计失败:', error);
+                document.getElementById('price-count').textContent = '- 条记录';
+            }
+        }
+
+        // 获取补贴数据统计
+        async function loadSubsidyDataCount() {
+            try {
+                const response = await fetch('/api/data-management/subsidy/statistics');
+                const result = await response.json();
+                
+                if (result.success && result.statistics) {
+                    const stats = result.statistics;
+                    const count = stats.total_count || 0;
+                    const avgPrice = stats.avg_price || 0;
+                    
+                    document.getElementById('subsidy-count').innerHTML = `
+                        <div>${count.toLocaleString()} 个类别</div>
+                        <small style="font-size: 0.8em; opacity: 0.8;">平均: ${avgPrice.toFixed(2)} 元/台</small>
+                    `;
+                } else {
+                    document.getElementById('subsidy-count').textContent = '0 个类别';
+                }
+            } catch (error) {
+                console.error('获取补贴数据统计失败:', error);
+                document.getElementById('subsidy-count').textContent = '- 个类别';
+            }
+        }
+
+        // 获取人工提成单价数据统计
+        async function loadLaborCostDataCount() {
+            try {
+                const response = await fetch('/api/data-management/labor-cost?per_page=1');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const count = result.total || 0;
+                    
+                    // 如果有数据，获取平均单价
+                    if (count > 0) {
+                        const allDataResponse = await fetch('/api/data-management/labor-cost?per_page=10000');
+                        const allDataResult = await allDataResponse.json();
+                        
+                        if (allDataResult.success && allDataResult.data) {
+                            const prices = allDataResult.data
+                                .map(item => parseFloat(item['计件单价']) || 0)
+                                .filter(price => price > 0);
+                            
+                            if (prices.length > 0) {
+                                const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+                                document.getElementById('labor-cost-count').innerHTML = `
+                                    <div>${count.toLocaleString()} 条记录</div>
+                                    <small style="font-size: 0.8em; opacity: 0.8;">平均: ${avgPrice.toFixed(2)} 元/台</small>
+                                `;
+                            } else {
+                                document.getElementById('labor-cost-count').textContent = `${count.toLocaleString()} 条记录`;
+                            }
+                        } else {
+                            document.getElementById('labor-cost-count').textContent = `${count.toLocaleString()} 条记录`;
+                        }
+                    } else {
+                        document.getElementById('labor-cost-count').textContent = '0 条记录';
+                    }
+                } else {
+                    document.getElementById('labor-cost-count').textContent = '0 条记录';
+                }
+            } catch (error) {
+                console.error('获取人工提成单价数据统计失败:', error);
+                document.getElementById('labor-cost-count').textContent = '- 条记录';
+            }
+        }
+
+        // 获取薪酬核算基础数据统计
+        async function loadSalaryAccountingDataCount() {
+            try {
+                const response = await fetch('/api/data-management/salary-accounting?per_page=1');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const count = result.total || 0;
+                    document.getElementById('salary-accounting-count').textContent = `${count.toLocaleString()} 条记录`;
+                } else {
+                    document.getElementById('salary-accounting-count').textContent = '0 条记录';
+                }
+            } catch (error) {
+                console.error('获取薪酬核算基础数据统计失败:', error);
+                document.getElementById('salary-accounting-count').textContent = '- 条记录';
+            }
+        }
+
+        // 获取制造费用基础数据统计
+        async function loadManufacturingCostDataCount() {
+            try {
+                const response = await fetch('/api/data-management/manufacturing-cost?per_page=1');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const count = result.total || 0;
+                    document.getElementById('manufacturing-cost-count').textContent = `${count.toLocaleString()} 条记录`;
+                } else {
+                    document.getElementById('manufacturing-cost-count').textContent = '0 条记录';
+                }
+            } catch (error) {
+                console.error('获取制造费用基础数据统计失败:', error);
+                document.getElementById('manufacturing-cost-count').textContent = '- 条记录';
+            }
+        }
+
+        // 获取期间费用基础数据统计
+        async function loadPeriodCostDataCount() {
+            try {
+                const response = await fetch('/api/data-management/period-cost?per_page=1');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const count = result.total || 0;
+                    document.getElementById('period-cost-count').textContent = `${count.toLocaleString()} 条记录`;
+                } else {
+                    document.getElementById('period-cost-count').textContent = '0 条记录';
+                }
+            } catch (error) {
+                console.error('获取期间费用基础数据统计失败:', error);
+                document.getElementById('period-cost-count').textContent = '- 条记录';
+            }
+        }
+
+        // 获取税金及附加基础数据统计
+        async function loadTaxSurchargeDataCount() {
+            try {
+                const response = await fetch('/api/data-management/tax-surcharge?per_page=1');
+                const result = await response.json();
+
+                if (result.success) {
+                    const count = result.total || 0;
+                    document.getElementById('tax-surcharge-count').textContent = `${count.toLocaleString()} 条记录`;
+                } else {
+                    document.getElementById('tax-surcharge-count').textContent = '0 条记录';
+                }
+            } catch (error) {
+                console.error('获取税金及附加基础数据统计失败:', error);
+                document.getElementById('tax-surcharge-count').textContent = '- 条记录';
+            }
+        }
+
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+            
+            // 确保菜单在页面加载后可见（用于调试）
+            console.log('下拉菜单初始化完成', {
+                dropdown: !!dropdown,
+                menu: !!menu,
+                homeLink: !!homeLink
+            });
+        })();
+    </script>
+    
+    <!-- 同步数据弹窗 -->
+    <div class="modal fade" id="syncDataModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-share-alt me-2"></i>同步数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">将您当前的数据同步到指定用户、用户组或全部用户。</p>
+                    <div class="mb-3">
+                        <label class="form-label">同步到</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="syncTargetType" id="syncTypeUsers" value="users">
+                            <label class="form-check-label" for="syncTypeUsers">指定用户</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="syncTargetType" id="syncTypeGroups" value="groups">
+                            <label class="form-check-label" for="syncTypeGroups">指定用户组</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="syncTargetType" id="syncTypeAll" value="all">
+                            <label class="form-check-label" for="syncTypeAll">全部用户</label>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="syncUsersWrap" style="display:none">
+                        <label class="form-label">选择用户</label>
+                        <select class="form-select" id="syncUserIds" multiple size="6"></select>
+                        <small class="text-muted">可多选，Ctrl+点击</small>
+                    </div>
+                    <div class="mb-3" id="syncGroupsWrap" style="display:none">
+                        <label class="form-label">选择用户组</label>
+                        <select class="form-select" id="syncGroupIds" multiple size="4"></select>
+                        <small class="text-muted">可多选</small>
+                    </div>
+                    <div id="syncResult" class="mt-2 small"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="syncSubmitBtn">确认同步</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 保存快照弹窗 -->
+    <div class="modal fade" id="saveSnapshotModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-save me-2"></i>保存快照</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">保存当前全部页面数据（含只读数据、基础数据、期初库存），用于后续复盘还原。</p>
+                    <div class="mb-3">
+                        <label class="form-label" for="snapshotSaveFilename">快照名称</label>
+                        <input type="text" class="form-control" id="snapshotSaveFilename" placeholder="例如：2025Q1复盘">
+                        <small class="text-muted">可自定义名称，将保存为 .zip 文件</small>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="snapshotSaveToServer" checked>
+                        <label class="form-check-label" for="snapshotSaveToServer">保存到服务器</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="snapshotAlsoDownload">
+                        <label class="form-check-label" for="snapshotAlsoDownload">同时下载到本地</label>
+                    </div>
+                    <div id="snapshotSaveResult" class="mt-2 small"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="snapshotSaveSubmitBtn">确认保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 同步历史选择弹窗 -->
+    <div class="modal fade" id="syncHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-history me-2"></i>选择同步版本</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">从以下历史同步记录中选择要应用的版本，应用后将刷新当前页面数据。</p>
+                    <div class="list-group" id="syncHistoryList" style="max-height:320px;overflow-y:auto;"></div>
+                    <div id="syncHistoryResult" class="mt-2 small"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="syncHistoryDismissBtn">稍后</button>
+                    <button type="button" class="btn btn-primary" id="syncHistoryApplyBtn">应用并刷新</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载快照弹窗 -->
+    <div class="modal fade" id="loadSnapshotModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-folder-open me-2"></i>加载快照</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning small mb-3">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        加载后将<strong>覆盖当前用户全部会话数据</strong>，并<strong>替换全局基础数据与期初库存</strong>，所有用户将看到相同的基础配置。系统会在加载前自动备份当前数据。
+                    </div>
+                    <ul class="nav nav-tabs mb-3" id="snapshotLoadTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="snapshot-tab-server" data-bs-toggle="tab" data-bs-target="#snapshot-pane-server" type="button" role="tab">从服务器选择</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="snapshot-tab-upload" data-bs-toggle="tab" data-bs-target="#snapshot-pane-upload" type="button" role="tab">从本地上传</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="snapshot-pane-server" role="tabpanel">
+                            <div class="list-group" id="snapshotServerList" style="max-height:240px;overflow-y:auto;"></div>
+                        </div>
+                        <div class="tab-pane fade" id="snapshot-pane-upload" role="tabpanel">
+                            <input type="file" class="form-control" id="snapshotUploadFile" accept=".zip">
+                            <small class="text-muted">选择之前导出或保存的 .zip 快照文件</small>
+                        </div>
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="snapshotLoadConfirm">
+                        <label class="form-check-label" for="snapshotLoadConfirm">我已了解加载将覆盖当前数据，确认继续</label>
+                    </div>
+                    <div id="snapshotLoadResult" class="mt-2 small"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="snapshotLoadSubmitBtn">确认加载</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页脚Logo区域 -->
+    <footer class="footer-logo-section">
+        <div class="container">
+            <div class="footer-content">
+                <img src="/logo/logo.png" alt="四川长虹格润环保科技股份有限公司" class="footer-logo">
+                <div class="footer-text">
+                    <p class="footer-company-name">四川长虹格润环保科技股份有限公司</p>
+                    <p class="footer-company-english">Sichuan Changhong Green Environmental Technology Co., Ltd.</p>
+                    <p class="footer-slogan">专业的环保科技解决方案提供商</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 修改密码 Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel"><i class="fas fa-key me-2"></i>修改密码</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="cpOldPassword">当前密码</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="cpOldPassword" placeholder="请输入当前密码" autocomplete="current-password">
+                            <button type="button" class="btn btn-outline-secondary" onclick="toggleChangePasswordVisibility('cpOldPassword', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="cpNewPassword">新密码</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="cpNewPassword" placeholder="至少4位" autocomplete="new-password">
+                            <button type="button" class="btn btn-outline-secondary" onclick="toggleChangePasswordVisibility('cpNewPassword', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="cpConfirmPassword">确认新密码</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="cpConfirmPassword" placeholder="再次输入新密码" autocomplete="new-password">
+                            <button type="button" class="btn btn-outline-secondary" onclick="toggleChangePasswordVisibility('cpConfirmPassword', this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div id="cpErrorMsg" class="alert alert-danger py-2 mb-0" style="display:none;font-size:14px;"></div>
+                    <p class="text-muted small mt-3 mb-0">忘记当前密码请联系管理员重置。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="cpSubmitBtn" onclick="submitChangePassword()">确认修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/change_password.js"></script>
+</body>
+</html>

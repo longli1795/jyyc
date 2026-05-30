@@ -1,0 +1,27 @@
+# 期初库存固化业务数据（勿提交仓库）
+data/persistent/opening_inventory.*
+data/persistent/opening_inventory_meta.json
+data/persistent/backups/*
+
+# 销售价格 Excel 自动备份（勿提交仓库）
+data/backups/销售价格_backup_*.xlsx
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.pyc
+
+# 生产服务运行日志
+logs/
+
+# IDE / 编辑器
+.cursor/
+.vscode/
+.idea/
+
+# 数据库文件
+data_storage/
+*.db
+
+# 环境变量（敏感信息）
+.env

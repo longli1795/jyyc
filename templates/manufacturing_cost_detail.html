@@ -1,0 +1,2260 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>制造费用成本</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* 页脚Logo样式（品牌色，与当期拆解收益测算分析表一致） */
+        .footer-logo-section {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-logo {
+            height: 60px;
+            max-width: 120px;
+            min-width: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: var(--brand-light);
+            padding: 8px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .footer-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: var(--brand-light);
+        }
+        
+        .footer-company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-company-english {
+            font-size: 14px;
+            font-style: italic;
+            margin: 0 0 8px 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: rgba(250, 249, 245, 0.95);
+        }
+        .footer-slogan {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        :root {
+            /* 品牌色（与当期拆解收益测算分析表、brand-and-themes 一致） */
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 40px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+        
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-nav {
+            position: relative;
+            z-index: 99998;
+        }
+        
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单（品牌色，与当期拆解收益测算分析表一致） */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+        
+        .content {
+            padding: 40px 32px;
+            overflow: hidden;
+        }
+        
+        .toolbar {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+        
+        .cost-node {
+            background: var(--brand-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        
+        .cost-node-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .cost-node-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+        }
+        
+        .cost-node-icon {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        .cost-node-summary {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        
+        .summary-item {
+            text-align: right;
+        }
+        
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .table-container {
+            background: var(--brand-light);
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+            max-height: 60vh;
+            width: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--brand-light-gray);
+            border-radius: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--brand-mid-gray);
+            border-radius: 6px;
+            border: 2px solid var(--brand-light-gray);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-mid-gray) var(--brand-light-gray);
+        }
+        
+        .table-cost {
+            margin: 0;
+            width: 100%;
+            table-layout: auto;
+            border-collapse: collapse;
+            background: var(--brand-light);
+            font-size: 14px;
+        }
+        
+        .table-cost th {
+            white-space: nowrap;
+        }
+        
+        .table-cost td {
+            white-space: nowrap;
+        }
+        
+        .table-cost td:nth-child(4) {
+            white-space: normal;
+            word-break: break-word;
+            max-width: 200px;
+        }
+        
+        .table-cost thead {
+            background: var(--primary-color);
+            color: var(--brand-light);
+        }
+        
+        .table-cost th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .table-cost tbody td {
+            padding: 10px 8px;
+            text-align: right;
+            font-size: 13px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .table-cost tbody td:first-child,
+        .table-cost tbody td:nth-child(2),
+        .table-cost tbody td:nth-child(3) {
+            text-align: left;
+        }
+        
+        .table-cost tbody td:first-child {
+            font-weight: 600;
+        }
+        
+        .table-cost tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .table-cost tbody tr:hover {
+            background: rgba(106, 155, 204, 0.06);
+        }
+        
+        .table-cost tbody tr.total-row {
+            background: var(--brand-light-gray) !important;
+            font-weight: 600;
+        }
+        
+        .table-cost tbody tr.total-row td {
+            border-top: 2px solid var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .calculated-value {
+            background: rgba(120, 140, 93, 0.15) !important;
+            font-weight: 600;
+            color: var(--brand-green);
+        }
+        
+        .category-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .category-badge.fridge {
+            background: rgba(120, 140, 93, 0.2);
+            color: var(--brand-green);
+        }
+        
+        .category-badge.computer {
+            background: rgba(106, 155, 204, 0.2);
+            color: var(--brand-blue);
+        }
+        
+        .category-badge.tv {
+            background: rgba(176, 174, 165, 0.3);
+            color: var(--brand-dark);
+        }
+        
+        .category-badge.ac {
+            background: rgba(217, 119, 87, 0.2);
+            color: var(--brand-orange);
+        }
+        
+        .category-badge.washing {
+            background: rgba(120, 140, 93, 0.15);
+            color: var(--brand-green);
+        }
+        
+        .category-badge.screen {
+            background: var(--brand-light-gray);
+            color: var(--text-primary);
+        }
+        
+        .category-badge.public {
+            background: var(--brand-light-gray);
+            color: var(--text-secondary);
+        }
+        
+        /* 分类统计卡片样式 */
+        .category-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            padding: 16px 0;
+        }
+        
+        @media (max-width: 1200px) {
+            .category-stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .category-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .category-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .formula-card {
+            background: linear-gradient(135deg, rgba(106, 155, 204, 0.08) 0%, rgba(232, 230, 220, 0.9) 100%);
+            border: 1px solid var(--brand-light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .formula-card h5 {
+            color: var(--primary-color);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .formula-item {
+            background: var(--brand-light);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--brand-blue);
+        }
+        
+        .formula-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .formula-item .label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+        
+        .formula-item .source {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .formula-item .source .page-link {
+            color: var(--info-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .formula-item .source .page-link:hover {
+            text-decoration: underline;
+        }
+        
+        .formula-item .formula {
+            font-size: 13px;
+            color: var(--brand-green);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .toggle-formula {
+            background: transparent;
+            border: 1px solid var(--info-color);
+            color: var(--info-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-formula:hover {
+            background: var(--info-color);
+            color: var(--brand-light);
+        }
+        
+        .category-stat-card {
+            background: var(--brand-light);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .category-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .category-stat-card.tv {
+            border-color: var(--brand-light-gray);
+        }
+        .category-stat-card.tv .category-stat-header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+        }
+        
+        .category-stat-card.computer {
+            border-color: var(--border-color);
+        }
+        .category-stat-card.computer .category-stat-header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+        }
+        
+        .category-stat-card.fridge {
+            border-color: var(--border-color);
+        }
+        .category-stat-card.fridge .category-stat-header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-green) 100%);
+        }
+        
+        .category-stat-card.ac {
+            border-color: var(--border-color);
+        }
+        .category-stat-card.ac .category-stat-header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-orange) 100%);
+        }
+        
+        .category-stat-card.washing {
+            border-color: var(--border-color);
+        }
+        .category-stat-card.washing .category-stat-header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-green) 100%);
+        }
+        
+        .category-stat-header {
+            padding: 12px 16px;
+            color: var(--brand-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .category-stat-header i {
+            font-size: 18px;
+        }
+        
+        .category-stat-body {
+            padding: 12px 16px;
+        }
+        
+        .category-stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .category-stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-item-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .stat-item-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .category-stat-footer {
+            padding: 12px 16px;
+            background: var(--light-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid var(--border-color);
+        }
+        
+        .category-stat-footer span:first-child {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .category-stat-total {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--brand-green);
+        }
+        
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .summary-item .summary-value {
+            color: var(--brand-green);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: rgba(197, 48, 48, 0.1);
+            color: var(--danger-color);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 24px 20px;
+            }
+            
+            .header {
+                padding: 32px 20px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .footer-logo {
+                height: 50px;
+                max-width: 100px;
+                min-width: 50px;
+            }
+            
+            .footer-company-name {
+                font-size: 16px;
+            }
+            
+            .footer-company-english {
+                font-size: 12px;
+            }
+            
+            .footer-slogan {
+                font-size: 12px;
+            }
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container animate__animated animate__fadeIn">
+            <!-- Header -->
+            <div class="header">
+                <h1>
+                    <i class="fas fa-industry"></i>
+                    制造费用成本
+                </h1>
+                <div class="subtitle">精准预测制造费用成本，优化成本结构</div>
+                
+                <!-- 面包屑导航 -->
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link"><i class="fas fa-home"></i> 首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <span class="current">制造费用成本</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <input type="hidden" id="prediction-period" value="1">
+                    <button class="btn btn-success" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> 导出Excel
+                    </button>
+                </div>
+                
+                <!-- 制造费用成本汇总 -->
+                <div class="cost-node" style="margin-bottom: 24px;">
+                    <div class="cost-node-header" style="flex-direction: column; align-items: flex-start;">
+                        <div class="cost-node-title" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-calculator cost-node-icon"></i>
+                                制造费用成本汇总
+                            </div>
+                            <button class="toggle-formula" onclick="toggleFormula('manufacturing-cost-summary-formula')">
+                                <i class="fas fa-info-circle"></i> 说明
+                            </button>
+                        </div>
+                        <div class="cost-node-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">制造费用成本</div>
+                                <div class="summary-value" id="manufacturing-cost-total" style="font-size: 28px;">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 制造费用成本汇总说明 -->
+                    <div class="formula-card" id="manufacturing-cost-summary-formula" style="display: none;">
+                        <h5><i class="fas fa-book"></i> 数据来源及计算公式说明</h5>
+                        <div class="formula-item">
+                            <div class="label">数据来源</div>
+                            <div class="source">与拆解量相关的费用 + 与电机入库量相关的费用 + 预计月均费用 + 环保费</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">制造费用成本</div>
+                            <div class="formula">= 与拆解量相关的费用 + 与电机入库量相关的费用 + 预计月均费用 + 环保费</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-panel" style="margin-top: 16px; margin-bottom: 16px;">
+                        <div class="stat-card">
+                            <div class="stat-value" id="disassembly-related-total">0.00</div>
+                            <div class="stat-label">与拆解量相关</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="motor-inventory-related-total">0.00</div>
+                            <div class="stat-label">与电机入库量相关</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="monthly-average-total">0.00</div>
+                            <div class="stat-label">预计月均费用</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="environmental-fee-total">0.00</div>
+                            <div class="stat-label">环保费</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 与拆解量相关的费用节点 -->
+                <div class="cost-node">
+                    <div class="cost-node-header" style="flex-direction: column; align-items: flex-start;">
+                        <div class="cost-node-title" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-boxes cost-node-icon"></i>
+                                与拆解量相关的费用
+                            </div>
+                            <button class="toggle-formula" onclick="toggleFormula('disassembly-related-formula')">
+                                <i class="fas fa-info-circle"></i> 说明
+                            </button>
+                        </div>
+                        <div class="cost-node-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">总成本</div>
+                                <div class="summary-value" id="disassembly-related-summary">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 与拆解量相关的费用说明 -->
+                    <div class="formula-card" id="disassembly-related-formula" style="display: none;">
+                        <h5><i class="fas fa-book"></i> 数据来源及计算公式说明</h5>
+                        <div class="formula-item">
+                            <div class="label">数据来源</div>
+                            <div class="source">制造费用基础数据（备注为"与拆解量相关"）+ 拆解物原料成本页（旧机类别数据）+ 被减扣数据（内转屏处置）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">数量/重量</div>
+                            <div class="formula">冰箱/电脑/电视/空调/洗衣机：从拆解物原料成本页获取（旧机类别，按物料描述分类汇总）；屏：从被减扣数据获取（处置类别为"内转屏处置"）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">单价</div>
+                            <div class="formula">从制造费用基础数据中获取对应类别的单价（元/KG或元/台）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">成本</div>
+                            <div class="formula">= 数量/重量 × 单价</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table table-cost">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 60px; white-space: nowrap;">序号</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">费用类型</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">费用种类</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">费用名称</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">类别</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">数量/重量</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">单价</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">成本</th>
+                                </tr>
+                            </thead>
+                            <tbody id="disassembly-related-tbody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle"></i> 暂无数据，请先完成数据计算
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 与电机入库量相关的费用节点 -->
+                <div class="cost-node">
+                    <div class="cost-node-header" style="flex-direction: column; align-items: flex-start;">
+                        <div class="cost-node-title" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-cog cost-node-icon"></i>
+                                与电机入库量相关的费用
+                            </div>
+                            <button class="toggle-formula" onclick="toggleFormula('motor-inventory-related-formula')">
+                                <i class="fas fa-info-circle"></i> 说明
+                            </button>
+                        </div>
+                        <div class="cost-node-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">总成本</div>
+                                <div class="summary-value" id="motor-inventory-related-summary">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 与电机入库量相关的费用说明 -->
+                    <div class="formula-card" id="motor-inventory-related-formula" style="display: none;">
+                        <h5><i class="fas fa-book"></i> 数据来源及计算公式说明</h5>
+                        <div class="formula-item">
+                            <div class="label">数据来源</div>
+                            <div class="source">制造费用基础数据（备注为"与电机入库量相关"）+ 被减扣数据（特定拆解产物编码：811053046、811053050、811304664、811437999）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">数量/重量</div>
+                            <div class="formula">从被减扣数据中筛选拆解产物编码为811053046、811053050、811304664、811437999的记录，按拆解产物名称分类汇总（空调、洗衣机）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">单价</div>
+                            <div class="formula">从制造费用基础数据中获取对应类别的单价（元/KG）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">成本</div>
+                            <div class="formula">= 数量/重量 × 单价</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table table-cost">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 60px; white-space: nowrap;">序号</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">费用类型</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">费用种类</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">费用名称</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">类别</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">数量/重量</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">单价</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">成本</th>
+                                </tr>
+                            </thead>
+                            <tbody id="motor-inventory-related-tbody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle"></i> 暂无数据，请先完成数据计算
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 预计月均费用节点 -->
+                <div class="cost-node">
+                    <div class="cost-node-header" style="flex-direction: column; align-items: flex-start;">
+                        <div class="cost-node-title" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-calendar-alt cost-node-icon"></i>
+                                预计月均费用
+                            </div>
+                            <button class="toggle-formula" onclick="toggleFormula('monthly-average-formula')">
+                                <i class="fas fa-info-circle"></i> 说明
+                            </button>
+                        </div>
+                        <div class="cost-node-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">总成本</div>
+                                <div class="summary-value" id="monthly-average-summary">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 预计月均费用说明 -->
+                    <div class="formula-card" id="monthly-average-formula" style="display: none;">
+                        <h5><i class="fas fa-book"></i> 数据来源及计算公式说明</h5>
+                        <div class="formula-item">
+                            <div class="label">数据来源</div>
+                            <div class="source">制造费用基础数据（备注为"预计月均费用"）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">月均费用</div>
+                            <div class="formula">从制造费用基础数据中获取对应类别（公共、冰箱、电脑、电视、空调、洗衣机、屏）的月均费用（元/月）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">期数</div>
+                            <div class="formula">= 预测期数（月）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">成本</div>
+                            <div class="formula">= 月均费用 × 预测期数</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table table-cost">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 60px; white-space: nowrap;">序号</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">费用类型</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">费用种类</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">费用名称</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">类别</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">月均费用</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">期数</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">成本</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monthly-average-tbody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle"></i> 暂无数据，请先完成数据计算
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 环保费节点 -->
+                <div class="cost-node">
+                    <div class="cost-node-header" style="flex-direction: column; align-items: flex-start;">
+                        <div class="cost-node-title" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-leaf cost-node-icon"></i>
+                                环保费
+                            </div>
+                            <button class="toggle-formula" onclick="toggleFormula('environmental-fee-formula')">
+                                <i class="fas fa-info-circle"></i> 说明
+                            </button>
+                        </div>
+                        <div class="cost-node-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">总成本</div>
+                                <div class="summary-value" id="environmental-fee-summary">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 环保费说明 -->
+                    <div class="formula-card" id="environmental-fee-formula" style="display: none;">
+                        <h5><i class="fas fa-book"></i> 数据来源及计算公式说明</h5>
+                        <div class="formula-item">
+                            <div class="label">数据来源</div>
+                            <div class="source">价格数据（销售单价-不含税(元/KG) &lt; 0，与拆解利润统计口径一致）+ 被减扣数据表（只读视图，与数据管理「被减扣数据」页一致；类别为&quot;拆解产物&quot;；价格表名称不含&quot;屏&quot;的编码）+ 深加工数据（价格表名称含&quot;屏&quot;的编码）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">重量</div>
+                            <div class="formula">从被减扣数据或深加工数据中获取，按拆解产物编码匹配价格数据</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">单价</div>
+                            <div class="formula">从价格数据中获取销售单价-不含税(元/KG)，取绝对值（单价 < 0）</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">费用</div>
+                            <div class="formula">= 重量 × |单价|</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="label">特殊说明</div>
+                            <div class="source">彩电归类为电视；被减扣数据排除屏相关编码；深加工数据仅使用屏相关编码</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table table-cost">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 60px; white-space: nowrap;">序号</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">拆解产物编码</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">拆解产物名称</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">类别</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">重量(KG)</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">单价(元/KG)</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">费用(元)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="environmental-fee-tbody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle"></i> 暂无数据，请先完成数据计算
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 分类费用汇总统计卡片 -->
+                <div class="cost-node">
+                    <div class="cost-node-header">
+                        <div class="cost-node-title">
+                            <i class="fas fa-chart-bar cost-node-icon"></i>
+                            分类费用汇总
+                        </div>
+                    </div>
+                    
+                    <div class="category-stats-grid" id="category-stats-container">
+                        <!-- 电视 -->
+                        <div class="category-stat-card tv">
+                            <div class="category-stat-header">
+                                <i class="fas fa-tv"></i>
+                                <span>电视</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与拆解量相关</span>
+                                    <span class="stat-item-value" id="stat-tv-disassembly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与电机入库量相关</span>
+                                    <span class="stat-item-value" id="stat-tv-motor">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">预计月均费用</span>
+                                    <span class="stat-item-value" id="stat-tv-monthly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">环保费</span>
+                                    <span class="stat-item-value" id="stat-tv-environmental">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-tv-total">0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 电脑 -->
+                        <div class="category-stat-card computer">
+                            <div class="category-stat-header">
+                                <i class="fas fa-desktop"></i>
+                                <span>电脑</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与拆解量相关</span>
+                                    <span class="stat-item-value" id="stat-computer-disassembly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与电机入库量相关</span>
+                                    <span class="stat-item-value" id="stat-computer-motor">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">预计月均费用</span>
+                                    <span class="stat-item-value" id="stat-computer-monthly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">环保费</span>
+                                    <span class="stat-item-value" id="stat-computer-environmental">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-computer-total">0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 冰箱 -->
+                        <div class="category-stat-card fridge">
+                            <div class="category-stat-header">
+                                <i class="fas fa-snowflake"></i>
+                                <span>冰箱</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与拆解量相关</span>
+                                    <span class="stat-item-value" id="stat-fridge-disassembly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与电机入库量相关</span>
+                                    <span class="stat-item-value" id="stat-fridge-motor">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">预计月均费用</span>
+                                    <span class="stat-item-value" id="stat-fridge-monthly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">环保费</span>
+                                    <span class="stat-item-value" id="stat-fridge-environmental">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-fridge-total">0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 空调 -->
+                        <div class="category-stat-card ac">
+                            <div class="category-stat-header">
+                                <i class="fas fa-wind"></i>
+                                <span>空调</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与拆解量相关</span>
+                                    <span class="stat-item-value" id="stat-ac-disassembly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与电机入库量相关</span>
+                                    <span class="stat-item-value" id="stat-ac-motor">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">预计月均费用</span>
+                                    <span class="stat-item-value" id="stat-ac-monthly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">环保费</span>
+                                    <span class="stat-item-value" id="stat-ac-environmental">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-ac-total">0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 洗衣机 -->
+                        <div class="category-stat-card washing">
+                            <div class="category-stat-header">
+                                <i class="fas fa-soap"></i>
+                                <span>洗衣机</span>
+                            </div>
+                            <div class="category-stat-body">
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与拆解量相关</span>
+                                    <span class="stat-item-value" id="stat-washing-disassembly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">与电机入库量相关</span>
+                                    <span class="stat-item-value" id="stat-washing-motor">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">预计月均费用</span>
+                                    <span class="stat-item-value" id="stat-washing-monthly">0.00</span>
+                                </div>
+                                <div class="category-stat-item">
+                                    <span class="stat-item-label">环保费</span>
+                                    <span class="stat-item-value" id="stat-washing-environmental">0.00</span>
+                                </div>
+                            </div>
+                            <div class="category-stat-footer">
+                                <span>合计</span>
+                                <span class="category-stat-total" id="stat-washing-total">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="environmental-fee-unallocated-hint" class="text-muted small mt-2" style="display: none;">
+                        环保费未归入上方五类合计：<span id="stat-env-unallocated">0.00</span> 元
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
+    <script src="/static/js/page_permissions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 切换公式说明显示
+        function toggleFormula(id) {
+            const formulaCard = document.getElementById(id);
+            if (formulaCard) {
+                if (formulaCard.style.display === 'none') {
+                    formulaCard.style.display = 'block';
+                } else {
+                    formulaCard.style.display = 'none';
+                }
+            }
+        }
+        
+        // 预测期数存储键名（统一键名，实现联动）
+        const UNIFIED_PREDICTION_PERIOD_KEY = 'cost_forecast_prediction_period';
+        
+        // 保存预测期数到localStorage
+        function savePredictionPeriod(period) {
+            try {
+                localStorage.setItem(UNIFIED_PREDICTION_PERIOD_KEY, period.toString());
+                console.log('预测期数已保存:', period);
+            } catch (error) {
+                console.error('保存预测期数失败:', error);
+            }
+        }
+        
+        // 从localStorage读取预测期数
+        function loadPredictionPeriod() {
+            try {
+                let saved = localStorage.getItem(UNIFIED_PREDICTION_PERIOD_KEY);
+                if (saved) {
+                    const period = parseInt(saved);
+                    if (period > 0 && period <= 120) {
+                        return period;
+                    }
+                }
+            } catch (error) {
+                console.error('读取预测期数失败:', error);
+            }
+            return 1; // 默认值
+        }
+        
+        // 更新预测期数显示和数据
+        function updatePredictionPeriod(period) {
+            const predictionPeriodInput = document.getElementById('prediction-period');
+            if (predictionPeriodInput && predictionPeriodInput.value != period) {
+                predictionPeriodInput.value = period;
+                loadManufacturingCost();
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('制造费用成本页面初始化');
+            // 从localStorage加载预测期数
+            const savedPeriod = loadPredictionPeriod();
+            document.getElementById('prediction-period').value = savedPeriod;
+            loadManufacturingCost();
+            
+            // 监听 storage 事件，实现与其他页面的联动
+            window.addEventListener('storage', function(e) {
+                if (e.key === UNIFIED_PREDICTION_PERIOD_KEY && e.newValue) {
+                    const newPeriod = parseInt(e.newValue);
+                    if (newPeriod > 0 && newPeriod <= 120) {
+                        console.log('检测到预测期数变化，自动更新:', newPeriod);
+                        updatePredictionPeriod(newPeriod);
+                    }
+                }
+            });
+        });
+        
+        // 处理预测期数变化
+        function handlePredictionPeriodChange() {
+            const period = document.getElementById('prediction-period').value;
+            if (period && parseInt(period) > 0) {
+                // 保存预测期数
+                savePredictionPeriod(period);
+                // 重新加载数据
+                loadManufacturingCost();
+            }
+        }
+        
+        // 加载制造费用成本数据
+        async function loadManufacturingCost() {
+            try {
+                const predictionPeriod = document.getElementById('prediction-period').value || loadPredictionPeriod();
+                const response = await fetch(`/api/cost-forecast/manufacturing-cost?prediction_period=${predictionPeriod}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const data = result.data;
+                    renderManufacturingCost(data);
+                    updateManufacturingCostDisplay(data);
+                    calculateAndRenderCategoryStats(data);
+                } else {
+                    console.log('暂无数据:', result.error || '');
+                    renderManufacturingCost({});
+                    updateManufacturingCostDisplay({});
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                renderManufacturingCost({});
+                updateManufacturingCostDisplay({});
+            }
+        }
+        
+        // 渲染制造费用成本表格
+        function renderManufacturingCost(data) {
+            // 渲染与拆解量相关的费用
+            renderDisassemblyRelatedTable(data.disassembly_related || []);
+            
+            // 渲染与电机入库量相关的费用
+            renderMotorInventoryRelatedTable(data.motor_inventory_related || []);
+            
+            // 渲染预计月均费用
+            renderMonthlyAverageTable(data.monthly_average || []);
+            
+            // 渲染环保费
+            renderEnvironmentalFeeTable(data.environmental_fee || {});
+        }
+        
+        // 渲染与拆解量相关的费用表格
+        function renderDisassemblyRelatedTable(items) {
+            const tbody = document.getElementById('disassembly-related-tbody');
+            tbody.innerHTML = '';
+            
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 暂无数据
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let index = 1;
+            items.forEach(item => {
+                const details = item.明细 || [];
+                if (details.length === 0) {
+                    // 如果没有明细，显示汇总行
+                    const tr = document.createElement('tr');
+                    tr.style.backgroundColor = '#f8f9fa';
+                    tr.style.fontWeight = '600';
+                    tr.innerHTML = `
+                        <td>${index++}</td>
+                        <td>${item.费用类型 || ''}</td>
+                        <td>${item.费用种类 || ''}</td>
+                        <td>${item.费用名称 || ''}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="calculated-value" style="text-align: right;">${formatNumber(item.总成本 || 0)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                } else {
+                    // 显示明细行
+                    details.forEach(detail => {
+                        const tr = document.createElement('tr');
+                        const categoryClass = getCategoryClass(detail.category);
+                        tr.innerHTML = `
+                            <td>${index++}</td>
+                            <td>${item.费用类型 || ''}</td>
+                            <td>${item.费用种类 || ''}</td>
+                            <td>${item.费用名称 || ''}</td>
+                            <td><span class="category-badge ${categoryClass}">${detail.category || ''}</span></td>
+                            <td style="text-align: right;">${formatNumber(detail.quantity || 0)}</td>
+                            <td style="text-align: right;">${formatNumber(detail.unit_price || 0)}</td>
+                            <td class="calculated-value" style="text-align: right;">${formatNumber(detail.cost || 0)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    // 添加小计行
+                    const subtotalTr = document.createElement('tr');
+                    subtotalTr.style.backgroundColor = '#f8f9fa';
+                    subtotalTr.style.fontWeight = '600';
+                    subtotalTr.innerHTML = `
+                        <td></td>
+                        <td>${item.费用类型 || ''}</td>
+                        <td>${item.费用种类 || ''}</td>
+                        <td style="font-weight: 600; color: var(--primary-color);">${item.费用名称 || ''}小计</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="calculated-value" style="text-align: right; font-weight: 600;">${formatNumber(item.总成本 || 0)}</td>
+                    `;
+                    tbody.appendChild(subtotalTr);
+                }
+            });
+        }
+        
+        // 渲染与电机入库量相关的费用表格
+        function renderMotorInventoryRelatedTable(items) {
+            const tbody = document.getElementById('motor-inventory-related-tbody');
+            tbody.innerHTML = '';
+            
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 暂无数据
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let index = 1;
+            items.forEach(item => {
+                const details = item.明细 || [];
+                if (details.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.style.backgroundColor = '#f8f9fa';
+                    tr.style.fontWeight = '600';
+                    tr.innerHTML = `
+                        <td>${index++}</td>
+                        <td>${item.费用类型 || ''}</td>
+                        <td>${item.费用种类 || ''}</td>
+                        <td>${item.费用名称 || ''}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="calculated-value" style="text-align: right;">${formatNumber(item.总成本 || 0)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                } else {
+                    details.forEach(detail => {
+                        const tr = document.createElement('tr');
+                        const categoryClass = getCategoryClass(detail.category);
+                        tr.innerHTML = `
+                            <td>${index++}</td>
+                            <td>${item.费用类型 || ''}</td>
+                            <td>${item.费用种类 || ''}</td>
+                            <td>${item.费用名称 || ''}</td>
+                            <td><span class="category-badge ${categoryClass}">${detail.category || ''}</span></td>
+                            <td style="text-align: right;">${formatNumber(detail.quantity || 0)}</td>
+                            <td style="text-align: right;">${formatNumber(detail.unit_price || 0)}</td>
+                            <td class="calculated-value" style="text-align: right;">${formatNumber(detail.cost || 0)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    const subtotalTr = document.createElement('tr');
+                    subtotalTr.style.backgroundColor = '#f8f9fa';
+                    subtotalTr.style.fontWeight = '600';
+                    subtotalTr.innerHTML = `
+                        <td></td>
+                        <td>${item.费用类型 || ''}</td>
+                        <td>${item.费用种类 || ''}</td>
+                        <td style="font-weight: 600; color: var(--primary-color);">${item.费用名称 || ''}小计</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="calculated-value" style="text-align: right; font-weight: 600;">${formatNumber(item.总成本 || 0)}</td>
+                    `;
+                    tbody.appendChild(subtotalTr);
+                }
+            });
+        }
+        
+        // 渲染预计月均费用表格
+        function renderMonthlyAverageTable(items) {
+            const tbody = document.getElementById('monthly-average-tbody');
+            tbody.innerHTML = '';
+            
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 暂无数据
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let index = 1;
+            items.forEach(item => {
+                const details = item.明细 || [];
+                if (details.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.style.backgroundColor = '#f8f9fa';
+                    tr.style.fontWeight = '600';
+                    tr.innerHTML = `
+                        <td>${index++}</td>
+                        <td>${item.费用类型 || ''}</td>
+                        <td>${item.费用种类 || ''}</td>
+                        <td>${item.费用名称 || ''}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="calculated-value" style="text-align: right;">${formatNumber(item.总成本 || 0)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                } else {
+                    details.forEach(detail => {
+                        const tr = document.createElement('tr');
+                        const categoryClass = getCategoryClass(detail.category);
+                        tr.innerHTML = `
+                            <td>${index++}</td>
+                            <td>${item.费用类型 || ''}</td>
+                            <td>${item.费用种类 || ''}</td>
+                            <td>${item.费用名称 || ''}</td>
+                            <td><span class="category-badge ${categoryClass}">${detail.category || ''}</span></td>
+                            <td style="text-align: right;">${formatNumber(detail.monthly_cost || 0)}</td>
+                            <td style="text-align: right;">${detail.periods || 0}</td>
+                            <td class="calculated-value" style="text-align: right;">${formatNumber(detail.cost || 0)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    const subtotalTr = document.createElement('tr');
+                    subtotalTr.style.backgroundColor = '#f8f9fa';
+                    subtotalTr.style.fontWeight = '600';
+                    subtotalTr.innerHTML = `
+                        <td></td>
+                        <td>${item.费用类型 || ''}</td>
+                        <td>${item.费用种类 || ''}</td>
+                        <td style="font-weight: 600; color: var(--primary-color);">${item.费用名称 || ''}小计</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="calculated-value" style="text-align: right; font-weight: 600;">${formatNumber(item.总成本 || 0)}</td>
+                    `;
+                    tbody.appendChild(subtotalTr);
+                }
+            });
+        }
+        
+        // 渲染环保费表格
+        function renderEnvironmentalFeeTable(environmentalFeeData) {
+            const tbody = document.getElementById('environmental-fee-tbody');
+            tbody.innerHTML = '';
+            
+            const details = environmentalFeeData.明细 || [];
+            
+            if (!details || details.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 暂无环保费数据
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            let index = 1;
+            details.forEach(detail => {
+                const tr = document.createElement('tr');
+                const categoryClass = detail.类别 === '被减扣' ? 'public' : 'screen';
+                tr.innerHTML = `
+                    <td>${index++}</td>
+                    <td>${detail.拆解产物编码 || ''}</td>
+                    <td title="${detail.拆解产物名称 || ''}">${truncateText(detail.拆解产物名称 || '', 30)}</td>
+                    <td><span class="category-badge ${categoryClass}">${detail.类别 || ''}</span></td>
+                    <td style="text-align: right;">${formatNumber(detail.重量 || 0)}</td>
+                    <td style="text-align: right;">${formatNumber(detail.单价 || 0)}</td>
+                    <td class="calculated-value" style="text-align: right;">${formatNumber(detail.费用 || 0)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function renderCategoryStatsCards(stats) {
+            Object.keys(stats).forEach(key => {
+                const s = stats[key];
+                document.getElementById(`stat-${key}-disassembly`).textContent = formatNumber(s.disassembly);
+                document.getElementById(`stat-${key}-motor`).textContent = formatNumber(s.motor);
+                document.getElementById(`stat-${key}-monthly`).textContent = formatNumber(s.monthly);
+                document.getElementById(`stat-${key}-environmental`).textContent = formatNumber(s.environmental);
+                
+                const total = s.disassembly + s.motor + s.monthly + s.environmental;
+                document.getElementById(`stat-${key}-total`).textContent = formatNumber(total);
+            });
+        }
+        
+        // 获取类别样式类
+        function getCategoryClass(category) {
+            const classMap = {
+                '冰箱': 'fridge',
+                '电脑': 'computer',
+                '电视': 'tv',
+                '空调': 'ac',
+                '洗衣机': 'washing',
+                '屏': 'screen',
+                '公共': 'public'
+            };
+            return classMap[category] || 'public';
+        }
+        
+        // 计算并渲染分类统计卡片
+        function calculateAndRenderCategoryStats(data) {
+            const categoryMapping = {
+                '电视': 'tv',
+                '电脑': 'computer',
+                '冰箱': 'fridge',
+                '空调': 'ac',
+                '洗衣机': 'washing'
+            };
+            
+            const stats = {
+                tv: { disassembly: 0, motor: 0, monthly: 0, environmental: 0 },
+                computer: { disassembly: 0, motor: 0, monthly: 0, environmental: 0 },
+                fridge: { disassembly: 0, motor: 0, monthly: 0, environmental: 0 },
+                ac: { disassembly: 0, motor: 0, monthly: 0, environmental: 0 },
+                washing: { disassembly: 0, motor: 0, monthly: 0, environmental: 0 }
+            };
+            
+            // 优先使用后端汇总（与生产成本分摊页一致）
+            if (data.category_breakdown) {
+                for (const [cat, breakdown] of Object.entries(data.category_breakdown)) {
+                    const key = categoryMapping[cat];
+                    if (key && stats[key]) {
+                        stats[key].disassembly = breakdown.disassembly || 0;
+                        stats[key].motor = breakdown.motor || 0;
+                        stats[key].monthly = breakdown.monthly || 0;
+                        stats[key].environmental = breakdown.environmental || 0;
+                    }
+                }
+                renderCategoryStatsCards(stats);
+                return;
+            }
+            
+            // 1. 统计与拆解量相关的费用
+            (data.disassembly_related || []).forEach(item => {
+                (item.明细 || []).forEach(detail => {
+                    const cat = detail.category;
+                    const key = categoryMapping[cat];
+                    if (key && stats[key]) {
+                        stats[key].disassembly += (detail.cost || 0);
+                    }
+                });
+            });
+            
+            // 2. 统计与电机入库量相关的费用
+            (data.motor_inventory_related || []).forEach(item => {
+                (item.明细 || []).forEach(detail => {
+                    const cat = detail.category;
+                    const key = categoryMapping[cat];
+                    if (key && stats[key]) {
+                        stats[key].motor += (detail.cost || 0);
+                    }
+                });
+            });
+            
+            // 3. 统计预计月均费用
+            (data.monthly_average || []).forEach(item => {
+                (item.明细 || []).forEach(detail => {
+                    const cat = detail.category;
+                    const key = categoryMapping[cat];
+                    if (key && stats[key]) {
+                        stats[key].monthly += (detail.cost || 0);
+                    }
+                });
+            });
+            
+            // 4. 统计环保费（按拆解产物名称模糊匹配，彩电归类为电视）
+            let envUnallocated = 0;
+            const envDetails = (data.environmental_fee && data.environmental_fee.明细) || [];
+            envDetails.forEach(detail => {
+                const productName = detail.拆解产物名称 || '';
+                const fee = detail.费用 || 0;
+                
+                // 模糊匹配类别
+                if (productName.includes('彩电') || productName.includes('电视') || productName.includes('废旧玻璃电子枪') || productName.includes('废旧金属荫罩压块铁') || productName.includes('黑白')) {
+                    stats.tv.environmental += fee;
+                } else if (productName.includes('电脑') || productName.includes('显示器') || productName.includes('主机') || productName.includes('笔记本') || productName.includes('废旧金属黑色金属-铁及其合金-电子枪')) {
+                    stats.computer.environmental += fee;
+                } else if (productName.includes('冰箱') || productName.includes('冰柜')) {
+                    stats.fridge.environmental += fee;
+                } else if (productName.includes('空调')) {
+                    stats.ac.environmental += fee;
+                } else if (productName.includes('洗衣机') || productName.includes('双缸')) {
+                    stats.washing.environmental += fee;
+                } else if (productName.includes('屏')) {
+                    stats.tv.environmental += fee;
+                } else {
+                    envUnallocated += fee;
+                }
+            });
+            
+            renderCategoryStatsCards(stats);
+            
+            const envHint = document.getElementById('environmental-fee-unallocated-hint');
+            const envSpan = document.getElementById('stat-env-unallocated');
+            if (envHint && envSpan) {
+                if (envUnallocated > 0.0001) {
+                    envSpan.textContent = formatNumber(envUnallocated);
+                    envHint.style.display = 'block';
+                } else {
+                    envHint.style.display = 'none';
+                }
+            }
+        }
+        
+        // 更新制造费用成本显示
+        function updateManufacturingCostDisplay(data) {
+            const totalCost = data.total_cost || 0;
+            const disassemblyTotal = (data.disassembly_related || []).reduce((sum, item) => sum + (item.总成本 || 0), 0);
+            const motorTotal = (data.motor_inventory_related || []).reduce((sum, item) => sum + (item.总成本 || 0), 0);
+            const monthlyTotal = (data.monthly_average || []).reduce((sum, item) => sum + (item.总成本 || 0), 0);
+            const environmentalFeeTotal = (data.environmental_fee && data.environmental_fee.总成本) ? data.environmental_fee.总成本 : 0;
+            
+            document.getElementById('manufacturing-cost-total').textContent = formatNumber(totalCost);
+            document.getElementById('disassembly-related-total').textContent = formatNumber(disassemblyTotal);
+            document.getElementById('motor-inventory-related-total').textContent = formatNumber(motorTotal);
+            document.getElementById('monthly-average-total').textContent = formatNumber(monthlyTotal);
+            document.getElementById('environmental-fee-total').textContent = formatNumber(environmentalFeeTotal);
+            
+            document.getElementById('disassembly-related-summary').textContent = formatNumber(disassemblyTotal);
+            document.getElementById('motor-inventory-related-summary').textContent = formatNumber(motorTotal);
+            document.getElementById('monthly-average-summary').textContent = formatNumber(monthlyTotal);
+            document.getElementById('environmental-fee-summary').textContent = formatNumber(environmentalFeeTotal);
+        }
+        
+        // 格式化数字显示
+        function formatNumber(value) {
+            if (value === '' || value === null || value === undefined) return '0.00';
+            const num = parseFloat(value);
+            if (isNaN(num)) return '0.00';
+            return num.toFixed(2);
+        }
+        
+        // 截断文本显示
+        function truncateText(text, maxLength) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+        
+        // 导出Excel
+        async function exportToExcel(event) {
+            try {
+                const exportBtn = event ? event.target.closest('button') : document.querySelector('button[onclick*="exportToExcel"]');
+                const originalText = exportBtn ? exportBtn.innerHTML : '';
+                if (exportBtn) {
+                    exportBtn.disabled = true;
+                    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在导出...';
+                }
+                
+                const predictionPeriod = document.getElementById('prediction-period').value || loadPredictionPeriod();
+                const response = await fetch(`/api/cost-forecast/manufacturing-cost/export?prediction_period=${predictionPeriod}`);
+                
+                if (response.ok) {
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let filename = '制造费用成本.xlsx';
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (filenameMatch && filenameMatch[1]) {
+                            filename = filenameMatch[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    if (exportBtn) {
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = originalText;
+                    }
+                    
+                    alert('制造费用成本数据导出成功！');
+                } else {
+                    const result = await response.json();
+                    alert('导出失败: ' + (result.error || '未知错误'));
+                    
+                    if (exportBtn) {
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = originalText;
+                    }
+                }
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败: ' + error.message);
+                
+                const exportBtn = event ? event.target.closest('button') : document.querySelector('button[onclick*="exportToExcel"]');
+                if (exportBtn) {
+                    exportBtn.disabled = false;
+                    exportBtn.innerHTML = '<i class="fas fa-file-excel"></i> 导出Excel';
+                }
+            }
+        }
+        
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        })();
+    </script>
+    
+    <!-- 页脚Logo区域 -->
+    <footer class="footer-logo-section">
+        <div class="container">
+            <div class="footer-content">
+                <img src="/logo/logo.png" alt="四川长虹格润环保科技股份有限公司" class="footer-logo">
+                <div class="footer-text">
+                    <p class="footer-company-name">四川长虹格润环保科技股份有限公司</p>
+                    <p class="footer-company-english">Sichuan Changhong Green Environmental Technology Co., Ltd.</p>
+                    <p class="footer-slogan">专业的环保科技解决方案提供商</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+

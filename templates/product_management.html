@@ -1,0 +1,2112 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品拆解系数管理 - 经营预测系统</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* 品牌色（与当期拆解收益测算分析表一致） */
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+        
+        /* 头部样式（与当期拆解收益测算分析表 .header 一致） */
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 40px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .header h1,
+        .header h2 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+            color: var(--brand-light);
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+        
+        /* Logo样式 */
+                /* 页脚Logo样式 */
+        .footer-logo-section {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-logo {
+            height: 60px;
+            max-width: 120px;
+            min-width: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: var(--brand-light);
+            padding: 8px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .footer-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: var(--brand-light);
+        }
+        
+        .footer-company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-company-english {
+            font-size: 14px;
+            font-style: italic;
+            margin: 0 0 8px 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: rgba(250, 249, 245, 0.95);
+        }
+        
+        .footer-slogan {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 移动端Logo样式 */
+        @media (max-width: 768px) {
+            .company-logo {
+                height: 40px;
+                max-width: 80px;
+                min-width: 40px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 按钮样式：一行排列，放不下时隐藏返回首页 */
+        .btn-group-header {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .btn-group-header .btn {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .btn-light-transparent {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-light-transparent:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        /* 面包屑导航样式 */
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 99998;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-size: 14px;
+        }
+        
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单 */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+        
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            border: none;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-gradient:hover {
+            background: linear-gradient(135deg, #2a2d3a 0%, #5a8bc4 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success-gradient {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success-gradient:hover {
+            background: linear-gradient(135deg, #0f8774 0%, #32d46a 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 内容区域（与当期拆解收益测算分析表一致） */
+        .content {
+            padding: 40px 32px;
+            overflow: hidden;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        /* 表格区块卡片（与当期拆解收益测算分析表 section-card 一致） */
+        .section-card {
+            background: var(--brand-light);
+            border-radius: 12px;
+            padding: 24px;
+            padding-bottom: 0;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .section-title .section-title-meta {
+            margin-left: auto;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-family: var(--font-body);
+        }
+        
+        /* 统计卡片样式（对齐当期拆解收益测算分析表 summary-panel / summary-card） */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .status-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .status-card .icon {
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .status-card .title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-family: var(--font-body);
+        }
+        
+        .status-card .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+        }
+        
+        /* 搜索卡片样式（对齐当期拆解收益测算分析表 toolbar） */
+        .search-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        
+        .search-card h5 {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: var(--font-heading);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-family: var(--font-body);
+        }
+        
+        .form-control, .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(20, 20, 19, 0.08);
+            outline: none;
+        }
+        
+
+        
+
+        
+        /* 表格滚动容器（与当期拆解收益测算分析表一致：滑动与滚动条） */
+        .table-container {
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+            max-height: 60vh;
+            width: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+            background:
+                linear-gradient(to right, var(--brand-light) 30%, transparent) left center / 40px 100% no-repeat local,
+                linear-gradient(to left, var(--brand-light) 30%, transparent) right center / 40px 100% no-repeat local,
+                linear-gradient(to right, rgba(20, 20, 19, 0.1), transparent) left center / 20px 100% no-repeat scroll,
+                linear-gradient(to left, rgba(20, 20, 19, 0.1), transparent) right center / 20px 100% no-repeat scroll;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--brand-light-gray);
+            border-radius: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--brand-mid-gray);
+            border-radius: 6px;
+            border: 2px solid var(--brand-light-gray);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-mid-gray) var(--brand-light-gray);
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        /* 表格样式（与当期拆解收益测算分析表 .table-cost 一致） */
+        .table-cost {
+            margin: 0;
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--brand-light);
+            font-size: 14px;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+            table-layout: auto;
+            min-width: 1000px;
+        }
+        
+        .table-cost thead {
+            background: var(--primary-color);
+            color: var(--brand-light);
+        }
+        
+        .table-cost th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: var(--font-heading);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 2px 4px rgba(20, 20, 19, 0.12);
+        }
+        
+        .table-cost tbody td {
+            padding: 10px 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        .table-cost tbody td:first-child,
+        .table-cost tbody td:nth-child(2),
+        .table-cost tbody td:nth-child(5),
+        .table-cost tbody td:nth-child(6) {
+            text-align: left;
+        }
+        
+        .table-cost tbody td:first-child {
+            font-weight: 600;
+        }
+        
+        .table-cost tbody td:last-child {
+            text-align: center;
+        }
+        
+        .table-cost tbody tr {
+            transition: background-color 0.2s ease, box-shadow 0.15s ease;
+        }
+        
+        .table-cost tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .table-cost tbody tr:hover {
+            background: rgba(106, 155, 204, 0.08) !important;
+        }
+        
+        /* 分页区域（与 section-card 底部圆角、边框衔接） */
+        .pagination-container {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.02) 0%, rgba(106, 155, 204, 0.03) 100%);
+            border-top: 1px solid var(--border-color);
+            padding: 16px 24px;
+            margin: 0 -24px;
+        }
+        
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-blue));
+            border-color: var(--brand-dark);
+        }
+        
+        .page-link {
+            color: var(--brand-dark);
+            border-color: var(--border-color);
+            transition: all 0.2s ease;
+            font-size: 13px;
+            font-family: var(--font-body);
+        }
+        
+        .page-link:hover {
+            background: rgba(106, 155, 204, 0.1);
+            color: var(--brand-dark);
+            border-color: var(--brand-blue);
+        }
+        
+        .page-item.disabled .page-link {
+            color: var(--brand-mid-gray);
+            border-color: var(--border-color);
+        }
+        
+        /* 按钮样式 */
+        .btn-action {
+            margin: 2px;
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Badge 品牌化 */
+        .table-cost .badge.bg-primary {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-blue)) !important;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-cost .badge.bg-secondary {
+            background: linear-gradient(135deg, var(--brand-mid-gray), var(--brand-light-gray)) !important;
+            color: var(--brand-dark);
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+        
+        .record-type-basic {
+            background: rgba(20, 20, 19, 0.03) !important;
+            font-weight: 600;
+            border-left: 3px solid var(--brand-blue);
+        }
+        
+        .record-type-detail {
+            background: transparent;
+            border-left: 3px solid transparent;
+        }
+        
+        .record-type-detail:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        /* 响应式设计（与当期拆解收益测算分析表一致） */
+        @media (max-width: 768px) {
+            .header {
+                padding: 32px 20px;
+            }
+            
+            .content {
+                padding: 24px 20px;
+            }
+            
+            .btn-group-header {
+                flex-wrap: nowrap;
+            }
+            
+            .btn-header-home {
+                display: none;
+            }
+            
+            /* 移动端页脚样式 */
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .footer-logo {
+                height: 50px;
+                max-width: 100px;
+                min-width: 50px;
+            }
+            
+            .footer-company-name {
+                font-size: 16px;
+            }
+            
+            .footer-company-english {
+                font-size: 12px;
+            }
+            
+            .footer-slogan {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container p-0 animate__animated animate__fadeIn">
+            <!-- 头部区域 -->
+            <div class="header">
+                <div class="row align-items-center">
+                    
+                    <div class="col-md-7 col-12">
+                        <h2 class="mb-1"><i class="fas fa-cube me-2"></i>产品拆解系数管理</h2>
+                        <p class="subtitle mb-0">管理产品拆解系数数据字典，包含产品重量、投入产出比例和拆解明细</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="btn-group-header">
+                            <button class="btn btn-light-transparent btn-header-home" onclick="window.location.href='/'">
+                                <i class="fas fa-home me-1"></i>返回首页
+                            </button>
+                            <button class="btn btn-success-gradient" onclick="showImportModal()">
+                                <i class="fas fa-upload me-1"></i>导入数据
+                            </button>
+                            <button class="btn btn-light-transparent" onclick="exportData()">
+                                <i class="fas fa-download me-1"></i>导出数据
+                            </button>
+                            <button class="btn btn-primary-gradient" onclick="showAddProductModal()">
+                                <i class="fas fa-plus me-1"></i>新增记录
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 面包屑导航 -->
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link"><i class="fas fa-home"></i> 首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <a href="/revenue-forecast/data-management"><i class="fas fa-database"></i> 基础数据管理</a>
+                    <span class="separator">></span>
+                    <span class="current">产品拆解系数管理</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+
+                <!-- 统计信息 -->
+                <div class="status-grid">
+                    <div class="status-card">
+                        <div class="icon" style="color: var(--primary-color);">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <div class="content">
+                            <div class="title">产品数量</div>
+                            <div class="value" id="product-count">-</div>
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <div class="icon" style="color: var(--success-color);">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="content">
+                            <div class="title">拆解明细</div>
+                            <div class="value" id="detail-count">-</div>
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <div class="icon" style="color: var(--warning-color);">
+                            <i class="fas fa-weight"></i>
+                        </div>
+                        <div class="content">
+                            <div class="title">平均重量</div>
+                            <div class="value" id="avg-weight">-</div>
+                        </div>
+                    </div>
+                    <div class="status-card">
+                        <div class="icon" style="color: var(--info-color);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="content">
+                            <div class="title">最后更新</div>
+                            <div class="value" style="font-size: 14px;" id="last-updated">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 搜索和筛选 -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="search-card p-4">
+                            <h5 class="mb-3"><i class="fas fa-search text-primary"></i> 数据查询</h5>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="form-label">关键词搜索</label>
+                                    <input type="text" class="form-control" id="searchInput" 
+                                           placeholder="输入产品代码或产物名称搜索">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">记录类型</label>
+                                    <select class="form-select" id="recordTypeFilter">
+                                        <option value="">全部类型</option>
+                                        <option value="基本信息">基本信息</option>
+                                        <option value="拆解明细">拆解明细</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">每页显示</label>
+                                    <select class="form-select" id="pageSizeSelect">
+                                        <option value="20">20 条/页</option>
+                                        <option value="50" selected>50 条/页</option>
+                                        <option value="100">100 条/页</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="d-flex gap-2 justify-content-end" style="padding-top: 32px;">
+                                        <button class="btn btn-primary" onclick="applyFilters()">
+                                            <i class="fas fa-search"></i> 搜索
+                                        </button>
+                                        <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                                            <i class="fas fa-times"></i> 清除筛选
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="section-card">
+                            <div class="section-title">
+                                <i class="fas fa-table"></i>
+                                产品拆解数据列表
+                                <span class="section-title-meta" id="currentShowing">显示第 1-50 条，总共 - 条记录</span>
+                            </div>
+                            <div class="table-container">
+                                <table class="table table-cost" id="productTable">
+                                    <thead>
+                                        <tr>
+                                            <th>产品代码</th>
+                                            <th>产品拆解系数名称</th>
+                                            <th>单台重量(KG)</th>
+                                            <th>投入产出比例</th>
+                                            <th>拆解产物编码</th>
+                                            <th>拆解产物名称</th>
+                                            <th>拆解系数</th>
+                                            <th>记录类型</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productTableBody">
+                                        <!-- 数据将通过JavaScript加载 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- 分页 -->
+                            <div class="pagination-container">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <span class="text-muted" id="recordInfo">总共 - 条记录</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <nav>
+                                            <ul class="pagination pagination-sm justify-content-end mb-0" id="pagination">
+                                                <!-- 分页按钮将通过JavaScript生成 -->
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+        </div>
+    </div>
+
+    <!-- JavaScript库 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        let currentPage = 1;
+        let pageSize = 50;
+        let totalRecords = 0;
+        let allData = [];
+        let filteredData = [];
+
+        function __toNumberOrNull(v) {
+            const n = (typeof v === 'number') ? v : parseFloat(v);
+            return Number.isFinite(n) ? n : null;
+        }
+
+        function getBsModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (!el) return null;
+            if (!window.bootstrap || !bootstrap.Modal) {
+                console.error('Bootstrap Modal 未加载，无法打开模态框:', modalId);
+                return null;
+            }
+            return bootstrap.Modal.getOrCreateInstance(el, { backdrop: true, focus: true, keyboard: true });
+        }
+
+        function showBsModal(modalId) {
+            const modal = getBsModal(modalId);
+            if (modal) modal.show();
+        }
+
+        function hideBsModal(modalId) {
+            const el = document.getElementById(modalId);
+            if (!el || !window.bootstrap || !bootstrap.Modal) return;
+            const modal = bootstrap.Modal.getInstance(el);
+            if (modal) modal.hide();
+        }
+
+        // 页面加载时初始化
+        $(document).ready(function() {
+            loadData();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // 搜索 - 实时搜索
+            $('#searchInput').on('input', filterData);
+            $('#recordTypeFilter').on('change', filterData);
+            $('#pageSizeSelect').on('change', function() {
+                pageSize = parseInt($(this).val());
+                currentPage = 1;
+                displayData();
+            });
+            
+            // 回车键搜索
+            $('#searchInput').on('keypress', function(e) {
+                if (e.which === 13) {
+                    applyFilters();
+                }
+            });
+        }
+
+        function loadData() {
+            // 获取所有数据（设置足够大的per_page值确保获取所有记录）
+            $.get('/api/data-management/product?per_page=99999', function(response) {
+                if (response.success) {
+                    allData = response.data;
+                    filteredData = [...allData];
+                    totalRecords = allData.length;
+                    
+                    console.log('数据加载成功:', allData.length, '条记录');
+                    
+                    // 更新统计信息
+                    updateStatistics(response.statistics);
+                    
+                    // 显示数据
+                    displayData();
+                } else {
+                    showAlert('error', '数据加载失败: ' + response.message);
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('API调用失败:', error);
+                showAlert('error', '数据加载失败，请检查网络连接');
+            });
+        }
+
+        function updateStatistics(stats) {
+            $('#product-count').text(stats.product_count);
+            $('#detail-count').text(stats.detail_count);
+                            $('#avg-weight').text(stats.avg_weight.toFixed(4) + ' KG');
+            $('#last-updated').text(stats.last_updated || '未知');
+        }
+
+        // 应用筛选
+        function applyFilters() {
+            filterData();
+        }
+
+        // 清除筛选
+        function clearFilters() {
+            $('#searchInput').val('');
+            $('#recordTypeFilter').val('');
+            filterData();
+            showAlert('success', '筛选已清除');
+        }
+
+        function filterData() {
+            const searchTerm = $('#searchInput').val().toLowerCase();
+            const recordType = $('#recordTypeFilter').val();
+            
+            filteredData = allData.filter(record => {
+                const matchSearch = !searchTerm || 
+                    record.产品代码.toLowerCase().includes(searchTerm) ||
+                    (record.拆解产物名称 && record.拆解产物名称.toLowerCase().includes(searchTerm));
+                
+                const matchType = !recordType || record.记录类型 === recordType;
+                
+                return matchSearch && matchType;
+            });
+            
+            totalRecords = filteredData.length;
+            currentPage = 1;
+            displayData();
+        }
+
+        function displayData() {
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredData.slice(startIndex, endIndex);
+            
+            const tbody = $('#productTableBody');
+            tbody.empty();
+            
+            pageData.forEach(record => {
+                // 格式化数字显示函数
+                const formatNumber = (value) => {
+                    if (!value || value === '-' || isNaN(value)) return '-';
+                    const num = parseFloat(value);
+                    // 保留4位小数
+                    return num.toFixed(4);
+                };
+                
+                const row = $(`
+                    <tr class="${record.记录类型 === '基本信息' ? 'record-type-basic' : 'record-type-detail'}">
+                        <td>${record.产品代码}</td>
+                        <td>${record.记录类型 === '基本信息' ? (record.产品拆解系数名称 || '-') : '-'}</td>
+                        <td>${formatNumber(record.单台重量)}</td>
+                        <td>${formatNumber(record.投入产出比例)}</td>
+                        <td>${record.拆解产物编码 || '-'}</td>
+                        <td>${record.拆解产物名称 || '-'}</td>
+                        <td>${formatNumber(record.拆解系数)}</td>
+                        <td>
+                            <span class="badge ${record.记录类型 === '基本信息' ? 'bg-primary' : 'bg-secondary'}">
+                                ${record.记录类型}
+                            </span>
+                        </td>
+                        <td>
+                            ${record.记录类型 === '基本信息' ? 
+                                `<button class="btn btn-outline-primary btn-action" onclick="editProduct('${record.产品代码}')">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="btn btn-outline-danger btn-action" onclick="deleteProduct('${record.产品代码}')">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>` : 
+                                `<button class="btn btn-outline-secondary btn-action" onclick="editProduct('${record.产品代码}')">
+                                    <i class="fas fa-eye"></i> 查看产品
+                                </button>`
+                            }
+                        </td>
+                    </tr>
+                `);
+                tbody.append(row);
+            });
+            
+            // 更新记录信息和分页
+            updateRecordInfo();
+            updatePagination();
+        }
+
+        function updateRecordInfo() {
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, totalRecords);
+            $('#currentShowing').text(`显示第 ${start}-${end} 条，总共 ${totalRecords} 条记录`);
+            $('#recordInfo').text(`总共 ${totalRecords} 条记录`);
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            const pagination = $('#pagination');
+            pagination.empty();
+            
+            if (totalPages <= 1) return;
+            
+            // 上一页
+            pagination.append(`
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">上一页</a>
+                </li>
+            `);
+            
+            // 页码
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                pagination.append('<li class="page-item"><a class="page-link" href="#" onclick="changePage(1)">1</a></li>');
+                if (startPage > 2) {
+                    pagination.append('<li class="page-item disabled"><span class="page-link">...</span></li>');
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.append(`
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                    </li>
+                `);
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagination.append('<li class="page-item disabled"><span class="page-link">...</span></li>');
+                }
+                pagination.append(`<li class="page-item"><a class="page-link" href="#" onclick="changePage(${totalPages})">${totalPages}</a></li>`);
+            }
+            
+            // 下一页
+            pagination.append(`
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">下一页</a>
+                </li>
+            `);
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(totalRecords / pageSize)) return;
+            currentPage = page;
+            displayData();
+        }
+
+        function showAddProductModal() {
+            $('#addProductForm')[0].reset();
+            $('#disassemblyDetails').empty();
+            showBsModal('addProductModal');
+        }
+
+        function addDisassemblyDetail() {
+            const container = $('#disassemblyDetails');
+            const index = container.children().length;
+            const detailHtml = `
+                <div class="detail-item border p-3 mb-3 rounded">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">拆解产物编码 *</label>
+                            <input type="text" class="form-control" name="detail_code_${index}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">拆解产物名称 *</label>
+                            <input type="text" class="form-control" name="detail_name_${index}" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-danger" onclick="$(this).closest('.detail-item').remove()">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">拆解系数 *</label>
+                            <input type="number" class="form-control" name="detail_ratio_${index}" step="0.000001" required>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.append(detailHtml);
+        }
+
+        function addEditDisassemblyDetail() {
+            const container = $('#editDisassemblyDetails');
+            const index = container.children().length;
+            const detailHtml = `
+                <div class="detail-item border p-3 mb-3 rounded">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">拆解产物编码 *</label>
+                            <input type="text" class="form-control" name="edit_detail_code_${index}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">拆解产物名称 *</label>
+                            <input type="text" class="form-control" name="edit_detail_name_${index}" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-danger" onclick="$(this).closest('.detail-item').remove()">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">拆解系数 *</label>
+                            <input type="number" class="form-control" name="edit_detail_ratio_${index}" step="0.000001" required>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.append(detailHtml);
+        }
+
+        function saveProduct() {
+            const form = $('#addProductForm')[0];
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // 收集基本信息
+            const productData = {
+                产品代码: $('#productCode').val(),
+                单台重量: parseFloat($('#unitWeight').val()),
+                投入产出比例: parseFloat($('#inputOutputRatio').val()),
+                拆解明细: []
+            };
+
+            // 收集拆解明细
+            $('#disassemblyDetails .detail-item').each(function(index) {
+                const code = $(`input[name^="detail_code_${index}"]`, this).val();
+                const name = $(`input[name^="detail_name_${index}"]`, this).val();
+                const ratio = $(`input[name^="detail_ratio_${index}"]`, this).val();
+                
+                if (code && name && ratio) {
+                    productData.拆解明细.push({
+                        拆解产物编码: code,
+                        拆解产物名称: name,
+                        拆解系数: parseFloat(ratio)
+                    });
+                }
+            });
+
+            // 验证至少有一个拆解明细
+            if (productData.拆解明细.length === 0) {
+                showAlert('warning', '请至少添加一个拆解明细');
+                return;
+            }
+
+            // 发送数据
+            $.ajax({
+                url: '/api/data-management/product',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(productData),
+                success: function(response) {
+                    if (response.success) {
+                        hideBsModal('addProductModal');
+                        showAlert('success', '产品添加成功');
+                        loadData();
+                    } else {
+                        showAlert('error', '保存失败: ' + (response.message || response.error || '未知错误'));
+                    }
+                },
+                error: function() {
+                    showAlert('error', '保存失败，请检查网络连接');
+                }
+            });
+        }
+
+        function editProduct(productCode) {
+            // 获取产品详细信息
+            $.get(`/api/data-management/product/${productCode}`, function(response) {
+                if (response.success) {
+                    const product = response.data;
+                    
+                    // 填充基本信息
+                    $('#editProductCode').val(product.产品代码);
+                    $('#editProductName').val(product.产品拆解系数名称 || '');
+                    // 回填保持原值展示（不在界面上强制改小数位）
+                    $('#editUnitWeight').val(product.单台重量);
+                    $('#editInputOutputRatio').val(product.投入产出比例);
+                    
+                    // 填充拆解明细
+                    const container = $('#editDisassemblyDetails');
+                    container.empty();
+                    
+                    product.拆解明细.forEach((detail, index) => {
+                        const detailHtml = `
+                            <div class="detail-item border p-3 mb-3 rounded">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">拆解产物编码 *</label>
+                                        <input type="text" class="form-control" name="edit_detail_code_${index}" 
+                                               value="${detail.拆解产物编码}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">拆解产物名称 *</label>
+                                        <input type="text" class="form-control" name="edit_detail_name_${index}" 
+                                               value="${detail.拆解产物名称}" required>
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-outline-danger" onclick="$(this).closest('.detail-item').remove()">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">拆解系数 *</label>
+                                        <input type="number" class="form-control" name="edit_detail_ratio_${index}" 
+                                               value="${detail.拆解系数}" step="0.000001" required>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.append(detailHtml);
+                    });
+
+                    // 避免 step=0.000001 导致原始高精度值触发 stepMismatch（不改变展示值）
+                    try {
+                        document.getElementById('editUnitWeight')?.setAttribute('step', 'any');
+                        document.getElementById('editInputOutputRatio')?.setAttribute('step', 'any');
+                        document.querySelectorAll('#editDisassemblyDetails input[name^="edit_detail_ratio_"]')
+                            .forEach(el => el.setAttribute('step', 'any'));
+                    } catch (_) {}
+                    
+                    showBsModal('editProductModal');
+                } else {
+                    showAlert('error', '获取产品信息失败: ' + (response.message || response.error || '未知错误'));
+                }
+            }).fail(function(xhr) {
+                let msg = '获取产品信息失败，请检查网络连接';
+                if (xhr && xhr.responseJSON) {
+                    msg = xhr.responseJSON.message || xhr.responseJSON.error || msg;
+                }
+                showAlert('error', msg);
+            });
+        }
+
+        function updateProduct() {
+            const form = $('#editProductForm')[0];
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // 收集数据
+            const productData = {
+                产品代码: $('#editProductCode').val(),
+                // 保持原始精度：不在提交阶段做 round；仅通过 step=any 避免浏览器 stepMismatch
+                单台重量: __toNumberOrNull($('#editUnitWeight').val()),
+                投入产出比例: __toNumberOrNull($('#editInputOutputRatio').val()),
+                拆解明细: []
+            };
+
+            // 收集拆解明细
+            $('#editDisassemblyDetails .detail-item').each(function(index) {
+                const code = $(`input[name^="edit_detail_code_${index}"]`, this).val();
+                const name = $(`input[name^="edit_detail_name_${index}"]`, this).val();
+                const ratio = $(`input[name^="edit_detail_ratio_${index}"]`, this).val();
+                
+                if (code && name && ratio) {
+                    const ratioNum = __toNumberOrNull(ratio);
+                    if (ratioNum === null) return;
+                    productData.拆解明细.push({
+                        拆解产物编码: code,
+                        拆解产物名称: name,
+                        拆解系数: ratioNum
+                    });
+                }
+            });
+
+            // 发送更新请求
+            $.ajax({
+                url: `/api/data-management/product/${productData.产品代码}`,
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(productData),
+                success: function(response) {
+                    if (response.success) {
+                        hideBsModal('editProductModal');
+                        showAlert('success', '产品更新成功');
+                        loadData();
+                        
+                        // 通知首页和当期拆解收益测算分析表刷新数据
+                        sessionStorage.setItem('profit_summary_needs_reload', 'true');
+                        localStorage.setItem('disassembly_profit_analysis_data_updated', Date.now().toString());
+                    } else {
+                        showAlert('error', '更新失败: ' + (response.message || response.error || '未知错误'));
+                    }
+                },
+                error: function() {
+                    showAlert('error', '更新失败，请检查网络连接');
+                }
+            });
+        }
+
+        function deleteProduct(productCode) {
+            if (!confirm(`确定要删除产品 "${productCode}" 吗？此操作不可恢复。`)) {
+                return;
+            }
+
+            $.ajax({
+                url: `/api/data-management/product/${productCode}`,
+                method: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', '产品删除成功');
+                        loadData();
+                        
+                        // 通知首页和当期拆解收益测算分析表刷新数据
+                        sessionStorage.setItem('profit_summary_needs_reload', 'true');
+                        localStorage.setItem('disassembly_profit_analysis_data_updated', Date.now().toString());
+                    } else {
+                        showAlert('error', '删除失败: ' + (response.message || response.error || '未知错误'));
+                    }
+                },
+                error: function() {
+                    showAlert('error', '删除失败，请检查网络连接');
+                }
+            });
+        }
+
+        function refreshData() {
+            loadData();
+            showAlert('info', '数据已刷新');
+        }
+
+        function showAlert(type, message) {
+            const alertClass = {
+                'success': 'alert-success',
+                'error': 'alert-danger', 
+                'warning': 'alert-warning',
+                'info': 'alert-info'
+            }[type] || 'alert-info';
+            
+            const alert = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+            
+            $('.main-container').prepend(alert);
+            
+            // 3秒后自动关闭
+            setTimeout(() => {
+                alert.alert('close');
+            }, 3000);
+        }
+        
+        // 显示导入模态框
+        function showImportModal() {
+            // 重置表单
+            $('#importForm')[0].reset();
+            $('#importProgress').hide();
+            $('#importResult').hide();
+            $('#startImportBtn').prop('disabled', false);
+            
+            showBsModal('importModal');
+        }
+        
+        // 下载模板
+        function downloadTemplate() {
+            window.open('/api/data-management/product/template', '_blank');
+        }
+        
+        // 开始导入
+        function startImport() {
+            const fileInput = $('#fileInput')[0];
+            const importMode = $('#importMode').val();
+            
+            // 验证文件
+            if (!fileInput.files.length) {
+                showAlert('warning', '请选择要导入的Excel文件');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const allowedTypes = [
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-excel'
+            ];
+            
+            if (!allowedTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls)$/i)) {
+                showAlert('error', '请选择有效的Excel文件 (.xlsx 或 .xls)');
+                return;
+            }
+            
+            // 确认导入
+            const modeText = importMode === 'replace' ? '覆盖现有数据' : '追加到现有数据';
+            if (!confirm(`确定要导入数据吗？\n导入模式：${modeText}\n\n此操作可能会修改现有数据，建议先备份。`)) {
+                return;
+            }
+            
+            // 显示进度条
+            $('#importProgress').show();
+            $('#importResult').hide();
+            $('#startImportBtn').prop('disabled', true);
+            updateProgress(0, '准备导入...');
+            
+            // 创建FormData
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('import_mode', importMode);
+            
+            // 发送请求
+            $.ajax({
+                url: '/api/data-management/product/import',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhr: function() {
+                    const xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            const percent = Math.round((e.loaded / e.total) * 50); // 上传占50%
+                            updateProgress(percent, '上传文件中...');
+                        }
+                    });
+                    return xhr;
+                },
+                success: function(response) {
+                    updateProgress(100, '导入完成');
+                    
+                    if (response.success) {
+                        let resultHtml = `
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-check-circle"></i> 导入成功</h6>
+                                <p class="mb-2">${response.message}</p>
+                                <ul class="mb-0">
+                                    <li>成功导入：${response.imported_count} 个产品</li>
+                                    <li>总记录数：${response.total_count} 条</li>
+                                    <li>导入模式：${response.mode === 'replace' ? '覆盖模式' : '追加模式'}</li>
+                                </ul>
+                            </div>
+                        `;
+                        
+                        // 显示警告信息（如果有）
+                        if (response.warnings && response.warnings.length > 0) {
+                            resultHtml += `
+                                <div class="alert alert-warning">
+                                    <h6><i class="fas fa-exclamation-triangle"></i> 导入警告</h6>
+                                    <p>以下记录存在问题被跳过：</p>
+                                    <ul class="mb-0">
+                                        ${response.warnings.slice(0, 5).map(warning => `<li>${warning}</li>`).join('')}
+                                        ${response.warnings.length > 5 ? `<li>...还有 ${response.warnings.length - 5} 条警告</li>` : ''}
+                                    </ul>
+                                </div>
+                            `;
+                        }
+                        
+                        $('#importResult').html(resultHtml).show();
+                        
+                        // 刷新数据
+                        setTimeout(() => {
+                            loadData();
+                            hideBsModal('importModal');
+                            showAlert('success', response.message);
+                        }, 2000);
+                        
+                    } else {
+                        let errorHtml = `
+                            <div class="alert alert-danger">
+                                <h6><i class="fas fa-times-circle"></i> 导入失败</h6>
+                                <p>${response.error}</p>
+                        `;
+                        
+                        if (response.details && response.details.length > 0) {
+                            errorHtml += `
+                                <p>详细错误：</p>
+                                <ul class="mb-0">
+                                    ${response.details.slice(0, 5).map(detail => `<li>${detail}</li>`).join('')}
+                                    ${response.details.length > 5 ? `<li>...还有 ${response.details.length - 5} 条错误</li>` : ''}
+                                </ul>
+                            `;
+                        }
+                        
+                        errorHtml += '</div>';
+                        $('#importResult').html(errorHtml).show();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    updateProgress(0, '导入失败');
+                    
+                    let errorMessage = '导入失败，请检查网络连接';
+                    let noteMessage = '';
+                    
+                    if (xhr.responseJSON) {
+                        if (xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        }
+                        
+                        if (xhr.responseJSON.note) {
+                            noteMessage = xhr.responseJSON.note;
+                        }
+                    }
+                    
+                    const errorHtml = `
+                        <div class="alert alert-danger">
+                            <h6><i class="fas fa-times-circle"></i> 导入失败</h6>
+                            <p>${errorMessage}</p>
+                            ${noteMessage ? `<p class="mb-0 mt-2"><small class="text-muted">${noteMessage}</small></p>` : ''}
+                        </div>
+                    `;
+                    
+                    $('#importResult').html(errorHtml).show();
+                },
+                complete: function() {
+                    $('#startImportBtn').prop('disabled', false);
+                }
+            });
+        }
+        
+        // 更新进度条
+        function updateProgress(percent, text) {
+            $('#progressBar').css('width', percent + '%');
+            $('#progressText').text(percent + '%');
+            if (text) {
+                $('#progressText').text(text + ' (' + percent + '%)');
+            }
+        }
+        
+        // 导出数据
+        function exportData() {
+            window.open('/api/data-management/product/export', '_blank');
+        }
+        
+        // 表头提示功能
+        function initTableHeaderTooltips() {
+            const tableHeaders = document.querySelectorAll('.table th');
+            tableHeaders.forEach(th => {
+                // 检查文本是否被截断
+                if (th.scrollWidth > th.clientWidth) {
+                    th.title = th.textContent.trim();
+                    th.style.cursor = 'help';
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化提示功能
+        document.addEventListener('DOMContentLoaded', function() {
+            initTableHeaderTooltips();
+        });
+        
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        })();
+    </script>
+    
+    <!-- 页脚Logo区域 -->
+    <footer class="footer-logo-section">
+        <div class="container">
+            <div class="footer-content">
+                <img src="/logo/logo.png" alt="四川长虹格润环保科技股份有限公司" class="footer-logo">
+                <div class="footer-text">
+                    <p class="footer-company-name">四川长虹格润环保科技股份有限公司</p>
+                    <p class="footer-company-english">Sichuan Changhong Green Environmental Technology Co., Ltd.</p>
+                    <p class="footer-slogan">专业的环保科技解决方案提供商</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap bundle 已在上方引入一次，避免重复加载导致模态框/遮罩状态异常 -->
+
+    <!-- 新增产品模态框（置于body末尾，避免被main-container的overflow:hidden裁剪） -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus me-2"></i>新增产品</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">产品代码 *</label>
+                                <input type="text" class="form-control" id="productCode" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">单台重量(KG) *</label>
+                                <input type="number" class="form-control" id="unitWeight" step="0.000001" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">投入产出比例 *</label>
+                                <input type="number" class="form-control" id="inputOutputRatio" step="0.000001" required>
+                            </div>
+                        </div>
+                        <hr>
+                        <h6><i class="fas fa-cogs me-2"></i>拆解明细</h6>
+                        <div id="disassemblyDetails">
+                            <!-- 拆解明细将通过JavaScript动态添加 -->
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addDisassemblyDetail()">
+                            <i class="fas fa-plus me-1"></i>添加拆解明细
+                        </button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProduct()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑产品模态框（置于body末尾，避免被main-container的overflow:hidden裁剪） -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>编辑产品</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">产品代码</label>
+                                <input type="text" class="form-control" id="editProductCode" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">产品拆解系数名称</label>
+                                <input type="text" class="form-control" id="editProductName" readonly>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">单台重量(KG) *</label>
+                                <input type="number" class="form-control" id="editUnitWeight" step="0.000001" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">投入产出比例 *</label>
+                                <input type="number" class="form-control" id="editInputOutputRatio" step="0.000001" required>
+                            </div>
+                        </div>
+                        <hr>
+                        <h6><i class="fas fa-cogs me-2"></i>拆解明细</h6>
+                        <div id="editDisassemblyDetails">
+                            <!-- 拆解明细将通过JavaScript动态加载 -->
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addEditDisassemblyDetail()">
+                            <i class="fas fa-plus me-1"></i>添加拆解明细
+                        </button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProduct()">更新</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入数据模态框（置于body末尾，避免被main-container的overflow:hidden裁剪） -->
+    <div class="modal fade" id="importModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-upload text-success"></i> 导入产品拆解系数数据
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6><i class="fas fa-info-circle"></i> 导入说明：</h6>
+                                <ul class="mb-0">
+                                    <li>支持 Excel 文件格式 (.xlsx, .xls)</li>
+                                    <li>必须包含列：产品代码、单台重量、投入产出比例、拆解产物编码、拆解产物名称、拆解系数、记录类型</li>
+                                    <li>每个产品需要一行"基本信息"记录和多行"拆解明细"记录</li>
+                                    <li>追加模式：重复数据会更新，新数据会添加</li>
+                                    <li>覆盖模式：将清空现有数据，只保留导入的数据</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="downloadTemplate()">
+                                    <i class="fas fa-download"></i> 下载模板
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form id="importForm" enctype="multipart/form-data">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">选择Excel文件 *</label>
+                                <input type="file" class="form-control" id="fileInput" accept=".xlsx,.xls" required>
+                                <div class="form-text">仅支持.xlsx和.xls格式</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">导入模式 *</label>
+                                <select class="form-select" id="importMode" required>
+                                    <option value="append">追加模式（保留现有数据）</option>
+                                    <option value="replace">覆盖模式（清空现有数据）</option>
+                                </select>
+                                <div class="form-text">追加模式会更新已有数据并添加新数据</div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- 进度条 -->
+                    <div id="importProgress" class="mb-3" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>导入进度</span>
+                            <span id="progressText">0%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 id="progressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 导入结果 -->
+                    <div id="importResult" style="display: none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" id="startImportBtn" onclick="startImport()">
+                        <i class="fas fa-upload"></i> 开始导入
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

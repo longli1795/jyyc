@@ -1,0 +1,2098 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深加工数据管理 - 经营预测系统</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* 品牌色（与当期拆解收益测算分析表一致） */
+        :root {
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 40px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .system-title-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+        }
+
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+
+        /* 页脚Logo样式（品牌色，与当期拆解收益测算分析表一致） */
+        .footer-logo-section {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            height: 60px;
+            max-width: 120px;
+            min-width: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: var(--brand-light);
+            padding: 8px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            display: block;
+        }
+
+        .footer-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-text {
+            text-align: center;
+            color: var(--brand-light);
+        }
+
+        .footer-company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-company-english {
+            font-size: 14px;
+            font-style: italic;
+            margin: 0 0 8px 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: rgba(250, 249, 245, 0.95);
+        }
+
+        .footer-slogan {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .content {
+            padding: 40px 32px;
+            overflow: hidden;
+        }
+
+        /* 头部按钮（品牌色，与当期拆解收益测算分析表一致） */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            border: none;
+            color: var(--brand-light);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1000;
+            pointer-events: auto;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+
+        .btn-success-custom {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            border: none;
+            color: var(--brand-light);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-success-custom:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+
+        .btn-outline-custom {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: var(--brand-light);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: var(--brand-light);
+            transform: translateY(-1px);
+        }
+        
+        /* 面包屑导航样式（与当期拆解收益测算分析表一致） */
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 99998;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-weight: 500;
+        }
+
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单（品牌色，与当期拆解收益测算分析表一致） */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+
+        /* 统计卡片（对齐当期拆解收益测算分析表 summary-panel / summary-card） */
+        .summary-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* 工具栏（与当期拆解收益测算分析表 toolbar 一致） */
+        .toolbar {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        #searchInput,
+        .toolbar .form-control[type="text"] {
+            width: 300px;
+            max-width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        /* 数据表格区块（对齐当期拆解收益测算分析表 section-card） */
+        .section-card {
+            background: var(--brand-light);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .table-container {
+            background: var(--brand-light);
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+            max-height: 60vh;
+            width: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: var(--brand-light-gray);
+            border-radius: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--brand-mid-gray);
+            border-radius: 6px;
+            border: 2px solid var(--brand-light-gray);
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-mid-gray) var(--brand-light-gray);
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        .table-responsive {
+            max-height: 100%;
+            overflow: visible;
+        }
+
+        .table-cost,
+        .table-cost.table {
+            margin: 0;
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--brand-light);
+            font-size: 14px;
+            table-layout: auto;
+        }
+
+        .table-cost thead,
+        .table th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table-cost tbody td,
+        .table-cost.table td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .table-cost tbody tr:nth-child(even),
+        .table-cost.table tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+
+        .table-cost tbody tr:hover,
+        .table-cost.table tbody tr:hover {
+            background: rgba(106, 155, 204, 0.06);
+        }
+
+        .table-cost.table {
+            margin-bottom: 0;
+        }
+
+        .btn-action {
+            margin: 0 2px;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--info-color);
+            box-shadow: 0 0 0 0.2rem rgba(106, 155, 204, 0.25);
+        }
+
+        .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+
+        .pagination-container {
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 16px;
+        }
+
+        .page-link {
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 0 2px;
+        }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            border-color: var(--primary-color);
+            color: var(--brand-light);
+        }
+
+        .page-link:hover {
+            background-color: var(--light-bg);
+            border-color: var(--info-color);
+            color: var(--info-color);
+        }
+
+        /* 移动端响应式设计（与当期拆解收益测算分析表一致） */
+        @media (max-width: 768px) {
+            .content {
+                padding: 24px 20px;
+            }
+
+            .header {
+                padding: 32px 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .header .subtitle {
+                font-size: 14px;
+            }
+
+            .header .d-flex {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 8px;
+            }
+
+            .header .btn,
+            .header .btn-outline-custom,
+            .header .btn-primary-custom,
+            .header .btn-success-custom {
+                width: 100%;
+                justify-content: center;
+                font-size: 14px;
+                padding: 10px 16px;
+                margin: 0;
+            }
+
+            .summary-panel {
+                gap: 12px;
+            }
+
+            .summary-card {
+                padding: 16px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #searchInput,
+            .toolbar .form-control[type="text"] {
+                width: 100%;
+            }
+
+            .table-container {
+                max-height: 50vh;
+            }
+
+            .table-responsive {
+                font-size: 12px;
+            }
+
+            .btn-action {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .footer-logo {
+                height: 50px;
+                max-width: 100px;
+                min-width: 50px;
+            }
+
+            .footer-company-name {
+                font-size: 16px;
+            }
+
+            .footer-company-english {
+                font-size: 12px;
+            }
+
+            .footer-slogan {
+                font-size: 12px;
+            }
+        }
+
+        /* 模态框样式（品牌色，与当期拆解收益测算分析表一致） */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            z-index: 1000;
+            pointer-events: auto;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.03) 0%, rgba(106, 155, 204, 0.06) 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container animate__animated animate__fadeIn">
+            <!-- Header -->
+            <div class="header">
+                <!-- 系统标题区域 -->
+                <div class="system-title-section">
+                    <div>
+                        <h1><i class="fas fa-cogs"></i>深加工数据管理</h1>
+                        <div class="subtitle">管理深加工拆解系数表数据</div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <a href="/" class="btn-outline-custom" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: white;">
+                            <i class="fas fa-home"></i>
+                            返回首页
+                        </a>
+                        <button class="btn btn-success-custom" style="background: rgba(16, 185, 129, 0.9); border-color: rgba(16, 185, 129, 0.9);" onclick="showImportModal()">
+                            <i class="fas fa-upload"></i>
+                            导入数据
+                        </button>
+                        <button class="btn-outline-custom" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: white;" id="exportBtn">
+                            <i class="fas fa-download"></i>
+                            导出数据
+                        </button>
+                        <button class="btn-primary-custom" onclick="showAddModal()">
+                            <i class="fas fa-plus"></i>新增记录
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 面包屑导航 -->
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link"><i class="fas fa-home"></i> 首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <a href="/revenue-forecast/data-management" target="_blank"><i class="fas fa-database"></i> 基础数据管理</a>
+                    <span class="separator">></span>
+                    <span class="current">深加工数据管理</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+
+        <!-- 统计卡片 -->
+        <div class="summary-panel" id="statisticsCards">
+            <!-- 动态加载统计卡片 -->
+        </div>
+
+        <!-- 搜索和筛选（toolbar） -->
+        <div class="toolbar">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <input type="text" class="form-control" id="searchInput" placeholder="搜索拆解产物编码、名称、深加工产物等...">
+                <button class="btn btn-success" id="searchBtn">
+                    <i class="fas fa-search"></i> 搜索
+                </button>
+                <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> 清除筛选
+                </button>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="section-card">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <h5 class="section-title mb-0"><i class="fas fa-table text-info"></i> 深加工数据列表</h5>
+                <div>
+                    <span class="text-muted">每页显示:</span>
+                    <select class="form-select form-select-sm d-inline-block w-auto ms-2" id="perPageSelect">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-cost table-hover">
+                        <thead>
+                            <tr>
+                                <th>拆解产物编码</th>
+                                <th>拆解产物名称</th>
+                                <th>深加工产物编码</th>
+                                <th>深加工产物名称</th>
+                                <th>投入产出比例</th>
+                                <th>拆解系数</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody">
+                            <!-- 动态加载数据 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="pagination-container">
+                <nav aria-label="分页导航" id="paginationContainer">
+                    <!-- 动态加载分页 -->
+                </nav>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- 详情查看模态框 -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-info-circle text-info"></i> 深加工数据详情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailModalBody">
+                    <!-- 动态加载详情内容 -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入数据模态框 -->
+    <div class="modal fade" id="importModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-upload text-success"></i> 导入深加工数据
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6><i class="fas fa-info-circle"></i> 导入说明：</h6>
+                                <ul class="mb-0">
+                                    <li>支持 Excel 文件格式 (.xlsx, .xls)</li>
+                                    <li>必须包含列：拆解产物编码、拆解产物名称、产品拆解系数名称、深加工投入产出比例、深加工拆解系数、深加工产物编码、深加工产物名称</li>
+                                    <li>追加模式：重复数据会更新，新数据会添加</li>
+                                    <li>覆盖模式：将清空现有数据，只保留导入的数据</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="deepProcessingManager.downloadTemplate()">
+                                    <i class="fas fa-download"></i> 下载模板
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form id="importForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">选择Excel文件 <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="importFile" accept=".xlsx,.xls" required>
+                            <div class="form-text">请选择包含深加工数据的Excel文件</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">导入模式 <span class="text-danger">*</span></label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="import_mode" id="append_mode" value="append" checked>
+                                        <label class="form-check-label" for="append_mode">
+                                            <i class="fas fa-plus-circle text-success"></i> 追加数据
+                                            <div class="small text-muted">在现有数据基础上添加新数据，重复数据会更新</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="import_mode" id="replace_mode" value="replace">
+                                        <label class="form-check-label" for="replace_mode">
+                                            <i class="fas fa-sync-alt text-warning"></i> 覆盖数据
+                                            <div class="small text-muted">清空现有数据，只保留导入的数据</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="importPreview" class="mt-3" style="display: none;">
+                            <h6><i class="fas fa-eye text-info"></i> 文件预览：</h6>
+                            <div class="table-responsive" style="max-height: 300px;">
+                                <table class="table table-sm table-bordered">
+                                    <thead id="previewHeader"></thead>
+                                    <tbody id="previewBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="importBtn" onclick="deepProcessingManager.importData()">
+                        <i class="fas fa-upload"></i> 开始导入
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑模态框 -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalTitle">
+                        <i class="fas fa-edit text-warning"></i> 编辑深加工数据
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">拆解产物编码 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_拆解产物编码" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">拆解产物名称 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_拆解产物名称" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">产品拆解系数名称 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_产品拆解系数名称" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">深加工产物编码 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_深加工产物编码" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">深加工产物名称 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_深加工产物名称" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">深加工投入产出比例 <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.000001" class="form-control" id="edit_深加工投入产出比例" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">深加工拆解系数 <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.000001" class="form-control" id="edit_深加工拆解系数" required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="deepProcessingManager.saveRecord()">
+                        <i class="fas fa-save"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        class DeepProcessingManager {
+            constructor() {
+                this.currentPage = 1;
+                this.perPage = 50;
+                this.searchQuery = '';
+                this.materialCode = '';
+                this.currentEditId = undefined;
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.loadStatistics();
+                this.loadData();
+            }
+            
+            bindEvents() {
+                // 搜索按钮
+                document.getElementById('searchBtn').addEventListener('click', () => {
+                    this.search();
+                });
+                
+                // 搜索框回车
+                document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.search();
+                    }
+                });
+                
+
+                
+                // 每页条数变化
+                document.getElementById('perPageSelect').addEventListener('change', (e) => {
+                    this.perPage = parseInt(e.target.value);
+                    this.currentPage = 1;
+                    this.loadData();
+                });
+                
+                // 导出按钮
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportData();
+                });
+            }
+            
+            async loadStatistics() {
+                try {
+                    const response = await fetch('/api/data-management/deep-processing/statistics');
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.renderStatistics(result.data);
+                    } else {
+                        this.showError('加载统计信息失败: ' + result.error);
+                    }
+                } catch (error) {
+                    this.showError('加载统计信息失败: ' + error.message);
+                }
+            }
+            
+            renderStatistics(stats) {
+                const container = document.getElementById('statisticsCards');
+                container.innerHTML = `
+                    <div class="summary-card">
+                        <div class="summary-label">总记录数</div>
+                        <div class="summary-value">${stats.total_records}</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">拆解产物种类</div>
+                        <div class="summary-value">${stats.material_count}</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">深加工产物种类</div>
+                        <div class="summary-value">${stats.deep_product_count}</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">平均拆解系数</div>
+                        <div class="summary-value">${stats.avg_coefficient.toFixed(4)}</div>
+                    </div>
+                `;
+            }
+            
+            search() {
+                this.searchQuery = document.getElementById('searchInput').value.trim() || '';
+                this.materialCode = '';
+                this.currentPage = 1;
+                console.log('深加工搜索 - 关键词:', this.searchQuery);
+                this.loadData();
+            }
+            
+            async loadData() {
+                try {
+                    this.showLoading();
+                    
+                    const params = new URLSearchParams({
+                        page: this.currentPage,
+                        per_page: this.perPage,
+                        search: this.searchQuery || '',
+                        material_code: this.materialCode || ''
+                    });
+                    
+                    console.log('深加工数据加载参数:', {
+                        page: this.currentPage,
+                        per_page: this.perPage,
+                        search: this.searchQuery || '',
+                        material_code: this.materialCode || ''
+                    });
+                    
+                    // 立即清空表格，避免显示旧数据
+                    const tbody = document.getElementById('dataTableBody');
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">搜索中...</td></tr>';
+                    
+                    const response = await fetch(`/api/data-management/deep-processing?${params}`);
+                    console.log('深加工API响应状态:', response.status);
+                    console.log('深加工API响应类型:', response.headers.get('content-type'));
+                    
+                    // 检查响应是否为JSON格式
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.error('深加工API返回非JSON响应:', text.substring(0, 200));
+                        throw new Error(`服务器返回了非JSON响应 (${response.status}): ${text.substring(0, 100)}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    console.log('深加工数据API响应:', {
+                        success: result.success,
+                        total: result.total,
+                        returnedData: result.data?.length || 0,
+                        searchTerm: this.searchQuery || '(空)',
+                        materialCode: this.materialCode || '(空)'
+                    });
+                    
+                    if (result.success) {
+                        this.renderData(result.data);
+                        this.renderPagination(result);
+                        
+                        // 如果搜索无结果，显示明确的消息
+                        if (result.total === 0 && (this.searchQuery || this.materialCode)) {
+                            console.log('🔍 搜索无结果! 搜索词:', this.searchQuery, '产物编码:', this.materialCode);
+                            this.showInfo(`搜索无结果: "${this.searchQuery}" ${this.materialCode ? '(产物编码: ' + this.materialCode + ')' : ''}`);
+                        }
+                    } else {
+                        this.showError('加载数据失败: ' + result.error);
+                        this.renderData([]);
+                    }
+                } catch (error) {
+                    this.showError('加载数据失败: ' + error.message);
+                    // 出错时清空表格
+                    this.renderData([]);
+                }
+            }
+            
+            renderData(data) {
+                const tbody = document.getElementById('dataTableBody');
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">没有找到匹配的数据</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.map(item => `
+                    <tr>
+                        <td><code>${item.拆解产物编码}</code></td>
+                        <td>${item.拆解产物名称}</td>
+                        <td><code>${item.深加工产物编码}</code></td>
+                        <td>${item.深加工产物名称}</td>
+                        <td><span class="badge bg-primary">${item.深加工投入产出比例.toFixed(4)}</span></td>
+                        <td><span class="badge bg-success">${item.深加工拆解系数.toFixed(4)}</span></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-info btn-action" onclick="deepProcessingManager.viewDetail(${item.id})" title="查看详情">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning btn-action" onclick="deepProcessingManager.editRecord(${item.id})" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger btn-action" onclick="deepProcessingManager.deleteRecord(${item.id})" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            renderPagination(result) {
+                const container = document.getElementById('paginationContainer');
+                
+                if (result.pages <= 1) {
+                    container.innerHTML = '';
+                    return;
+                }
+                
+                let pagination = '<ul class="pagination justify-content-center mb-0">';
+                
+                // 上一页
+                if (result.current_page > 1) {
+                    pagination += `<li class="page-item">
+                        <a class="page-link" href="#" onclick="deepProcessingManager.goToPage(${result.current_page - 1})">上一页</a>
+                    </li>`;
+                }
+                
+                // 页码
+                for (let i = Math.max(1, result.current_page - 2); i <= Math.min(result.pages, result.current_page + 2); i++) {
+                    pagination += `<li class="page-item ${i === result.current_page ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="deepProcessingManager.goToPage(${i})">${i}</a>
+                    </li>`;
+                }
+                
+                // 下一页
+                if (result.current_page < result.pages) {
+                    pagination += `<li class="page-item">
+                        <a class="page-link" href="#" onclick="deepProcessingManager.goToPage(${result.current_page + 1})">下一页</a>
+                    </li>`;
+                }
+                
+                pagination += '</ul>';
+                pagination += `<div class="text-center mt-2 text-muted">
+                    第 ${result.current_page} 页，共 ${result.pages} 页，总计 ${result.total} 条记录
+                </div>`;
+                
+                container.innerHTML = pagination;
+            }
+            
+            goToPage(page) {
+                this.currentPage = page;
+                this.loadData();
+            }
+            
+            async viewDetail(recordId) {
+                try {
+                    const response = await fetch(`/api/data-management/deep-processing/${recordId}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.showDetailModal(result.data);
+                    } else {
+                        this.showError('获取详情失败: ' + result.error);
+                    }
+                } catch (error) {
+                    this.showError('获取详情失败: ' + error.message);
+                }
+            }
+            
+            showDetailModal(data) {
+                const modalBody = document.getElementById('detailModalBody');
+                modalBody.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">拆解产物信息</h6>
+                            <table class="table table-sm">
+                                <tr><td><strong>编码:</strong></td><td><code>${data.拆解产物编码}</code></td></tr>
+                                <tr><td><strong>名称:</strong></td><td>${data.拆解产物名称}</td></tr>
+                                <tr><td><strong>系数名称:</strong></td><td>${data.产品拆解系数名称}</td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success">深加工产物信息</h6>
+                            <table class="table table-sm">
+                                <tr><td><strong>编码:</strong></td><td><code>${data.深加工产物编码}</code></td></tr>
+                                <tr><td><strong>名称:</strong></td><td>${data.深加工产物名称}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-info">系数参数</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>深加工投入产出比例:</strong></td>
+                                    <td><span class="badge bg-primary fs-6">${data.深加工投入产出比例.toFixed(6)}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>深加工拆解系数:</strong></td>
+                                    <td><span class="badge bg-success fs-6">${data.深加工拆解系数.toFixed(6)}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                new bootstrap.Modal(document.getElementById('detailModal')).show();
+            }
+            
+            async exportData() {
+                try {
+                    const exportBtn = document.getElementById('exportBtn');
+                    const originalText = exportBtn.innerHTML;
+                    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 导出中...';
+                    exportBtn.disabled = true;
+                    
+                    const response = await fetch('/api/data-management/deep-processing/export');
+                    
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        
+                        // 正确解析文件名，优先使用UTF-8编码的文件名
+                        let filename = 'deep_processing_data.xlsx';
+                        const contentDisposition = response.headers.get('Content-Disposition');
+                        if (contentDisposition) {
+                            // 尝试获取UTF-8编码的文件名
+                            const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.+)/);
+                            if (utf8Match) {
+                                try {
+                                    filename = decodeURIComponent(utf8Match[1]);
+                                } catch (e) {
+                                    console.warn('解码UTF-8文件名失败:', e);
+                                }
+                            } else {
+                                // 备用方案：使用ASCII文件名
+                                const asciiMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                                if (asciiMatch) {
+                                    filename = asciiMatch[1];
+                                }
+                            }
+                        }
+                        
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        this.showSuccess('数据导出成功！');
+                    } else {
+                        const result = await response.json();
+                        this.showError('导出失败: ' + result.error);
+                    }
+                } catch (error) {
+                    this.showError('导出失败: ' + error.message);
+                } finally {
+                    const exportBtn = document.getElementById('exportBtn');
+                    exportBtn.innerHTML = '<i class="fas fa-download"></i> 导出数据';
+                    exportBtn.disabled = false;
+                }
+            }
+            
+            showLoading() {
+                document.getElementById('dataTableBody').innerHTML = 
+                    '<tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</td></tr>';
+            }
+            
+            showSuccess(message) {
+                this.showAlert(message, 'success');
+            }
+            
+            showError(message) {
+                this.showAlert(message, 'danger');
+            }
+            
+            showInfo(message) {
+                this.showAlert(message, 'info');
+            }
+            
+            showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+                alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                alertDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                setTimeout(() => {
+                    if (alertDiv && alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, 5000);
+            }
+
+            async editRecord(recordId) {
+                try {
+                    const response = await fetch(`/api/data-management/deep-processing/${recordId}`);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.currentEditId = recordId;
+                        this.showEditModal(result.data, false);
+                    } else {
+                        this.showError('获取记录失败: ' + result.error);
+                    }
+                } catch (error) {
+                    this.showError('获取记录失败: ' + error.message);
+                }
+            }
+
+            showEditModal(data, isNew = true) {
+                const modalTitle = document.getElementById('editModalTitle');
+                if (isNew) {
+                    modalTitle.innerHTML = '<i class="fas fa-plus text-success"></i> 新增深加工数据';
+                } else {
+                    modalTitle.innerHTML = '<i class="fas fa-edit text-warning"></i> 编辑深加工数据';
+                }
+
+                // 填充表单数据
+                if (data) {
+                    document.getElementById('edit_拆解产物编码').value = data.拆解产物编码 || '';
+                    document.getElementById('edit_拆解产物名称').value = data.拆解产物名称 || '';
+                    document.getElementById('edit_产品拆解系数名称').value = data.产品拆解系数名称 || '';
+                    document.getElementById('edit_深加工产物编码').value = data.深加工产物编码 || '';
+                    document.getElementById('edit_深加工产物名称').value = data.深加工产物名称 || '';
+                    document.getElementById('edit_深加工投入产出比例').value = data.深加工投入产出比例 || '';
+                    document.getElementById('edit_深加工拆解系数').value = data.深加工拆解系数 || '';
+                } else {
+                    // 清空表单
+                    document.getElementById('editForm').reset();
+                }
+
+                new bootstrap.Modal(document.getElementById('editModal')).show();
+            }
+
+            async saveRecord() {
+                try {
+                    const formData = {
+                        '拆解产物编码': document.getElementById('edit_拆解产物编码').value.trim(),
+                        '拆解产物名称': document.getElementById('edit_拆解产物名称').value.trim(),
+                        '产品拆解系数名称': document.getElementById('edit_产品拆解系数名称').value.trim(),
+                        '深加工产物编码': document.getElementById('edit_深加工产物编码').value.trim(),
+                        '深加工产物名称': document.getElementById('edit_深加工产物名称').value.trim(),
+                        '深加工投入产出比例': parseFloat(document.getElementById('edit_深加工投入产出比例').value),
+                        '深加工拆解系数': parseFloat(document.getElementById('edit_深加工拆解系数').value)
+                    };
+
+                    // 验证必填字段
+                    const requiredFields = ['拆解产物编码', '拆解产物名称', '产品拆解系数名称', '深加工产物编码', '深加工产物名称'];
+                    const numberFields = ['深加工投入产出比例', '深加工拆解系数'];
+                    
+                    // 验证字符串字段
+                    for (const field of requiredFields) {
+                        if (!formData[field] || formData[field].trim() === '') {
+                            this.showError(`请填写: ${field}`);
+                            return;
+                        }
+                    }
+                    
+                    // 验证数字字段
+                    for (const field of numberFields) {
+                        if (isNaN(formData[field]) || formData[field] === null || formData[field] === undefined) {
+                            this.showError(`请填写正确的数字: ${field}`);
+                            return;
+                        }
+                    }
+
+                    let url, method;
+                    if (this.currentEditId !== undefined) {
+                        // 编辑模式
+                        url = `/api/data-management/deep-processing/${this.currentEditId}`;
+                        method = 'PUT';
+                    } else {
+                        // 新增模式
+                        url = '/api/data-management/deep-processing';
+                        method = 'POST';
+                    }
+
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showSuccess(result.message);
+                        bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                        this.currentEditId = undefined;
+                        this.loadData();
+                        this.loadStatistics();
+                        
+                        // 通知首页和当期拆解收益测算分析表刷新数据
+                        sessionStorage.setItem('profit_summary_needs_reload', 'true');
+                        localStorage.setItem('disassembly_profit_analysis_data_updated', Date.now().toString());
+                    } else {
+                        this.showError(result.error);
+                    }
+                } catch (error) {
+                    this.showError('保存失败: ' + error.message);
+                }
+            }
+
+            async deleteRecord(recordId) {
+                if (!confirm('确定要删除这条深加工记录吗？此操作无法撤销！')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/data-management/deep-processing/${recordId}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showSuccess(result.message);
+                        this.loadData();
+                        this.loadStatistics();
+                    } else {
+                        this.showError('删除失败: ' + result.error);
+                    }
+                } catch (error) {
+                    this.showError('删除失败: ' + error.message);
+                }
+            }
+
+            previewImportFile(fileInput) {
+                const file = fileInput.files[0];
+                if (!file) {
+                    document.getElementById('importPreview').style.display = 'none';
+                    return;
+                }
+
+                // 检查文件类型
+                const allowedTypes = [
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'application/vnd.ms-excel',
+                    'application/excel'
+                ];
+                
+                if (!allowedTypes.includes(file.type) && 
+                    !file.name.toLowerCase().endsWith('.xlsx') && 
+                    !file.name.toLowerCase().endsWith('.xls')) {
+                    this.showError('请选择Excel文件 (.xlsx 或 .xls)');
+                    fileInput.value = '';
+                    return;
+                }
+
+                // 显示文件信息
+                const preview = document.getElementById('importPreview');
+                const previewHeader = document.getElementById('previewHeader');
+                const previewBody = document.getElementById('previewBody');
+                
+                previewHeader.innerHTML = `
+                    <tr>
+                        <th>文件名</th>
+                        <th>大小</th>
+                        <th>类型</th>
+                        <th>最后修改</th>
+                    </tr>
+                `;
+                
+                const fileSize = (file.size / 1024).toFixed(2) + ' KB';
+                const lastModified = new Date(file.lastModified).toLocaleString();
+                
+                previewBody.innerHTML = `
+                    <tr>
+                        <td><i class="fas fa-file-excel text-success"></i> ${file.name}</td>
+                        <td>${fileSize}</td>
+                        <td>Excel文件</td>
+                        <td>${lastModified}</td>
+                    </tr>
+                `;
+                
+                preview.style.display = 'block';
+            }
+
+            async importData() {
+                const fileInput = document.getElementById('importFile');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    this.showError('请选择要导入的Excel文件');
+                    return;
+                }
+
+                // 获取导入模式
+                const importMode = document.querySelector('input[name="import_mode"]:checked').value;
+                
+                // 确认操作
+                let confirmMessage = '';
+                if (importMode === 'replace') {
+                    confirmMessage = '覆盖模式将清空现有的所有深加工数据，只保留导入的数据。确定要继续吗？';
+                } else {
+                    confirmMessage = '追加模式将在现有数据基础上添加新数据，重复的数据会被更新。确定要继续吗？';
+                }
+                
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('import_mode', importMode);
+
+                const importBtn = document.getElementById('importBtn');
+                const originalText = importBtn.innerHTML;
+                importBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 导入中...';
+                importBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/data-management/deep-processing/import', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showSuccess(result.message);
+                        
+                        // 显示导入统计
+                        const stats = result.statistics;
+                        if (stats) {
+                            let statsMessage = `导入完成！统计信息：\n`;
+                            statsMessage += `• 原有记录: ${stats.original_count} 条\n`;
+                            statsMessage += `• 导入记录: ${stats.imported_count} 条\n`;
+                            statsMessage += `• 最终记录: ${stats.final_count} 条\n`;
+                            statsMessage += `• 导入模式: ${stats.import_mode === 'replace' ? '覆盖' : '追加'}`;
+                            console.log(statsMessage);
+                        }
+                        
+                        // 关闭模态框
+                        bootstrap.Modal.getInstance(document.getElementById('importModal')).hide();
+                        
+                        // 刷新数据
+                        this.loadData();
+                        this.loadStatistics();
+                        
+                    } else {
+                        // 处理验证错误
+                        if (result.details && result.details.length > 0) {
+                            let errorMessage = result.error + '\n\n详细错误：\n';
+                            result.details.forEach((detail, index) => {
+                                errorMessage += `${index + 1}. ${detail}\n`;
+                            });
+                            this.showError(errorMessage);
+                        } else {
+                            this.showError(result.error);
+                        }
+                    }
+                } catch (error) {
+                    this.showError('导入失败: ' + error.message);
+                } finally {
+                    importBtn.innerHTML = originalText;
+                    importBtn.disabled = false;
+                }
+            }
+
+            downloadTemplate() {
+                // 创建模板数据
+                const templateData = [
+                    {
+                        '拆解产物编码': '811284918',
+                        '拆解产物名称': '铁及其合金液晶显示器-铁件（需打包）',
+                        '产品拆解系数名称': '铁及其合金液晶显示器-铁件（需打包）',
+                        '深加工投入产出比例': 1.00134858200569,
+                        '深加工拆解系数': 1.0,
+                        '深加工产物编码': '811052751',
+                        '深加工产物名称': '铁及其合金液晶显示器-铁件-打包铁'
+                    },
+                    {
+                        '拆解产物编码': '811054069',
+                        '拆解产物名称': '铁及其合金显示器防爆带',
+                        '产品拆解系数名称': '铁及其合金显示器防爆带',
+                        '深加工投入产出比例': 0.992922473867596,
+                        '深加工拆解系数': 1.0,
+                        '深加工产物编码': '811060185',
+                        '深加工产物名称': '铁及其合金CRT显示器-防爆带-打包铁'
+                    },
+                    {
+                        '拆解产物编码': '',
+                        '拆解产物名称': '',
+                        '产品拆解系数名称': '',
+                        '深加工投入产出比例': '',
+                        '深加工拆解系数': '',
+                        '深加工产物编码': '',
+                        '深加工产物名称': ''
+                    }
+                ];
+
+                // 转换为CSV格式
+                const headers = Object.keys(templateData[0]);
+                let csvContent = headers.join(',') + '\n';
+                
+                templateData.forEach(row => {
+                    const values = headers.map(header => {
+                        const value = row[header];
+                        // 如果值包含逗号，需要用双引号包围
+                        if (typeof value === 'string' && value.includes(',')) {
+                            return `"${value}"`;
+                        }
+                        return value;
+                    });
+                    csvContent += values.join(',') + '\n';
+                });
+
+                // 创建Blob并下载
+                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = '深加工数据导入模板.csv';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                this.showSuccess('模板文件已下载！你可以在Excel中打开CSV文件并另存为.xlsx格式');
+            }
+        }
+        
+        // 显示新增模态框
+        function showAddModal() {
+            deepProcessingManager.currentEditId = undefined;
+            deepProcessingManager.showEditModal(null, true);
+        }
+        
+        // 清除筛选
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            deepProcessingManager.loadData(); // 重新加载数据
+            showAlert('success', '筛选已清除');
+        }
+        
+        // 显示导入模态框
+        function showImportModal() {
+            // 清空表单
+            document.getElementById('importForm').reset();
+            document.getElementById('importPreview').style.display = 'none';
+            
+            // 绑定文件选择事件
+            const fileInput = document.getElementById('importFile');
+            fileInput.onchange = function() {
+                deepProcessingManager.previewImportFile(this);
+            };
+            
+            new bootstrap.Modal(document.getElementById('importModal')).show();
+        }
+        
+        // 显示提示信息
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                if (alertDiv && alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+        
+        // 表头提示功能
+        function initTableHeaderTooltips() {
+            const tableHeaders = document.querySelectorAll('.table th');
+            tableHeaders.forEach(th => {
+                // 检查文本是否被截断
+                if (th.scrollWidth > th.clientWidth) {
+                    th.title = th.textContent.trim();
+                    th.style.cursor = 'help';
+                }
+            });
+        }
+        
+        // 初始化管理器
+        const deepProcessingManager = new DeepProcessingManager();
+        
+        // 页面加载完成后初始化提示功能
+        document.addEventListener('DOMContentLoaded', function() {
+            initTableHeaderTooltips();
+        });
+        
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        })();
+    </script>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页脚Logo区域 -->
+    <footer class="footer-logo-section">
+        <div class="container">
+            <div class="footer-content">
+                <img src="/logo/logo.png" alt="四川长虹格润环保科技股份有限公司" class="footer-logo">
+                <div class="footer-text">
+                    <p class="footer-company-name">四川长虹格润环保科技股份有限公司</p>
+                    <p class="footer-company-english">Sichuan Changhong Green Environmental Technology Co., Ltd.</p>
+                    <p class="footer-slogan">专业的环保科技解决方案提供商</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+        <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
+    <script src="/static/js/page_permissions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

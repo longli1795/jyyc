@@ -1,0 +1,1857 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直接人工成本</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* 品牌色（与当期拆解收益测算分析表、brand-and-themes 一致） */
+        :root {
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 40px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+        
+        /* 页脚Logo样式（品牌色） */
+        .footer-logo-section {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-logo {
+            height: 60px;
+            max-width: 120px;
+            min-width: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: var(--brand-light);
+            padding: 8px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .footer-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: var(--brand-light);
+        }
+        
+        .footer-company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-company-english {
+            font-size: 14px;
+            font-style: italic;
+            margin: 0 0 8px 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: rgba(250, 249, 245, 0.95);
+        }
+        .footer-slogan {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-nav {
+            position: relative;
+            z-index: 99998;
+        }
+        
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单（品牌色，与当期拆解收益测算分析表一致） */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+        
+        .content {
+            padding: 40px 32px;
+            overflow: hidden;
+        }
+        
+        .toolbar {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+        
+        .cost-node {
+            background: var(--brand-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        
+        .cost-node-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .cost-node-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+        }
+        
+        .cost-node-icon {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        .cost-node-summary {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        
+        .summary-item {
+            text-align: right;
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .cost-node .summary-value.summary-value-highlight {
+            font-size: 28px;
+            color: var(--brand-green);
+        }
+        
+        .table-container {
+            background: var(--brand-light);
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+            max-height: 60vh;
+            width: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--brand-light-gray);
+            border-radius: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--brand-mid-gray);
+            border-radius: 6px;
+            border: 2px solid var(--brand-light-gray);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-mid-gray) var(--brand-light-gray);
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        .table-cost {
+            margin: 0;
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--brand-light);
+            font-size: 14px;
+            table-layout: auto;
+        }
+        
+        .table-cost thead {
+            background: var(--primary-color);
+            color: var(--brand-light);
+        }
+        
+        .table-cost th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .table-cost tbody td {
+            padding: 10px 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        .table-cost tbody td:first-child,
+        .table-cost tbody td:nth-child(2),
+        .table-cost tbody td:nth-child(3) {
+            text-align: left;
+        }
+        
+        .table-cost tbody td:first-child {
+            font-weight: 600;
+        }
+        
+        .table-cost td:nth-child(3) {
+            white-space: normal;
+            word-break: break-word;
+            max-width: 220px;
+        }
+        
+        .table-cost td.wrap-cell {
+            white-space: normal;
+            word-break: break-word;
+            max-width: 220px;
+        }
+        
+        .table-cost tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .table-cost tbody tr:hover {
+            background: rgba(106, 155, 204, 0.06);
+        }
+        
+        .table-cost tbody tr.total-row {
+            background: var(--brand-light-gray) !important;
+            font-weight: 600;
+        }
+        
+        .table-cost tbody tr.total-row td {
+            border-top: 2px solid var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .calculated-value {
+            background: rgba(120, 140, 93, 0.15) !important;
+            font-weight: 600;
+            color: var(--brand-green);
+        }
+        
+        .category-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            border: 1px solid var(--brand-light-gray);
+        }
+        
+        .category-badge.white {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .category-badge.black {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .category-badge.fridge {
+            background: #e0f2f1;
+            color: #00695c;
+        }
+        
+        .category-badge.metal {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .category-badge.plastic {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .category-badge.screen {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        
+        .allocation-ratio {
+            color: var(--info-color);
+            font-weight: 600;
+        }
+        
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+        
+        .formula-item {
+            background: var(--brand-light);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--brand-blue);
+        }
+        
+        .formula-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .formula-item .label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+        
+        .formula-item .source {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .formula-item .source .page-link {
+            color: var(--info-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .formula-item .source .page-link:hover {
+            text-decoration: underline;
+        }
+        
+        .formula-card {
+            background: linear-gradient(135deg, rgba(106, 155, 204, 0.08) 0%, rgba(232, 230, 220, 0.9) 100%);
+            border: 1px solid var(--brand-light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .formula-card h5 {
+            color: var(--primary-color);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toggle-formula {
+            background: transparent;
+            border: 1px solid var(--info-color);
+            color: var(--info-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-formula:hover {
+            background: var(--info-color);
+            color: var(--brand-light);
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 24px 20px;
+            }
+            
+            .header {
+                padding: 32px 20px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .footer-logo {
+                height: 50px;
+                max-width: 100px;
+                min-width: 50px;
+            }
+            
+            .footer-company-name {
+                font-size: 16px;
+            }
+            
+            .footer-company-english {
+                font-size: 12px;
+            }
+            
+            .footer-slogan {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container animate__animated animate__fadeIn">
+            <!-- Header -->
+            <div class="header">
+                <h1>
+                    <i class="fas fa-users"></i>
+                    直接人工成本
+                </h1>
+                <div class="subtitle">精准预测直接人工成本，优化成本结构</div>
+                
+                <!-- 面包屑导航 -->
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link"><i class="fas fa-home"></i> 首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <span class="current">直接人工成本</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <input type="hidden" id="prediction-period" value="1">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button class="toggle-formula" onclick="toggleFormula()">
+                            <i class="fas fa-info-circle"></i> 数据来源说明
+                        </button>
+                        <button class="btn btn-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> 导出Excel
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 数据来源及计算公式说明 -->
+                <div class="formula-card" id="formula-card" style="display: none;">
+                    <h5><i class="fas fa-book"></i> 数据来源及计算公式说明</h5>
+                    <div class="formula-item">
+                        <div class="label">当期拆解收益测算分析表</div>
+                        <div class="source">
+                            来源：<a href="/cost-forecast/disassembly-profit-analysis/" class="page-link" target="_blank">当期拆解收益测算分析表</a>中的「直接人工」→ 生产工人计件工资 + 分摊固定工资、社保、公积金。对应关系：按物料代码（= 原物料代码）汇总，取自本页：① 计件工资（旧机按物料代码；一次拆解产物、打包铁/一破按原始数据或深加工数据匹配原物料代码） + ② 分摊固定（黑电/白电/冰箱按物料代码；金属打包、塑料按深加工数据或原始数据匹配原物料代码）。
+                        </div>
+                    </div>
+                    <div class="formula-item">
+                        <div class="label">不考虑期初库存和库存结余口径</div>
+                        <div class="source">
+                            生产工人计件工资表中新增“不考虑期初库存和库存结余”字段：旧机、一次拆解产物沿用当前数量/重量；打包铁、一破、屏按不考虑口径下的深加工结果(KG)重算工资。
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 直接人工成本汇总 -->
+                <div class="cost-node" style="margin-bottom: 24px;">
+                    <div class="cost-node-header">
+                        <div class="cost-node-title">
+                            <i class="fas fa-calculator cost-node-icon"></i>
+                            直接人工成本汇总
+                        </div>
+                        <div class="cost-node-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">直接人工成本（考虑期初库存和库存结余）</div>
+                                <div class="summary-value summary-value-highlight" id="direct-labor-cost-total">0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">直接人工成本（不考虑期初库存和库存结余）</div>
+                                <div class="summary-value summary-value-highlight" id="direct-labor-cost-no-opening-total-header">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-panel" style="margin-top: 16px; margin-bottom: 16px;">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-wage-display">0.00</div>
+                            <div class="stat-label">计件总工资</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-wage-no-opening-display">0.00</div>
+                            <div class="stat-label">计件总工资（不考虑期初库存和库存结余）</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-fixed-cost-display">0.00</div>
+                            <div class="stat-label">分摊固定成本</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="direct-labor-cost-no-opening-total">0.00</div>
+                            <div class="stat-label">直接人工成本（不考虑期初库存和库存结余）</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 生产工人计件工资节点 -->
+                <div class="cost-node">
+                    <div class="cost-node-header">
+                        <div class="cost-node-title">
+                            <i class="fas fa-users cost-node-icon"></i>
+                            生产工人计件工资
+                        </div>
+                        <div class="cost-node-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">总工资（考虑期初库存和库存结余）</div>
+                                <div class="summary-value" id="piece-rate-wage-total">0.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">总工资（不考虑期初库存和库存结余）</div>
+                                <div class="summary-value" id="piece-rate-wage-total-no-opening">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-panel" style="margin-top: 16px; margin-bottom: 16px;">
+                        <div class="stat-card">
+                            <div class="stat-value" id="part1-wage">0.00</div>
+                            <div class="stat-label">旧机类别工资</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="part1-wage-no-opening">0.00</div>
+                            <div class="stat-label">旧机类别工资（不考虑期初库存和库存结余）</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="part2-wage">0.00</div>
+                            <div class="stat-label">一次拆解产物工资</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="part2-wage-no-opening">0.00</div>
+                            <div class="stat-label">一次拆解产物工资（不考虑期初库存和库存结余）</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="part3-wage">0.00</div>
+                            <div class="stat-label">深加工工资（一破/打包铁/屏）</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="part3-wage-no-opening">0.00</div>
+                            <div class="stat-label">深加工工资（不考虑期初库存和库存结余）</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table table-cost">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 60px; white-space: nowrap;">序号</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">原物料代码</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">原物料名称</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">物料/产物编码</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">物料/产物名称</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">数量/重量</th>
+                                    <th style="min-width: 200px; white-space: nowrap;">数量/重量(不考虑期初库存和库存结余)</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">类别</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">单价</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">工资</th>
+                                    <th style="min-width: 220px; white-space: nowrap;">工资(不考虑期初库存和库存结余)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="piece-rate-wage-tbody">
+                                <tr>
+                                    <td colspan="11" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle"></i> 暂无数据，请先完成数据计算
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 分摊固定成本节点 -->
+                <div class="cost-node">
+                    <div class="cost-node-header">
+                        <div class="cost-node-title">
+                            <i class="fas fa-coins cost-node-icon"></i>
+                            分摊固定工资、社保、公积金
+                        </div>
+                        <div class="cost-node-summary">
+                            <div class="summary-item">
+                                <div class="summary-label">总分摊成本</div>
+                                <div class="summary-value" id="total-fixed-cost-summary">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-panel" style="margin-top: 16px; margin-bottom: 16px;">
+                        <div class="stat-card">
+                            <div class="stat-value" id="category-white-wage">0.00</div>
+                            <div class="stat-label">白电分摊</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="category-black-wage">0.00</div>
+                            <div class="stat-label">黑电分摊</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="category-fridge-wage">0.00</div>
+                            <div class="stat-label">冰箱分摊</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="category-metal-wage">0.00</div>
+                            <div class="stat-label">金属打包分摊</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="category-plastic-wage">0.00</div>
+                            <div class="stat-label">塑料分摊</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="category-screen-wage">0.00</div>
+                            <div class="stat-label">屏分摊</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 分摊明细表 -->
+                    <div class="table-container" style="margin-top: 24px;">
+                        <table class="table table-cost">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 60px; white-space: nowrap;">序号</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">原物料代码</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">原物料名称</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">类别</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">物料/产物编码</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">物料/产物名称</th>
+                                    <th style="min-width: 120px; white-space: nowrap;">计件工资（元）</th>
+                                    <th style="min-width: 240px; white-space: nowrap;">计件工资（不考虑期初库存和库存结余）（元）</th>
+                                    <th style="min-width: 100px; white-space: nowrap;">分摊比例</th>
+                                    <th style="min-width: 240px; white-space: nowrap;">分摊比例（不考虑期初库存和库存结余）</th>
+                                    <th style="min-width: 140px; white-space: nowrap;">分摊固定成本（元）</th>
+                                    <th style="min-width: 260px; white-space: nowrap;">分摊固定成本（不考虑期初库存和库存结余）（元）</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fixed-cost-detail-tbody">
+                                <tr>
+                                    <td colspan="12" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle"></i> 暂无分摊明细数据
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 四机一脑分类统计节点 -->
+                <div class="cost-node">
+                    <div class="cost-node-header">
+                        <div class="cost-node-title">
+                            <i class="fas fa-chart-pie cost-node-icon"></i>
+                            四机一脑分类统计
+                        </div>
+                    </div>
+                    
+                    <div class="table-container" style="margin-top: 24px;">
+                        <table class="table table-cost">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 100px; white-space: nowrap;">分类</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">生产工人计件工资（考虑）（元）</th>
+                                    <th style="min-width: 240px; white-space: nowrap;">生产工人计件工资（不考虑期初库存和库存结余）（元）</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">分摊固定成本（元）</th>
+                                    <th style="min-width: 240px; white-space: nowrap;">分摊固定成本（不考虑期初库存和库存结余）（元）</th>
+                                    <th style="min-width: 180px; white-space: nowrap;">合计（考虑）（元）</th>
+                                    <th style="min-width: 240px; white-space: nowrap;">合计（不考虑期初库存和库存结余）（元）</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-category-stats-tbody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle"></i> 暂无分类统计数据
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
+    <script src="/static/js/page_permissions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 预测期数存储键名（统一键名，实现联动）
+        const UNIFIED_PREDICTION_PERIOD_KEY = 'cost_forecast_prediction_period';
+        const DIRECT_LABOR_COST_PERIOD_KEY = 'direct_labor_cost_prediction_period'; // 向后兼容
+        
+        // 保存预测期数到localStorage（同时保存到统一键名和旧键名，实现联动和向后兼容）
+        function savePredictionPeriod(period) {
+            try {
+                // 保存到统一键名（实现联动）
+                localStorage.setItem(UNIFIED_PREDICTION_PERIOD_KEY, period.toString());
+                // 同时保存到旧键名（向后兼容）
+                localStorage.setItem(DIRECT_LABOR_COST_PERIOD_KEY, period.toString());
+                console.log('预测期数已保存:', period);
+            } catch (error) {
+                console.error('保存预测期数失败:', error);
+            }
+        }
+        
+        // 从localStorage读取预测期数（优先读取统一键名）
+        function loadPredictionPeriod() {
+            try {
+                // 优先读取统一键名
+                let saved = localStorage.getItem(UNIFIED_PREDICTION_PERIOD_KEY);
+                // 如果没有统一键名，读取旧键名（向后兼容）
+                if (!saved) {
+                    saved = localStorage.getItem(DIRECT_LABOR_COST_PERIOD_KEY);
+                }
+                if (saved) {
+                    const period = parseInt(saved);
+                    if (period > 0 && period <= 120) {
+                        return period;
+                    }
+                }
+            } catch (error) {
+                console.error('读取预测期数失败:', error);
+            }
+            return 1; // 默认值
+        }
+        
+        // 更新预测期数显示和数据
+        function updatePredictionPeriod(period) {
+            const predictionPeriodInput = document.getElementById('prediction-period');
+            if (predictionPeriodInput && predictionPeriodInput.value != period) {
+                predictionPeriodInput.value = period;
+                loadDirectLaborCost();
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('直接人工成本页面初始化');
+            // 从localStorage加载预测期数
+            const savedPeriod = loadPredictionPeriod();
+            document.getElementById('prediction-period').value = savedPeriod;
+            loadDirectLaborCost();
+            
+            // 监听 storage 事件，实现与其他页面的联动
+            window.addEventListener('storage', function(e) {
+                if (e.key === UNIFIED_PREDICTION_PERIOD_KEY && e.newValue) {
+                    const newPeriod = parseInt(e.newValue);
+                    if (newPeriod > 0 && newPeriod <= 120) {
+                        console.log('检测到预测期数变化，自动更新:', newPeriod);
+                        updatePredictionPeriod(newPeriod);
+                    }
+                }
+            });
+        });
+        
+        // 切换数据来源说明显示/隐藏
+        function toggleFormula() {
+            const formulaCard = document.getElementById('formula-card');
+            if (formulaCard.style.display === 'none') {
+                formulaCard.style.display = 'block';
+            } else {
+                formulaCard.style.display = 'none';
+            }
+        }
+        
+        // 处理预测期数变化
+        function handlePredictionPeriodChange() {
+            const period = document.getElementById('prediction-period').value;
+            if (period && parseInt(period) > 0) {
+                // 保存预测期数
+                savePredictionPeriod(period);
+                // 重新加载数据
+                loadDirectLaborCost();
+            }
+        }
+        
+        // 加载直接人工成本数据
+        async function loadDirectLaborCost() {
+            try {
+                const predictionPeriod = document.getElementById('prediction-period').value || loadPredictionPeriod();
+                const response = await fetch(`/api/cost-forecast/piece-rate-wage?prediction_period=${predictionPeriod}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const data = result.data;
+                    renderPieceRateWageTable(data);
+                    updatePieceRateWageStatistics(data);
+                    updateDirectLaborCostDisplay(data);
+                    updateFixedCostDisplay(data);
+                } else {
+                    console.log('暂无数据:', result.error || '');
+                    renderPieceRateWageTable({});
+                    updateDirectLaborCostDisplay({});
+                    updateFixedCostDisplay({});
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                renderPieceRateWageTable({});
+                updateDirectLaborCostDisplay({});
+                updateFixedCostDisplay({});
+            }
+        }
+        
+        // 渲染生产工人计件工资表格
+        function renderPieceRateWageTable(data) {
+            const tbody = document.getElementById('piece-rate-wage-tbody');
+            tbody.innerHTML = '';
+            
+            const allDetails = [];
+            let index = 1;
+            
+            // 添加第一部分：旧机类别
+            if (data.part1_details && data.part1_details.length > 0) {
+                data.part1_details.forEach(item => {
+                    allDetails.push({
+                        index: index++,
+                        originCode: item.原物料代码 || item.物料代码 || '',
+                        originName: item.原物料名称 || item.物料名称 || '',
+                        code: item.物料代码 || '',
+                        name: item.物料名称 || '',
+                        quantity: item.数量 || 0,
+                        quantityNoOpening: ((item['数量(不考虑期初库存和库存结余)'] ?? item.数量) || 0),
+                        category: '旧机',
+                        unitPrice: item.单价 || 0,
+                        wage: item.工资 || 0,
+                        wageNoOpening: ((item['工资(不考虑期初库存和库存结余)'] ?? item.工资) || 0)
+                    });
+                });
+            }
+            
+            // 添加第二部分：一次拆解产物
+            if (data.part2_details && data.part2_details.length > 0) {
+                data.part2_details.forEach(item => {
+                    allDetails.push({
+                        index: index++,
+                        originCode: item.原物料代码 || '',
+                        originName: item.原物料名称 || '',
+                        code: item.拆解产物编码 || '',
+                        name: item.拆解产物名称 || '',
+                        quantity: item['计算结果(KG)'] || 0,
+                        quantityNoOpening: ((item['数量(不考虑期初库存和库存结余)'] ?? item['计算结果(KG)']) || 0),
+                        category: '一次拆解产物',
+                        unitPrice: item.单价 || 0,
+                        wage: item.工资 || 0,
+                        wageNoOpening: ((item['工资(不考虑期初库存和库存结余)'] ?? item.工资) || 0)
+                    });
+                });
+            }
+            
+            // 添加第三部分：深加工（一破、打包铁、屏）
+            if (data.part3_details && data.part3_details.length > 0) {
+                data.part3_details.forEach(item => {
+                    allDetails.push({
+                        index: index++,
+                        originCode: item.原物料代码 || '',
+                        originName: item.原物料名称 || '',
+                        code: item.深加工产物编码 || '',
+                        name: item.深加工产物名称 || '',
+                        quantity: item['深加工结果(KG)'] || 0,
+                        quantityNoOpening: ((item['数量(不考虑期初库存和库存结余)'] ?? item['深加工结果(KG)']) || 0),
+                        category: item.类别 || '',
+                        unitPrice: item.单价 || 0,
+                        wage: item.工资 || 0,
+                        wageNoOpening: ((item['工资(不考虑期初库存和库存结余)'] ?? item.工资) || 0)
+                    });
+                });
+            }
+            
+            if (allDetails.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 暂无数据，请先完成数据计算
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            allDetails.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.index}</td>
+                    <td>${item.originCode || ''}</td>
+                    <td class="wrap-cell" title="${item.originName || ''}">${truncateText(item.originName || '', 25)}</td>
+                    <td>${item.code}</td>
+                    <td class="wrap-cell" title="${item.name}">${truncateText(item.name, 25)}</td>
+                    <td>${formatNumber(item.quantity)}</td>
+                    <td>${formatNumber(item.quantityNoOpening)}</td>
+                    <td>${item.category}</td>
+                    <td>${formatNumber(item.unitPrice)}</td>
+                    <td class="calculated-value">${formatNumber(item.wage)}</td>
+                    <td class="calculated-value">${formatNumber(item.wageNoOpening)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 更新生产工人计件工资统计信息
+        function updatePieceRateWageStatistics(data) {
+            const totalWage = data.total_wage || 0;
+            const totalWageNoOpening = data.total_wage_no_opening || 0;
+            const part1Wage = data.part1_wage || 0;
+            const part2Wage = data.part2_wage || 0;
+            const part3Wage = data.part3_wage || 0;
+            const part1WageNoOpening = data.part1_wage_no_opening || 0;
+            const part2WageNoOpening = data.part2_wage_no_opening || 0;
+            const part3WageNoOpening = data.part3_wage_no_opening || 0;
+            
+            document.getElementById('piece-rate-wage-total').textContent = formatNumber(totalWage);
+            document.getElementById('piece-rate-wage-total-no-opening').textContent = formatNumber(totalWageNoOpening);
+            document.getElementById('part1-wage').textContent = formatNumber(part1Wage);
+            document.getElementById('part2-wage').textContent = formatNumber(part2Wage);
+            document.getElementById('part3-wage').textContent = formatNumber(part3Wage);
+            document.getElementById('part1-wage-no-opening').textContent = formatNumber(part1WageNoOpening);
+            document.getElementById('part2-wage-no-opening').textContent = formatNumber(part2WageNoOpening);
+            document.getElementById('part3-wage-no-opening').textContent = formatNumber(part3WageNoOpening);
+            document.getElementById('total-wage-no-opening-display').textContent = formatNumber(totalWageNoOpening);
+        }
+        
+        // 更新直接人工成本显示
+        function updateDirectLaborCostDisplay(data) {
+            const totalWage = data.total_wage || 0;
+            const totalWageNoOpening = data.total_wage_no_opening || 0;
+            const totalFixedCost = data.total_fixed_cost || 0;
+            const directLaborCost = data.direct_labor_cost || 0;
+            const directLaborCostNoOpening = data.direct_labor_cost_no_opening || 0;
+            
+            document.getElementById('total-wage-display').textContent = formatNumber(totalWage);
+            document.getElementById('total-fixed-cost-display').textContent = formatNumber(totalFixedCost);
+            document.getElementById('direct-labor-cost-total').textContent = formatNumber(directLaborCost);
+            document.getElementById('total-wage-no-opening-display').textContent = formatNumber(totalWageNoOpening);
+            document.getElementById('direct-labor-cost-no-opening-total').textContent = formatNumber(directLaborCostNoOpening);
+            document.getElementById('direct-labor-cost-no-opening-total-header').textContent = formatNumber(directLaborCostNoOpening);
+        }
+        
+        // 更新分摊固定成本显示
+        function updateFixedCostDisplay(data) {
+            const categoryDetails = data.category_details || {};
+            
+            document.getElementById('total-fixed-cost-summary').textContent = formatNumber(data.total_fixed_cost || 0);
+            document.getElementById('category-white-wage').textContent = formatNumber(categoryDetails.白电?.total_fixed_cost || 0);
+            document.getElementById('category-black-wage').textContent = formatNumber(categoryDetails.黑电?.total_fixed_cost || 0);
+            document.getElementById('category-fridge-wage').textContent = formatNumber(categoryDetails.冰箱?.total_fixed_cost || 0);
+            document.getElementById('category-metal-wage').textContent = formatNumber(categoryDetails.金属打包?.total_fixed_cost || 0);
+            document.getElementById('category-plastic-wage').textContent = formatNumber(categoryDetails.塑料?.total_fixed_cost || 0);
+            document.getElementById('category-screen-wage').textContent = formatNumber(categoryDetails.屏?.total_fixed_cost || 0);
+            
+            // 渲染分摊明细表
+            renderFixedCostDetailTable(data);
+            
+            // 渲染四机一脑分类统计
+            renderProductCategoryStats(data);
+        }
+        
+        // 渲染四机一脑分类统计表
+        function renderProductCategoryStats(data) {
+            const tbody = document.getElementById('product-category-stats-tbody');
+            tbody.innerHTML = '';
+            
+            // 考虑口径：优先使用展示专用统计（不影响生产成本分摊/首页利润汇总缓存链路）
+            const productCategoryStats = data.product_category_stats_display || data.product_category_stats || {};
+            const productCategoryStatsNoOpening = data.product_category_stats_no_opening || {};
+            const categoriesOrder = ['电视', '电脑', '冰箱', '空调', '洗衣机'];
+            
+            let totalWage = 0.0;
+            let totalWageNoOpening = 0.0;
+            let totalFixedCost = 0.0;
+            let totalFixedCostNoOpening = 0.0;
+            
+            // 渲染各分类数据
+            categoriesOrder.forEach(category => {
+                const stats = productCategoryStats[category] || {wage: 0.0, fixed_cost: 0.0};
+                const statsNoOpening = productCategoryStatsNoOpening[category] || stats;
+                const wage = parseFloat(stats.wage || 0);
+                const wageNoOpening = parseFloat(statsNoOpening.wage || 0);
+                const fixedCost = parseFloat(stats.fixed_cost || 0);
+                const fixedCostNoOpening = parseFloat((statsNoOpening.fixed_cost ?? fixedCost) || 0);
+                const total = wage + fixedCost;
+                const totalNoOpening = wageNoOpening + fixedCostNoOpening;
+                
+                totalWage += wage;
+                totalWageNoOpening += wageNoOpening;
+                totalFixedCost += fixedCost;
+                totalFixedCostNoOpening += fixedCostNoOpening;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 600; color: var(--primary-color);">${category}</td>
+                    <td style="text-align: right;">${formatNumber(wage)}</td>
+                    <td style="text-align: right;">${formatNumber(wageNoOpening)}</td>
+                    <td style="text-align: right;">${formatNumber(fixedCost)}</td>
+                    <td style="text-align: right;">${formatNumber(fixedCostNoOpening)}</td>
+                    <td class="calculated-value" style="text-align: right; font-weight: 600;">${formatNumber(total)}</td>
+                    <td class="calculated-value" style="text-align: right; font-weight: 600;">${formatNumber(totalNoOpening)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 添加汇总行
+            const totalRow = document.createElement('tr');
+            totalRow.style.backgroundColor = '#f8f9fa';
+            totalRow.style.fontWeight = '600';
+            const total = totalWage + totalFixedCost;
+            totalRow.innerHTML = `
+                <td style="font-weight: 600; color: var(--primary-color);">汇总</td>
+                <td style="text-align: right; font-weight: 600;">${formatNumber(totalWage)}</td>
+                <td style="text-align: right; font-weight: 600;">${formatNumber(totalWageNoOpening)}</td>
+                <td style="text-align: right; font-weight: 600;">${formatNumber(totalFixedCost)}</td>
+                <td style="text-align: right; font-weight: 600;">${formatNumber(totalFixedCostNoOpening)}</td>
+                <td class="calculated-value" style="text-align: right; font-weight: 700; font-size: 16px; color: var(--success-color);">${formatNumber(total)}</td>
+                <td class="calculated-value" style="text-align: right; font-weight: 700; font-size: 16px; color: var(--success-color);">${formatNumber(totalWageNoOpening + totalFixedCostNoOpening)}</td>
+            `;
+            tbody.appendChild(totalRow);
+            
+            // 如果没有数据，显示提示
+            if (totalWage === 0 && totalWageNoOpening === 0 && totalFixedCost === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 暂无分类统计数据
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // 渲染分摊固定成本明细表
+        function renderFixedCostDetailTable(data) {
+            const tbody = document.getElementById('fixed-cost-detail-tbody');
+            tbody.innerHTML = '';
+            
+            const categoryDetails = data.category_details || {};
+            const categoryOrder = ['白电', '黑电', '冰箱', '金属打包', '塑料', '屏'];
+            
+            let allDetails = [];
+            let index = 1;
+            
+            // 遍历所有类别
+            categoryOrder.forEach(category => {
+                const categoryData = categoryDetails[category];
+                if (!categoryData || !categoryData.item_allocations || categoryData.item_allocations.length === 0) {
+                    return;
+                }
+                
+                let categoryWageSum = 0;
+                let categoryWageSumNoOpening = 0;
+                let categoryFixedCostSum = 0;
+                let categoryFixedCostSumNoOpening = 0;
+                
+                // 遍历该类别的所有物料分摊
+                categoryData.item_allocations.forEach(allocation => {
+                    const item = allocation.item || {};
+                    
+                    // 提取物料信息（根据不同的数据源）
+                    let originCode = '';
+                    let originName = '';
+                    let code = '';
+                    let name = '';
+                    let wage = 0;
+                    let wageNoOpening = 0;
+                    
+                    // 旧机类别（part1_details）
+                    if (item.物料代码) {
+                        originCode = item.原物料代码 || item.物料代码 || '';
+                        originName = item.原物料名称 || item.物料名称 || '';
+                        code = item.物料代码 || '';
+                        name = item.物料名称 || '';
+                        wage = item.工资 || 0;
+                        wageNoOpening = (allocation.wage_no_opening ?? item['工资(不考虑期初库存和库存结余)'] ?? wage);
+                    }
+                    // 一次拆解产物（part2_details）
+                    else if (item.拆解产物编码) {
+                        originCode = item.原物料代码 || '';
+                        originName = item.原物料名称 || '';
+                        code = item.拆解产物编码 || '';
+                        name = item.拆解产物名称 || '';
+                        wage = item.工资 || 0;
+                        wageNoOpening = (allocation.wage_no_opening ?? item['工资(不考虑期初库存和库存结余)'] ?? wage);
+                    }
+                    // 深加工（part3_details）
+                    else if (item.深加工产物编码) {
+                        originCode = item.原物料代码 || '';
+                        originName = item.原物料名称 || '';
+                        code = item.深加工产物编码 || '';
+                        name = item.深加工产物名称 || '';
+                        wage = item.工资 || 0;
+                        wageNoOpening = (allocation.wage_no_opening ?? item['工资(不考虑期初库存和库存结余)'] ?? wage);
+                    }
+                    
+                    categoryWageSum += wage;
+                    categoryWageSumNoOpening += parseFloat(wageNoOpening || 0);
+                    categoryFixedCostSum += allocation.fixed_cost || 0;
+                    categoryFixedCostSumNoOpening += (allocation.fixed_cost_no_opening ?? allocation.fixed_cost ?? 0);
+                    
+                    allDetails.push({
+                        index: index++,
+                        originCode,
+                        originName,
+                        category: category,
+                        code: code,
+                        name: name,
+                        wage: wage,
+                        wageNoOpening: parseFloat(wageNoOpening || wage || 0),
+                        allocationRatio: allocation.allocation_ratio || 0,
+                        allocationRatioNoOpening: (allocation.allocation_ratio_no_opening ?? allocation.allocation_ratio ?? 0),
+                        fixedCost: allocation.fixed_cost || 0,
+                        fixedCostNoOpening: (allocation.fixed_cost_no_opening ?? allocation.fixed_cost ?? 0),
+                        isSubtotal: false
+                    });
+                });
+                
+                // 添加类别小计行
+                if (categoryData.item_allocations.length > 0) {
+                    allDetails.push({
+                        index: null,
+                        originCode: '',
+                        originName: '',
+                        category: category,
+                        code: '',
+                        name: `${category}小计`,
+                        wage: categoryWageSum,
+                        wageNoOpening: categoryWageSumNoOpening,
+                        allocationRatio: null,
+                        allocationRatioNoOpening: null,
+                        fixedCost: categoryFixedCostSum,
+                        fixedCostNoOpening: categoryFixedCostSumNoOpening,
+                        isSubtotal: true
+                    });
+                }
+            });
+            
+            if (allDetails.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle"></i> 暂无分摊明细数据
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // 渲染表格行
+            allDetails.forEach(detail => {
+                const tr = document.createElement('tr');
+                
+                // 如果是小计行，使用不同的样式
+                if (detail.isSubtotal) {
+                    tr.style.backgroundColor = '#f8f9fa';
+                    tr.style.fontWeight = '600';
+                    const categoryClass = {
+                        '白电': 'white',
+                        '黑电': 'black',
+                        '冰箱': 'fridge',
+                        '金属打包': 'metal',
+                        '塑料': 'plastic',
+                        '屏': 'screen'
+                    }[detail.category] || 'white';
+                    
+                    tr.innerHTML = `
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="category-badge ${categoryClass}">${detail.category}</span></td>
+                        <td></td>
+                        <td class="wrap-cell" style="font-weight: 600; color: var(--primary-color);">${detail.name}</td>
+                        <td style="text-align: right; font-weight: 600;">${formatNumber(detail.wage)}</td>
+                        <td style="text-align: right; font-weight: 600;">${formatNumber(detail.wageNoOpening)}</td>
+                        <td></td>
+                        <td></td>
+                        <td class="calculated-value" style="text-align: right; font-weight: 600;">${formatNumber(detail.fixedCost)}</td>
+                        <td class="calculated-value" style="text-align: right; font-weight: 600;">${formatNumber(detail.fixedCostNoOpening)}</td>
+                    `;
+                } else {
+                    // 根据类别选择对应的样式类
+                    const categoryClass = {
+                        '白电': 'white',
+                        '黑电': 'black',
+                        '冰箱': 'fridge',
+                        '金属打包': 'metal',
+                        '塑料': 'plastic',
+                        '屏': 'screen'
+                    }[detail.category] || 'white';
+                    
+                    tr.innerHTML = `
+                        <td>${detail.index}</td>
+                        <td>${detail.originCode || ''}</td>
+                        <td class="wrap-cell" title="${detail.originName || ''}">${truncateText(detail.originName || '', 25)}</td>
+                        <td><span class="category-badge ${categoryClass}">${detail.category}</span></td>
+                        <td>${detail.code}</td>
+                        <td class="wrap-cell" title="${detail.name}">${truncateText(detail.name, 25)}</td>
+                        <td style="text-align: right;">${formatNumber(detail.wage)}</td>
+                        <td style="text-align: right;">${formatNumber(detail.wageNoOpening)}</td>
+                        <td class="allocation-ratio" style="text-align: right;">${(detail.allocationRatio * 100).toFixed(2)}%</td>
+                        <td class="allocation-ratio" style="text-align: right;">${(detail.allocationRatioNoOpening * 100).toFixed(2)}%</td>
+                        <td class="calculated-value" style="text-align: right;">${formatNumber(detail.fixedCost)}</td>
+                        <td class="calculated-value" style="text-align: right;">${formatNumber(detail.fixedCostNoOpening)}</td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 格式化数字显示
+        function formatNumber(value) {
+            if (value === '' || value === null || value === undefined) return '0.00';
+            const num = parseFloat(value);
+            if (isNaN(num)) return '0.00';
+            return num.toFixed(2);
+        }
+        
+        // 截断文本显示
+        function truncateText(text, maxLength) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+        
+        // 导出Excel
+        async function exportToExcel(event) {
+            try {
+                // 显示加载提示
+                const exportBtn = event ? event.target.closest('button') : document.querySelector('button[onclick*="exportToExcel"]');
+                const originalText = exportBtn ? exportBtn.innerHTML : '';
+                if (exportBtn) {
+                    exportBtn.disabled = true;
+                    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在导出...';
+                }
+                
+                const predictionPeriod = document.getElementById('prediction-period').value || loadPredictionPeriod();
+                const response = await fetch(`/api/cost-forecast/piece-rate-wage/export?prediction_period=${predictionPeriod}`);
+                
+                if (response.ok) {
+                    // 获取文件名
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let filename = '直接人工成本.xlsx';
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (filenameMatch && filenameMatch[1]) {
+                            filename = filenameMatch[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    // 下载文件
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    // 恢复按钮状态
+                    if (exportBtn) {
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = originalText;
+                    }
+                    
+                    // 显示成功提示
+                    alert('直接人工成本数据导出成功！');
+                } else {
+                    const result = await response.json();
+                    alert('导出失败: ' + (result.error || '未知错误'));
+                    
+                    // 恢复按钮状态
+                    if (exportBtn) {
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = originalText;
+                    }
+                }
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败: ' + error.message);
+                
+                // 恢复按钮状态
+                const exportBtn = event ? event.target.closest('button') : document.querySelector('button[onclick*="exportToExcel"]');
+                if (exportBtn) {
+                    exportBtn.disabled = false;
+                    exportBtn.innerHTML = '<i class="fas fa-file-excel"></i> 导出Excel';
+                }
+            }
+        }
+        
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        })();
+    </script>
+    
+    <!-- 页脚Logo区域 -->
+    <footer class="footer-logo-section">
+        <div class="container">
+            <div class="footer-content">
+                <img src="/logo/logo.png" alt="四川长虹格润环保科技股份有限公司" class="footer-logo">
+                <div class="footer-text">
+                    <p class="footer-company-name">四川长虹格润环保科技股份有限公司</p>
+                    <p class="footer-company-english">Sichuan Changhong Green Environmental Technology Co., Ltd.</p>
+                    <p class="footer-slogan">专业的环保科技解决方案提供商</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业经营预测分析平台 — 系统操作手册</title>
+<style>
+:root {
+  --brand-dark: #141413;
+  --brand-light: #faf9f5;
+  --brand-mid-gray: #b0aea5;
+  --brand-light-gray: #e8e6dc;
+  --brand-orange: #d97757;
+  --brand-blue: #6a9bcc;
+  --brand-green: #788c5d;
+  --font-heading: 'PingFang SC','Microsoft YaHei','Helvetica Neue',sans-serif;
+  --font-body: 'PingFang SC','Microsoft YaHei','Helvetica Neue',sans-serif;
+  --sidebar-w: 280px;
+  --header-h: 56px;
+  --shadow: 0 2px 8px rgba(20,20,19,.08);
+  --shadow-lg: 0 8px 24px rgba(20,20,19,.12);
+  --radius: 8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{font-family:var(--font-body);color:var(--brand-dark);background:var(--brand-light);line-height:1.7}
+a{color:var(--brand-blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--brand-dark);color:#fff;display:flex;align-items:center;padding:0 20px;z-index:1000;gap:16px}
+.topbar .logo{font-family:var(--font-heading);font-size:18px;font-weight:700;white-space:nowrap;letter-spacing:.5px}
+.topbar .logo i{margin-right:8px;color:var(--brand-blue)}
+.search-wrap{flex:1;max-width:480px;position:relative;margin:0 auto}
+.search-wrap input{width:100%;padding:8px 36px 8px 14px;border-radius:20px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:14px;outline:none;transition:background .2s}
+.search-wrap input::placeholder{color:rgba(255,255,255,.5)}
+.search-wrap input:focus{background:rgba(255,255,255,.25)}
+.search-wrap .s-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.6);font-size:14px;pointer-events:none}
+.search-results{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;color:var(--brand-dark);border-radius:var(--radius);box-shadow:var(--shadow-lg);max-height:300px;overflow-y:auto;margin-top:6px;font-size:13px;z-index:100}
+.search-results .result-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--brand-light-gray);display:flex;align-items:center;gap:8px}
+.search-results .result-item:hover{background:var(--brand-light)}
+.search-results .result-item .ch{font-weight:600;color:var(--brand-blue);white-space:nowrap}
+.menu-toggle{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px}
+
+.sidebar{position:fixed;top:var(--header-h);left:0;width:var(--sidebar-w);height:calc(100vh - var(--header-h));background:#fff;border-right:1px solid var(--brand-light-gray);overflow-y:auto;overflow-x:hidden;z-index:900;padding:12px 0;transition:transform .3s}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--brand-mid-gray);border-radius:4px}
+.nav-list{list-style:none}
+.nav-item{border-bottom:1px solid transparent}
+.nav-link{display:flex;align-items:center;padding:10px 24px;font-size:14px;color:var(--brand-dark);cursor:pointer;transition:background .15s;gap:8px;user-select:none}
+.nav-link:hover{background:var(--brand-light);text-decoration:none}
+.nav-link.active{background:rgba(106,155,204,.12);color:var(--brand-blue);font-weight:600;border-right:3px solid var(--brand-blue)}
+.nav-link .ch-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--brand-light-gray);font-size:12px;font-weight:700;flex-shrink:0}
+.nav-link.active .ch-num{background:var(--brand-blue);color:#fff}
+.nav-link .expand-icon{font-size:10px;margin-left:auto;transition:transform .2s;color:var(--brand-mid-gray)}
+.nav-link.expanded .expand-icon{transform:rotate(90deg)}
+.sub-nav{list-style:none;overflow:hidden;max-height:0;transition:max-height .35s ease}
+.sub-nav.open{max-height:2000px}
+.sub-nav .nav-link{padding-left:56px;font-size:13px}
+.sub-nav .nav-link .ch-num{width:20px;height:20px;font-size:11px}
+
+.main{margin-left:var(--sidebar-w);margin-top:var(--header-h);padding:32px 40px;max-width:1100px}
+.chapter{margin-bottom:48px;scroll-margin-top:70px}
+.ch-header{cursor:pointer;display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:2px solid var(--brand-light-gray);user-select:none}
+.ch-header h2{font-family:var(--font-heading);font-size:24px;font-weight:700;margin:0}
+.ch-header .ch-toggle{font-size:14px;color:var(--brand-mid-gray);transition:transform .2s;margin-left:auto}
+.ch-header.collapsed .ch-toggle{transform:rotate(-90deg)}
+.ch-body{overflow:hidden;transition:max-height .4s ease,opacity .4s;max-height:80000px;opacity:1}
+.ch-body.collapsed{max-height:0;opacity:0}
+.ch-body-inner{padding-top:20px}
+.section{margin-bottom:36px;scroll-margin-top:70px}
+.section h3{font-family:var(--font-heading);font-size:18px;font-weight:600;color:var(--brand-dark);margin-bottom:8px;padding-left:12px;border-left:4px solid var(--brand-blue)}
+.section h4{font-size:15px;font-weight:600;margin:16px 0 6px;color:#444}
+.path-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(106,155,204,.1);color:var(--brand-blue);padding:4px 12px;border-radius:20px;font-size:13px;font-weight:500;margin-bottom:12px}
+.path-badge i{font-size:12px}
+.desc{margin:8px 0 16px;font-size:15px;color:#444}
+.note{background:#fffbe6;border-left:4px solid #f0c040;padding:10px 16px;border-radius:0 var(--radius) var(--radius) 0;font-size:14px;margin:12px 0;color:#8a6d14}
+.step-list{counter-reset:step;list-style:none;padding:0;margin:12px 0}
+.step-list li{counter-increment:step;padding:8px 0 8px 36px;position:relative;font-size:14px;line-height:1.8}
+.step-list li::before{content:counter(step);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;background:var(--brand-blue);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.figure-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin:16px 0}
+figure{margin:0;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s,box-shadow .2s;background:#fff}
+figure:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+figure img{width:100%;display:block;object-fit:cover;max-height:280px}
+figure figcaption{padding:8px 12px;font-size:13px;color:var(--brand-mid-gray);text-align:center}
+
+.lightbox{display:none;position:fixed;inset:0;background:rgba(20,20,19,.92);z-index:9999;align-items:center;justify-content:center}
+.lightbox.show{display:flex}
+.lightbox img{max-width:92vw;max-height:88vh;border-radius:4px;box-shadow:0 16px 48px rgba(0,0,0,.4)}
+.lightbox .lb-close{position:absolute;top:20px;right:28px;font-size:36px;color:#fff;cursor:pointer;z-index:1}
+.lightbox .lb-prev,.lightbox .lb-next{position:absolute;top:50%;transform:translateY(-50%);font-size:48px;color:#fff;cursor:pointer;padding:20px;user-select:none;opacity:.7;transition:opacity .2s}
+.lightbox .lb-prev:hover,.lightbox .lb-next:hover{opacity:1}
+.lightbox .lb-prev{left:10px}
+.lightbox .lb-next{right:10px}
+.lightbox .lb-counter{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;font-size:14px;opacity:.8}
+
+.btt{position:fixed;bottom:32px;right:32px;width:44px;height:44px;border-radius:50%;background:var(--brand-blue);color:#fff;border:none;cursor:pointer;font-size:20px;box-shadow:var(--shadow-lg);opacity:0;transform:translateY(20px);transition:opacity .3s,transform .3s;z-index:800;display:flex;align-items:center;justify-content:center}
+.btt.visible{opacity:1;transform:translateY(0)}
+.btt:hover{background:var(--brand-dark)}
+mark.hl{background:#ffd54f;color:var(--brand-dark);border-radius:2px;padding:0 2px}
+
+@media print{
+  .topbar,.sidebar,.btt,.lightbox{display:none!important}
+  .main{margin-left:0;margin-top:0;padding:20px;max-width:100%}
+  .ch-body,.ch-body.collapsed{max-height:none!important;opacity:1!important}
+  .ch-body-inner{padding-top:12px}
+  .ch-header{cursor:default;page-break-after:avoid}
+  .ch-header .ch-toggle{display:none}
+  .chapter{page-break-inside:avoid;margin-bottom:24px}
+  figure{box-shadow:none;page-break-inside:avoid}
+  figure img{max-height:200px}
+  a{color:var(--brand-dark)}
+}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.mobile-open{transform:translateX(0);box-shadow:var(--shadow-lg)}
+  .menu-toggle{display:block}
+  .main{margin-left:0;padding:20px 16px}
+  .figure-grid{grid-template-columns:1fr}
+  .topbar .logo{font-size:15px}
+  .search-wrap{max-width:200px}
+}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:899}
+.sidebar-overlay.show{display:block}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-toggle" id="menuToggle" aria-label="菜单">&#9776;</button>
+  <div class="logo"><i>&#128202;</i>企业经营预测分析平台</div>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="搜索操作手册... (Ctrl+K)" autocomplete="off">
+    <span class="s-icon">&#128269;</span>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<nav class="sidebar" id="sidebar">
+<ul class="nav-list">
+<li class="nav-item"><div class="nav-link" data-target="ch1"><span class="ch-num">1</span>系统登录</div></li>
+<li class="nav-item"><div class="nav-link" data-target="ch2"><span class="ch-num">2</span>上传期初库存文件</div></li>
+<li class="nav-item">
+  <div class="nav-link expanded" data-target="ch3"><span class="ch-num">3</span>基础数据维护<span class="expand-icon">&#9654;</span></div>
+  <ul class="sub-nav open"><li><div class="nav-link" data-target="ch3-1"><span class="ch-num">3.1</span>物料映射关系</div></li><li><div class="nav-link" data-target="ch3-common-1"><span class="ch-num">通用操作</span>— 同步数据与刷新</div></li><li><div class="nav-link" data-target="ch3-2"><span class="ch-num">3.2</span>减扣规则管理</div></li><li><div class="nav-link" data-target="ch3-3"><span class="ch-num">3.3</span>产品拆解系数管理</div></li><li><div class="nav-link" data-target="ch3-4"><span class="ch-num">3.4</span>深加工数据管理</div></li><li><div class="nav-link" data-target="ch3-5"><span class="ch-num">3.5</span>计件人工标准数据维护</div></li><li><div class="nav-link" data-target="ch3-6"><span class="ch-num">3.6</span>薪酬及社保基数数据管理</div></li><li><div class="nav-link" data-target="ch3-7"><span class="ch-num">3.7</span>制造费用基础数据管理</div></li><li><div class="nav-link" data-target="ch3-8"><span class="ch-num">3.8</span>期间费用基础数据管理</div></li><li><div class="nav-link" data-target="ch3-9"><span class="ch-num">3.9</span>税金及附加基础数据管理</div></li><li><div class="nav-link" data-target="ch3-10"><span class="ch-num">3.10</span>基金补贴单价管理</div></li></ul>
+</li>
+<li class="nav-item"><div class="nav-link" data-target="ch4"><span class="ch-num">4</span>采购数据编辑</div></li>
+<li class="nav-item"><div class="nav-link" data-target="ch5"><span class="ch-num">5</span>旧机投料数据编辑</div></li>
+<li class="nav-item"><div class="nav-link" data-target="ch6"><span class="ch-num">6</span>制造费用数据编辑</div></li>
+<li class="nav-item"><div class="nav-link" data-target="ch7"><span class="ch-num">7</span>销售价格编辑</div></li>
+<li class="nav-item"><div class="nav-link" data-target="ch8"><span class="ch-num">8</span>可销售量数据编辑</div></li>
+<li class="nav-item"><div class="nav-link" data-target="ch9"><span class="ch-num">9</span>预算总表（下月）编辑</div></li>
+<li class="nav-item"><div class="nav-link" data-target="ch10"><span class="ch-num">10</span>数据存档及提取</div></li>
+</ul>
+</nav>
+
+<main class="main" id="mainContent">
+
+<article class="chapter" id="ch1">
+<div class="ch-header"><h2>一、系统登录</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <p class="desc">访问企业经营预测分析平台进行登录操作。</p>
+  <table style="border-collapse:collapse;width:100%;max-width:500px;margin:12px 0"><tr><td style="padding:8px 12px;font-weight:600;background:var(--brand-light);white-space:nowrap">访问地址</td><td style="padding:8px 12px">http://10.30.5.32:8080/</td></tr><tr><td style="padding:8px 12px;font-weight:600;background:var(--brand-light);white-space:nowrap">默认账号</td><td style="padding:8px 12px">admin</td></tr><tr><td style="padding:8px 12px;font-weight:600;background:var(--brand-light);white-space:nowrap">默认密码</td><td style="padding:8px 12px">admin</td></tr></table>
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image1.png" alt="图1：系统登录页面"><figcaption>图1：系统登录页面</figcaption></figure></div>
+</div></div>
+</article>
+
+<article class="chapter" id="ch2">
+<div class="ch-header"><h2>二、上传期初库存文件</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <p class="desc">每月4号后从SAP系统导出物料数据并上传至平台，作为预测分析的期初库存基准。</p>
+  <div class="path-badge"><i>&#128193;</i> 首页</div>
+  <h4>操作步骤</h4>
+<ol class="step-list"><li>每月4号后，从SAP系统使用代码 <strong>ZMMR0010N_Y</strong> 导出物料明细报表，筛选 <strong>8004</strong> 和 <strong>8005</strong> 仓库数据，删除消耗类、包装类物料数据</li>
+<li>在企业经营预测分析平台首页，点击 <strong>期初库存文件上传</strong> 按钮，选择整理好的文件进行上传</li>
+<li>上传完成后，点击 <strong>读取数据并自动计算</strong> 按钮，系统自动完成数据处理</li></ol>
+  <div class="note">如果非首次上传，数据源不会改变，每月上传一次即可。上传后数据源已固定，后续上传只需点击“读取数据并自动计算”。</div>
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image2.png" alt="图2：首页 — 期初库存文件上传"><figcaption>图2：首页 — 期初库存文件上传</figcaption></figure></div>
+</div></div>
+</article>
+
+<article class="chapter" id="ch3">
+<div class="ch-header"><h2>三、基础数据维护</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <p class="desc">基础数据维护模块包含10个子模块，用于管理系统中各项基础配置数据。每个子模块遵循统一的编辑流程：少量数据直接在页面编辑/删除，大量数据下载模板后批量导入，编辑完成后返回数据管理主页点击"同步数据"。</p>
+  <h4>通用操作流程</h4>
+  <ol class="step-list">
+    <li><strong>编辑数据：</strong>少量时直接在页面点击<strong>编辑</strong>或<strong>删除</strong>按钮操作；量大时点击<strong>"下载模板"</strong>获取维护模板，填写后<strong>"批量导入数据"</strong></li>
+    <li>返回<strong>数据管理</strong>主页，点击<strong>"同步数据"</strong>按钮，编辑结果同步给其他用户</li>
+    <li>对方收到提示后可<strong>"立即刷新"</strong>或<strong>"稍后刷新"</strong>。若暂未收到提示，等待5-10分钟后再查看</li>
+  </ol>
+  
+  <section class="section" id="ch3-1">
+    <h3>3.1 物料映射关系</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 物料映射</div>
+    <p class="desc">当系统中新增物料时，需要维护物料与对应拆解产物的映射关系。若物料类别发生变动，也需要在此处进行相应修改，以确保系统运行时能准确识别物料归属。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image3.png" alt="图3：物料映射 — 编辑/删除操作" loading="lazy"><figcaption>图3：物料映射 — 编辑/删除操作</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image4.png" alt="图4：物料映射 — 下载模板" loading="lazy"><figcaption>图4：物料映射 — 下载模板</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image5.png" alt="图5：物料映射 — 批量导入" loading="lazy"><figcaption>图5：物料映射 — 批量导入</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image6.png" alt="图6：物料映射 — 同步数据" loading="lazy"><figcaption>图6：物料映射 — 同步数据</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-common-1">
+    <h3>通用操作 — 同步数据与刷新</h3>
+    
+    <p class="desc">编辑完成后，需返回数据管理主页进行数据同步，其他用户才能看到更新。同步后对方会收到提示，可选择立即刷新或稍后刷新。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image7.png" alt="图7：同步数据 — 点击同步按钮" loading="lazy"><figcaption>图7：同步数据 — 点击同步按钮</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image8.png" alt="图8：同步数据 — 对方收到提示信息" loading="lazy"><figcaption>图8：同步数据 — 对方收到提示信息</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image9.png" alt="图9：同步数据 — 立即刷新/稍后刷新" loading="lazy"><figcaption>图9：同步数据 — 立即刷新/稍后刷新</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-2">
+    <h3>3.2 减扣规则管理</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 减扣规则</div>
+    <p class="desc">适用于转投、一类二次拆解加工、一类三次拆解加工、荧光灯处置、印刷板处置等场景。当一类拆解规则发生变动时，需要对减扣规则进行相应修改。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image10.png" alt="图10：减扣规则 — 编辑修改" loading="lazy"><figcaption>图10：减扣规则 — 编辑修改</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image11.png" alt="图11：减扣规则 — 新增记录" loading="lazy"><figcaption>图11：减扣规则 — 新增记录</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image12.png" alt="图12：减扣规则 — 删除确认" loading="lazy"><figcaption>图12：减扣规则 — 删除确认</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image13.png" alt="图13：减扣规则 — 批量导入" loading="lazy"><figcaption>图13：减扣规则 — 批量导入</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-3">
+    <h3>3.3 产品拆解系数管理</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 产品拆解系数管理</div>
+    <p class="desc">修改旧机产品拆解为一类拆解物料的系数，即各旧机产品（电视、电脑、冰箱、空调、洗衣机等）拆解后各类拆解产物的产出比例系数。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image14.png" alt="图14：产品拆解系数 — 编辑修改" loading="lazy"><figcaption>图14：产品拆解系数 — 编辑修改</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image15.png" alt="图15：产品拆解系数 — 新增记录" loading="lazy"><figcaption>图15：产品拆解系数 — 新增记录</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image16.png" alt="图16：产品拆解系数 — 删除确认" loading="lazy"><figcaption>图16：产品拆解系数 — 删除确认</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image17.png" alt="图17：产品拆解系数 — 批量导入" loading="lazy"><figcaption>图17：产品拆解系数 — 批量导入</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-4">
+    <h3>3.4 深加工数据管理</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 深加工数据</div>
+    <p class="desc">修改一类拆解物料进行深加工的投料和产出系数，即一类拆解产物进一步加工为深加工产物时的物料投入与产出比例关系。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image18.png" alt="图18：深加工数据 — 编辑修改" loading="lazy"><figcaption>图18：深加工数据 — 编辑修改</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image19.png" alt="图19：深加工数据 — 新增记录" loading="lazy"><figcaption>图19：深加工数据 — 新增记录</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image20.png" alt="图20：深加工数据 — 删除确认" loading="lazy"><figcaption>图20：深加工数据 — 删除确认</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image21.png" alt="图21：深加工数据 — 批量导入" loading="lazy"><figcaption>图21：深加工数据 — 批量导入</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-5">
+    <h3>3.5 计件人工标准数据维护</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 计件人工标准数据</div>
+    <p class="desc">当人工计件单价发生变动时，需在此处维护各岗位的计件单价数据。系统根据此基准数据自动计算计件工资。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image22.png" alt="图22：计件人工标准数据 — 编辑修改" loading="lazy"><figcaption>图22：计件人工标准数据 — 编辑修改</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image23.png" alt="图23：计件人工标准数据 — 新增" loading="lazy"><figcaption>图23：计件人工标准数据 — 新增</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image24.png" alt="图24：计件人工标准数据 — 删除确认" loading="lazy"><figcaption>图24：计件人工标准数据 — 删除确认</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image25.png" alt="图25：计件人工标准数据 — 批量导入" loading="lazy"><figcaption>图25：计件人工标准数据 — 批量导入</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-6">
+    <h3>3.6 薪酬及社保基数数据管理</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 薪酬及社保基数数据</div>
+    <p class="desc">当人员编制数量、平均工资、社保公积金等数据发生变动时，在此处进行修改。部门薪酬费用是预算成本预测的重要输入。</p>
+    <div class="note">注意：在“计件人工标准数据管理”页面维护的是计件单价的岗位基准，而此页面中的“计件工资”列为系统自动计算，无需手动填写。</div>
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image26.png" alt="图26：薪酬及社保基数 — 编辑修改" loading="lazy"><figcaption>图26：薪酬及社保基数 — 编辑修改</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image27.png" alt="图27：薪酬及社保基数 — 新增" loading="lazy"><figcaption>图27：薪酬及社保基数 — 新增</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image28.png" alt="图28：薪酬及社保基数 — 删除确认" loading="lazy"><figcaption>图28：薪酬及社保基数 — 删除确认</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image29.png" alt="图29：薪酬及社保基数 — 批量导入" loading="lazy"><figcaption>图29：薪酬及社保基数 — 批量导入</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-7">
+    <h3>3.7 制造费用基础数据管理</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 制造费用基础数据</div>
+    <p class="desc">当单位变动费用、预计月固定费用等制造费用相关数据发生调整时，在此处进行修改。制造费用包含水电气、维修、折旧、机物料消耗等项目。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image30.png" alt="图30：制造费用基础数据 — 编辑修改" loading="lazy"><figcaption>图30：制造费用基础数据 — 编辑修改</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image31.png" alt="图31：制造费用基础数据 — 新增" loading="lazy"><figcaption>图31：制造费用基础数据 — 新增</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image32.png" alt="图32：制造费用基础数据 — 删除确认" loading="lazy"><figcaption>图32：制造费用基础数据 — 删除确认</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image33.png" alt="图33：制造费用基础数据 — 批量导入" loading="lazy"><figcaption>图33：制造费用基础数据 — 批量导入</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-8">
+    <h3>3.8 期间费用基础数据管理</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 期间费用基础数据</div>
+    <p class="desc">预计月固定费用、房租物业等费用需按部门做比例分摊时进行调整。主要包括管理费用、销售费用、财务费用等期间费用的预算数据维护。</p>
+    <div class="note">分摊规则：房租、物业等费用分摊按部门维度进行，在期间费用管理页面维护各部门分摊比例；薪酬费用分摊按现有规则 — 制造部门承担70%、管理/投资部门承担30%。</div>
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image34.png" alt="图34：期间费用 — 编辑修改" loading="lazy"><figcaption>图34：期间费用 — 编辑修改</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image35.png" alt="图35：期间费用 — 新增" loading="lazy"><figcaption>图35：期间费用 — 新增</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image36.png" alt="图36：期间费用 — 删除确认" loading="lazy"><figcaption>图36：期间费用 — 删除确认</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image37.png" alt="图37：期间费用 — 批量导入" loading="lazy"><figcaption>图37：期间费用 — 批量导入</figcaption></figure>
+<figure data-lightbox="4"><img src="images/image38.png" alt="图38：期间费用 — 分摊规则说明" loading="lazy"><figcaption>图38：期间费用 — 分摊规则说明</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-9">
+    <h3>3.9 税金及附加基础数据管理</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 税金及附加基础数据</div>
+    <p class="desc">当房产税、土地使用税月固定值、印花税、所得税、城建税、教育费附加等税率或固定金额有调整时，在此处进行修改。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image39.png" alt="图39：税金及附加 — 编辑修改" loading="lazy"><figcaption>图39：税金及附加 — 编辑修改</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image40.png" alt="图40：税金及附加 — 新增" loading="lazy"><figcaption>图40：税金及附加 — 新增</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image41.png" alt="图41：税金及附加 — 删除确认" loading="lazy"><figcaption>图41：税金及附加 — 删除确认</figcaption></figure></div>
+  </section>
+  <section class="section" id="ch3-10">
+    <h3>3.10 基金补贴单价管理</h3>
+    <div class="path-badge"><i>&#128193;</i> 数据管理 → 基金补贴单价</div>
+    <p class="desc">当国家基金补贴标准发生变动时，在此处维护各品类旧机的补贴单价。基金补贴收入是营业收入预测的重要组成部分。</p>
+    
+    <div class="figure-grid"><figure data-lightbox="0"><img src="images/image42.png" alt="图42：基金补贴单价 — 维护编辑"><figcaption>图42：基金补贴单价 — 维护编辑</figcaption></figure></div>
+  </section>
+</div></div>
+</article>
+
+<article class="chapter" id="ch4">
+<div class="ch-header"><h2>四、采购数据编辑</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <div class="path-badge"><i>&#128193;</i> 数据管理 → 提取结果编辑 → 本期计划采购数量 / 本期计划采购单价</div>
+  <p class="desc">编辑本期的物料采购计划数据，包括采购数量和采购单价。系统将基于此数据计算计划投料量和单位投料成本。</p>
+  <div class="note">首次进入页面时数据为0，需先点击“读取数据并自动计算”进行初始化。列表中的“初始数据”即为期初库存的数据。</div>
+  <h4>操作步骤</h4>
+<ol class="step-list"><li>进入页面后如果数据为0，先点击 <strong>读取数据并自动计算</strong></li>
+<li>在列表中填写<strong>本期计划采购数量</strong>和<strong>本期计划采购单价</strong>，点击<strong>保存修改</strong></li>
+<li>批量修改：下载Excel模板 → 填写 → 上传 → 选择“全覆盖”模式 → 点击“确认导入”</li>
+<li>编辑完成后，点击 <strong>重新计算</strong> 进行重算</li>
+<li>最后点击 <strong>同步数据</strong> 将结果同步给其他用户</li></ol>
+  
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image43.png" alt="图43：采购数据 — 首次进入（数据为0）" loading="lazy"><figcaption>图43：采购数据 — 首次进入（数据为0）</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image44.png" alt="图44：采购数据 — 编辑修改" loading="lazy"><figcaption>图44：采购数据 — 编辑修改</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image45.png" alt="图45：采购数据 — 填写采购数量和单价" loading="lazy"><figcaption>图45：采购数据 — 填写采购数量和单价</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image46.png" alt="图46：采购数据 — 下载模板" loading="lazy"><figcaption>图46：采购数据 — 下载模板</figcaption></figure>
+<figure data-lightbox="4"><img src="images/image47.png" alt="图47：采购数据 — Excel导入覆盖模式" loading="lazy"><figcaption>图47：采购数据 — Excel导入覆盖模式</figcaption></figure>
+<figure data-lightbox="5"><img src="images/image48.png" alt="图48：采购数据 — 重新计算与同步" loading="lazy"><figcaption>图48：采购数据 — 重新计算与同步</figcaption></figure></div>
+</div></div>
+</article>
+
+<article class="chapter" id="ch5">
+<div class="ch-header"><h2>五、旧机投料数据编辑</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <div class="path-badge"><i>&#128193;</i> 数据管理 → 提取结果编辑 → 编辑“本期实际投料数量”</div>
+  <p class="desc">在采购数据录入完成的基础上，编辑本期的实际投料数量。投料数量由不同用户填写，在采购数据的基础上进行调整。</p>
+  <div class="note">系统默认“本期实际投料数量 = 本期计划投料数量 = 初始数据（期初库存）+ 本期计划采购数量”。用户可根据实际生产情况进行人工调整。</div>
+  <h4>操作步骤</h4>
+<ol class="step-list"><li>在列表中修改<strong>本期实际投料数量</strong>列</li>
+<li>修改完成后点击<strong>保存修改</strong></li>
+<li>批量导入/导出操作与第四章“采购数据编辑”一致</li>
+<li>编辑完成后点击<strong>重新计算</strong> → <strong>同步数据</strong></li></ol>
+  
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image49.png" alt="图49：旧机投料数据 — 编辑实际投料数量"><figcaption>图49：旧机投料数据 — 编辑实际投料数量</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image50.png" alt="图50：旧机投料数据 — 保存修改"><figcaption>图50：旧机投料数据 — 保存修改</figcaption></figure></div>
+</div></div>
+</article>
+
+<article class="chapter" id="ch6">
+<div class="ch-header"><h2>六、制造费用数据编辑</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <div class="path-badge"><i>&#128193;</i> 数据管理 → 制造费用数据编辑</div>
+  <p class="desc">预览并编辑一类拆解物料的相关制造费用，包括转投费用、一类二次/三次加工费用、印刷板处置、荧光灯处置、委外处置等费用。</p>
+  
+  <h4>操作步骤</h4>
+<ol class="step-list"><li>进入页面后，点击<strong>只读/初始/手工数据</strong>切换状态，将只读模式变为可编辑模式</li>
+<li>在第1~6列中对制造费用数据进行修改，完成后点击<strong>保存并拆分</strong>，系统自动按各物料进行分摊</li>
+<li>批量导入：点击<strong>下载模板</strong> → 填写 → 上传Excel → 系统自动识别预览 → 点击<strong>确认导入</strong></li></ol>
+  
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image51.png" alt="图51：制造费用数据 — 切换编辑状态" loading="lazy"><figcaption>图51：制造费用数据 — 切换编辑状态</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image52.png" alt="图52：制造费用数据 — 保存并拆分" loading="lazy"><figcaption>图52：制造费用数据 — 保存并拆分</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image53.png" alt="图53：制造费用数据 — 下载模板" loading="lazy"><figcaption>图53：制造费用数据 — 下载模板</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image54.png" alt="图54：制造费用数据 — 批量导入预览" loading="lazy"><figcaption>图54：制造费用数据 — 批量导入预览</figcaption></figure></div>
+</div></div>
+</article>
+
+<article class="chapter" id="ch7">
+<div class="ch-header"><h2>七、销售价格编辑</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <div class="path-badge"><i>&#128193;</i> 数据管理 → 销售价格</div>
+  <p class="desc">编辑和维护拆解产物的销售价格，包括含税单价和增值税率。不含税单价由系统自动计算生成。</p>
+  
+  <h4>操作步骤</h4>
+<ol class="step-list"><li><strong>在线编辑：</strong>直接点击<strong>销售单价-含税(元/KG)</strong>和<strong>增值税率(%)</strong>进行编辑，销售单价-不含税(元/KG)自动计算生成，修改后点击<strong>保存修改</strong></li>
+<li><strong>新增记录：</strong>点击<strong>新增</strong>按钮，在新增行填写数据后点击<strong>保存</strong></li>
+<li><strong>批量导入：</strong>下载Excel模板 → 填写修改 → 上传 → 点击<strong>初始化导入</strong></li>
+<li>编辑完成后返回数据管理页面，点击<strong>重新计算</strong> → <strong>同步数据</strong></li></ol>
+  
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image55.png" alt="图55：销售价格 — 编辑含税单价与税率" loading="lazy"><figcaption>图55：销售价格 — 编辑含税单价与税率</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image56.png" alt="图56：销售价格 — 新增价格记录" loading="lazy"><figcaption>图56：销售价格 — 新增价格记录</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image57.png" alt="图57：销售价格 — 批量导入Excel" loading="lazy"><figcaption>图57：销售价格 — 批量导入Excel</figcaption></figure></div>
+</div></div>
+</article>
+
+<article class="chapter" id="ch8">
+<div class="ch-header"><h2>八、可销售量数据编辑</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <div class="path-badge"><i>&#128193;</i> 数据管理 → 可销售量数据编辑</div>
+  <p class="desc">编辑各拆解产物的计划销售数量。系统根据减扣规则自动计算可销售量，用户可在此基础上进行手工调整。</p>
+  
+  <h4>操作步骤</h4>
+<ol class="step-list"><li>进入页面后，点击<strong>加载复核引擎数据</strong>，选择<strong>初始/手工数据</strong>，页面数据更新为当前修改后的数据</li>
+<li>在第1~6列中对可销售量数据进行修改，完成后点击<strong>保存并拆分</strong></li>
+<li>批量导入：点击<strong>下载货品模板</strong> → 填写 → 点击<strong>批量导入数据</strong> → 上传 → 确认导入</li>
+<li>编辑完成后返回数据管理页面，点击<strong>重新计算</strong> → <strong>同步数据</strong></li></ol>
+  
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image58.png" alt="图58：可销售量 — 加载复核引擎数据" loading="lazy"><figcaption>图58：可销售量 — 加载复核引擎数据</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image59.png" alt="图59：可销售量 — 保存并拆分" loading="lazy"><figcaption>图59：可销售量 — 保存并拆分</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image60.png" alt="图60：可销售量 — 下载货品模板" loading="lazy"><figcaption>图60：可销售量 — 下载货品模板</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image61.png" alt="图61：可销售量 — 批量导入数据" loading="lazy"><figcaption>图61：可销售量 — 批量导入数据</figcaption></figure></div>
+</div></div>
+</article>
+
+<article class="chapter" id="ch9">
+<div class="ch-header"><h2>九、预算总表（下月）编辑</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <div class="path-badge"><i>&#128193;</i> 首页 / 数据管理 → 预算总表（下月）</div>
+  <p class="desc">查看和编辑完整的经营预算汇总表。系统将部分费用数据取为月均标准值后，重新计算季度、半年、年度数据。</p>
+  
+  <h4>操作步骤</h4>
+<ol class="step-list"><li>进入预算总表页面，查看系统自动汇总的各项预算数据</li>
+<li>如需调整，直接在对应单元格中修改数据</li>
+<li>修改完成后点击<strong>重新计算</strong>按钮，系统自动重新汇总季度、半年、年度数据</li>
+<li>最后点击<strong>同步数据</strong>将编辑结果同步到其他用户</li></ol>
+  
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image62.png" alt="图62：预算总表 — 编辑与重算同步"><figcaption>图62：预算总表 — 编辑与重算同步</figcaption></figure></div>
+</div></div>
+</article>
+
+<article class="chapter" id="ch10">
+<div class="ch-header"><h2>十、数据存档及提取</h2><span class="ch-toggle">&#9660;</span></div>
+<div class="ch-body"><div class="ch-body-inner">
+  <div class="path-badge"><i>&#128193;</i> 首页 → 保存快照 / 加载快照</div>
+  <p class="desc">将当前系统中的所有数据保存为快照，存储到服务器或本地，便于后续查阅历史数据或恢复到历史状态。</p>
+  <div class="note">警告：加载历史快照将覆盖当前数据，请确认当前数据已保存后再执行加载操作。</div>
+  
+  <h4>保存快照</h4>
+<ol class="step-list"><li>在首页点击<strong>保存快照</strong>按钮</li>
+<li>在弹出的信息框中，填写<strong>文件名称</strong>，选择<strong>保存路径</strong></li>
+<li>点击<strong>确认保存</strong></li></ol><h4>加载快照</h4>
+<ol class="step-list"><li>在首页点击<strong>加载快照</strong>按钮</li>
+<li>在弹出的信息框中，<strong>选择要提取的历史文件</strong></li>
+<li>勾选<strong>我理解加载将覆盖当前数据，确认继续</strong></li>
+<li>点击<strong>确认加载</strong>，系统自动刷新页面</li>
+<li>若页面无变化，可点击首页的<strong>重新计算</strong>进行数据加载</li></ol>
+  <div class="figure-grid"><figure data-lightbox="0"><img src="images/image63.png" alt="图63：数据存档 — 保存快照（命名）" loading="lazy"><figcaption>图63：数据存档 — 保存快照（命名）</figcaption></figure>
+<figure data-lightbox="1"><img src="images/image64.png" alt="图64：数据存档 — 保存快照（选择路径）" loading="lazy"><figcaption>图64：数据存档 — 保存快照（选择路径）</figcaption></figure>
+<figure data-lightbox="2"><img src="images/image65.png" alt="图65：数据存档 — 加载快照（选择文件）" loading="lazy"><figcaption>图65：数据存档 — 加载快照（选择文件）</figcaption></figure>
+<figure data-lightbox="3"><img src="images/image66.png" alt="图66：数据存档 — 加载快照（确认覆盖）" loading="lazy"><figcaption>图66：数据存档 — 加载快照（确认覆盖）</figcaption></figure></div>
+</div></div>
+</article>
+</main>
+
+<div class="lightbox" id="lightbox">
+  <span class="lb-close" id="lbClose">&times;</span>
+  <span class="lb-prev" id="lbPrev">&lsaquo;</span>
+  <img src="" alt="" id="lbImg">
+  <span class="lb-next" id="lbNext">&rsaquo;</span>
+  <span class="lb-counter" id="lbCounter"></span>
+</div>
+
+<button class="btt" id="bttBtn" aria-label="回到顶部">&#9650;</button>
+
+<script>
+(function(){
+  const sidebar=document.getElementById('sidebar');
+  const main=document.getElementById('mainContent');
+  const menuToggle=document.getElementById('menuToggle');
+  const overlay=document.getElementById('sidebarOverlay');
+  const searchInput=document.getElementById('searchInput');
+  const searchResults=document.getElementById('searchResults');
+  const bttBtn=document.getElementById('bttBtn');
+  const lightbox=document.getElementById('lightbox');
+  const lbImg=document.getElementById('lbImg');
+  const lbCounter=document.getElementById('lbCounter');
+  const allFigures=Array.from(document.querySelectorAll('figure[data-lightbox]'));
+  let lbIdx=0;
+
+  document.querySelectorAll('.ch-header').forEach(h=>{
+    h.addEventListener('click',()=>{
+      const body=h.nextElementSibling;
+      h.classList.toggle('collapsed');
+      body.classList.toggle('collapsed');
+    });
+  });
+
+  document.querySelectorAll('.nav-link[data-target]').forEach(link=>{
+    link.addEventListener('click',function(e){
+      const target=this.dataset.target;
+      const subNav=this.nextElementSibling;
+      if(subNav&&subNav.classList.contains('sub-nav')){
+        this.classList.toggle('expanded');
+        subNav.classList.toggle('open');
+      }
+      const el=document.getElementById(target);
+      if(el){
+        el.scrollIntoView({behavior:'smooth'});
+        const chBody=el.querySelector('.ch-body');
+        const chHeader=el.querySelector('.ch-header');
+        if(chBody&&chBody.classList.contains('collapsed')){
+          chBody.classList.remove('collapsed');
+          if(chHeader)chHeader.classList.remove('collapsed');
+        }
+      }
+      closeMobileSidebar();
+    });
+  });
+
+  function openMobileSidebar(){sidebar.classList.add('mobile-open');overlay.classList.add('show');}
+  function closeMobileSidebar(){sidebar.classList.remove('mobile-open');overlay.classList.remove('show');}
+  menuToggle.addEventListener('click',()=>{sidebar.classList.contains('mobile-open')?closeMobileSidebar():openMobileSidebar();});
+  overlay.addEventListener('click',closeMobileSidebar);
+
+  const allIds=Array.from(document.querySelectorAll('.chapter[id],.section[id]')).map(el=>el.id);
+  function updateActiveNav(){
+    let current=allIds[0];
+    for(const id of allIds){const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<=120)current=id;}
+    document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+    const al=document.querySelector('.nav-link[data-target="'+current+'"]');
+    if(al){al.classList.add('active');al.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  }
+  window.addEventListener('scroll',updateActiveNav,{passive:true});
+
+  window.addEventListener('scroll',()=>{bttBtn.classList.toggle('visible',window.scrollY>400);},{passive:true});
+  bttBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+  const searchIndex=[];
+  document.querySelectorAll('.chapter,.section').forEach(el=>{
+    const id=el.id;
+    const h=el.querySelector('h2')||el.querySelector('h3');
+    const title=h?h.textContent:'';
+    searchIndex.push({id,title,text:el.textContent});
+  });
+
+  function doSearch(query){
+    query=query.trim().toLowerCase();
+    searchResults.innerHTML='';
+    if(!query){searchResults.style.display='none';clearHighlights();return;}
+    const results=[];
+    searchIndex.forEach(item=>{
+      const idx=item.text.toLowerCase().indexOf(query);
+      if(idx>=0)results.push({...item,matchPos:idx});
+    });
+    if(!results.length){searchResults.innerHTML='<div class="result-item" style="color:#999">未找到匹配结果</div>';searchResults.style.display='block';clearHighlights();return;}
+    results.sort((a,b)=>a.matchPos-b.matchPos).slice(0,15).forEach(r=>{
+      const div=document.createElement('div');
+      div.className='result-item';
+      const re=new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+      div.innerHTML='<span class="ch">'+r.title+'</span><span style="color:#666;font-size:12px">'+r.text.substring(Math.max(0,r.matchPos-20),r.matchPos+60).replace(re,m=>'<b>'+m+'</b>')+'</span>';
+      div.addEventListener('click',()=>{
+        const el=document.getElementById(r.id);
+        if(el){
+          el.scrollIntoView({behavior:'smooth'});
+          const chBody=el.querySelector('.ch-body');
+          const chHeader=el.querySelector('.ch-header');
+          if(chBody&&chBody.classList.contains('collapsed')){chBody.classList.remove('collapsed');if(chHeader)chHeader.classList.remove('collapsed');}
+        }
+        searchResults.style.display='none';
+        highlightText(query);
+        closeMobileSidebar();
+      });
+      searchResults.appendChild(div);
+    });
+    searchResults.style.display='block';
+  }
+
+  function highlightText(query){
+    clearHighlights();
+    if(!query.trim())return;
+    const re=new RegExp('('+query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    function walk(node){
+      if(node.nodeType===3&&node.parentElement.closest('.ch-body')){
+        const m=node.textContent.match(re);
+        if(m){const span=document.createElement('span');span.innerHTML=node.textContent.replace(re,'<mark class="hl">$1</mark>');node.replaceWith(span);}
+      }else if(node.nodeType===1&&!node.classList.contains('hl')&&!node.closest('.topbar')&&!node.closest('.sidebar')&&!node.closest('.lightbox')){
+        node.childNodes.forEach(walk);
+      }
+    }
+    main.childNodes.forEach(walk);
+  }
+
+  function clearHighlights(){
+    main.querySelectorAll('mark.hl').forEach(m=>{const p=m.parentNode;p.replaceChild(document.createTextNode(m.textContent),m);p.normalize();});
+  }
+
+  let st;
+  searchInput.addEventListener('input',()=>{clearTimeout(st);st=setTimeout(()=>doSearch(searchInput.value),250);});
+  searchInput.addEventListener('keydown',e=>{if(e.key==='Escape'){searchInput.value='';searchResults.style.display='none';clearHighlights();}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))searchResults.style.display='none';});
+
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();searchInput.focus();}
+    if(e.key==='/'&&!e.target.closest('input,textarea,[contenteditable]')){e.preventDefault();searchInput.focus();}
+    if(e.key==='Escape'&&lightbox.classList.contains('show'))closeLightbox();
+    if(e.key==='ArrowLeft'&&lightbox.classList.contains('show'))prevImage();
+    if(e.key==='ArrowRight'&&lightbox.classList.contains('show'))nextImage();
+  });
+
+  function openLightbox(idx){
+    if(idx<0||idx>=allFigures.length)return;
+    const fig=allFigures[idx];
+    const img=fig.querySelector('img');
+    const cap=fig.querySelector('figcaption');
+    lbImg.src=img.src;lbImg.alt=img.alt;
+    lbCounter.textContent=(idx+1)+' / '+allFigures.length+(cap?' — '+cap.textContent:'');
+    lightbox.classList.add('show');lbIdx=idx;document.body.style.overflow='hidden';
+  }
+  function closeLightbox(){lightbox.classList.remove('show');document.body.style.overflow='';}
+  function nextImage(){openLightbox((lbIdx+1)%allFigures.length);}
+  function prevImage(){openLightbox((lbIdx-1+allFigures.length)%allFigures.length);}
+
+  document.addEventListener('click',e=>{
+    const fig=e.target.closest('figure[data-lightbox]');
+    if(!fig)return;
+    lbIdx=allFigures.indexOf(fig);
+    if(lbIdx>=0)openLightbox(lbIdx);
+  });
+  document.getElementById('lbClose').addEventListener('click',closeLightbox);
+  document.getElementById('lbPrev').addEventListener('click',prevImage);
+  document.getElementById('lbNext').addEventListener('click',nextImage);
+  lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
+
+  updateActiveNav();
+  window.addEventListener('resize',()=>{if(window.innerWidth>900)closeMobileSidebar();});
+})();
+</script>
+</body>
+</html>

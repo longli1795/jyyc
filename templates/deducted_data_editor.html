@@ -1,0 +1,3273 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>被减扣数据编辑与重算 - 企业经营预测分析平台</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 品牌色（与当期拆解收益测算分析表、brand-and-themes 一致） */
+            --brand-dark: #141413;
+            --brand-light: #faf9f5;
+            --brand-mid-gray: #b0aea5;
+            --brand-light-gray: #e8e6dc;
+            --brand-orange: #d97757;
+            --brand-blue: #6a9bcc;
+            --brand-green: #788c5d;
+            --font-heading: 'Poppins', Arial, sans-serif;
+            --font-body: 'Lora', Georgia, serif;
+            --primary-color: var(--brand-dark);
+            --primary-hover: var(--brand-blue);
+            --success-color: var(--brand-green);
+            --warning-color: #c47a2e;
+            --danger-color: #c53030;
+            --info-color: var(--brand-blue);
+            --light-bg: var(--brand-light);
+            --border-color: var(--brand-light-gray);
+            --text-primary: var(--brand-dark);
+            --text-secondary: var(--brand-mid-gray);
+            --shadow: 0 4px 6px -1px rgba(20, 20, 19, 0.08), 0 2px 4px -1px rgba(20, 20, 19, 0.04);
+            --shadow-lg: 0 10px 15px -3px rgba(20, 20, 19, 0.1), 0 4px 6px -2px rgba(20, 20, 19, 0.06);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, #2a2d3a 50%, var(--brand-blue) 100%);
+            min-height: 100vh;
+            font-family: var(--font-body);
+            color: var(--text-primary);
+        }
+        
+        .main-container {
+            background: var(--brand-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            margin: 20px auto;
+            padding: 0;
+            overflow: hidden;
+            max-width: 1400px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            padding: 40px 32px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-heading);
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 18px;
+            margin-top: 8px;
+        }
+        
+        .header-actions .btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: var(--brand-light);
+        }
+        
+        .header-actions .btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+            color: var(--brand-light);
+        }
+        
+        .breadcrumb-nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        
+        .breadcrumb-nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .breadcrumb-nav a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-nav .separator {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 8px;
+        }
+        
+        .breadcrumb-nav .current {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-nav {
+            position: relative;
+            z-index: 99998;
+        }
+        
+        /* 下拉菜单容器 */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 99999;
+        }
+        
+        .breadcrumb-home-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-home-link:hover {
+            color: white;
+        }
+        
+        /* 下拉菜单（品牌色，与当期拆解收益测算分析表一致） */
+        .dropdown-menu {
+            position: fixed !important;
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.95) 0%, rgba(106, 155, 204, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            z-index: 99999 !important;
+            padding: 8px 0;
+            display: block;
+            pointer-events: auto;
+        }
+        
+        .breadcrumb-dropdown:hover .dropdown-menu,
+        .breadcrumb-dropdown .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 下拉菜单项基础样式 */
+        .dropdown-item {
+            display: block;
+            padding: 8px 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        /* 层级0：首页 */
+        .dropdown-level-0 {
+            padding-left: 16px;
+        }
+        
+        /* 层级1：一级分类下的直接子项 */
+        .dropdown-level-1 {
+            padding-left: 32px;
+            position: relative;
+        }
+        
+        .dropdown-level-1::before {
+            content: '├─';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级1的最后一项使用└─ */
+        .dropdown-category > .dropdown-level-1:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 层级2：二级分类下的子项 */
+        .dropdown-level-2 {
+            padding-left: 48px;
+            position: relative;
+        }
+        
+        .dropdown-level-2::before {
+            content: '├─';
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* 层级2的最后一项使用└─ */
+        .dropdown-subcategory > .dropdown-level-2:last-of-type::before {
+            content: '└─';
+        }
+        
+        /* 箭头图标 */
+        .dropdown-item.has-arrow::after {
+            content: '◀';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 1;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item:hover::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .dropdown-item:hover.has-arrow::after {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 分类标题 */
+        .dropdown-category {
+            margin-top: 4px;
+        }
+        
+        .dropdown-category-title {
+            padding: 8px 16px 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2px;
+        }
+        
+        /* 子分类标题 */
+        .dropdown-subcategory {
+            margin-left: 16px;
+        }
+        
+        .dropdown-subcategory-title {
+            padding: 6px 16px 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2px;
+        }
+        
+        /* 滚动条样式 */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                min-width: 260px;
+                max-width: 90vw;
+                max-height: 60vh;
+            }
+            
+            .dropdown-item {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+            
+            .dropdown-section-title {
+                font-size: 11px;
+                padding: 6px 16px 4px;
+            }
+        }
+        
+        .content {
+            padding: 40px 32px;
+            overflow: hidden;
+        }
+        
+        /* 统计面板样式（对齐当期拆解收益测算分析表 summary-panel / summary-card） */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* 工具栏样式（与当期拆解收益测算分析表一致） */
+        .toolbar {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+        
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .toolbar-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .excel-operations {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .import-section {
+            position: relative;
+        }
+        
+        .toolbar .form-control,
+        .toolbar .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        /* 表格样式（对齐当期拆解收益测算分析表：滑动与滚动条） */
+        .table-container {
+            background: var(--brand-light);
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+            max-height: 60vh;
+            width: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: var(--brand-light-gray);
+            border-radius: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--brand-mid-gray);
+            border-radius: 6px;
+            border: 2px solid var(--brand-light-gray);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        .table-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--brand-mid-gray) var(--brand-light-gray);
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        .table-editable {
+            margin: 0;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            table-layout: auto;
+            min-width: 1100px;
+        }
+        
+        .table-editable thead {
+            background: var(--primary-color);
+            color: var(--brand-light);
+        }
+        
+        .table-editable th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .table-editable th.editable-header {
+            position: sticky;
+        }
+        
+        .table-editable th.editable-header::after {
+            content: "✏️";
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+        }
+        
+        .table-editable td {
+            padding: 10px 8px;
+            font-size: 13px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .table-editable tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .table-editable tbody tr:hover {
+            background: rgba(106, 155, 204, 0.06);
+        }
+        
+        .editable-cell {
+            background-color: rgba(232, 230, 220, 0.6);
+            border: 2px dashed var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+        
+        .editable-cell:hover {
+            background-color: rgba(106, 155, 204, 0.08);
+            border-color: var(--primary-hover);
+        }
+        
+        .editable-cell.editing {
+            background-color: rgba(196, 122, 46, 0.12);
+            border-color: var(--warning-color);
+        }
+        
+        .editable-cell.modified {
+            background-color: rgba(196, 122, 46, 0.12);
+            border-color: var(--warning-color);
+            position: relative;
+        }
+
+        .editable-cell.modified::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-top: 6px solid var(--warning-color);
+        }
+
+        /* 已保存的单元格样式 */
+        .editable-cell.saved {
+            background-color: rgba(120, 140, 93, 0.15);
+            border-color: var(--success-color);
+            position: relative;
+        }
+
+        .editable-cell.saved::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 0;
+            height: 0;
+        }
+        
+        /* 只读表格在 table-container 内与参考页一致（滑动与表头样式） */
+        .table-container .table {
+            min-width: 1100px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table-container .table thead th {
+            background: var(--primary-color);
+            color: var(--brand-light);
+            border: none;
+            padding: 12px 8px;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .table-container .table tbody td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+        
+        .table-container .table tbody tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+        
+        .table-container .table tbody tr:hover {
+            background: rgba(106, 155, 204, 0.06);
+        }
+        
+        /* 计算结果编辑样式 */
+        .editable-result {
+            background-color: rgba(232, 230, 220, 0.6);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        .editable-result:hover {
+            background-color: rgba(106, 155, 204, 0.08);
+            border-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+        
+        .result-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .result-unit {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+        
+        /* 编辑模态框样式增强 */
+        .info-section {
+            background-color: rgba(232, 230, 220, 0.5);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .edit-section {
+            background-color: var(--brand-light);
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .result-preview {
+            background: linear-gradient(135deg, rgba(20, 20, 19, 0.04) 0%, rgba(106, 155, 204, 0.06) 100%);
+            border: 1px solid var(--border-color);
+        }
+
+        /* 编辑模式的行样式 */
+        .editing-row {
+            background-color: rgba(106, 155, 204, 0.06) !important;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .editing-row .editable-cell {
+            background-color: rgba(106, 155, 204, 0.12) !important;
+        }
+        
+        .table-editable td.calculated {
+            background-color: rgba(120, 140, 93, 0.15);
+            font-weight: bold;
+        }
+        
+        .editable-input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 4px;
+            font-size: 13px;
+        }
+        
+        .editable-input:focus {
+            outline: none;
+            background: var(--brand-light);
+        }
+        
+        /* 计算结果对比样式 */
+        .calculation-change {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .old-value {
+            color: var(--text-secondary);
+            text-decoration: line-through;
+            font-size: 0.9em;
+        }
+        
+        .new-value {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .change-indicator {
+            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .change-positive {
+            background: rgba(120, 140, 93, 0.2);
+            color: var(--success-color);
+        }
+        
+        .change-negative {
+            background: rgba(197, 48, 48, 0.15);
+            color: var(--danger-color);
+        }
+        
+        /* 模态框样式（品牌色，与当期拆解收益测算分析表一致） */
+        .modal-header {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            border-bottom: none;
+        }
+        
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+        
+        .calculation-preview {
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        /* 导入统计面板 */
+        .import-stats-panel {
+            background: rgba(232, 230, 220, 0.5);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .stat-box {
+            background: var(--brand-light);
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-number {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* 按钮（品牌色，与当期拆解收益测算分析表一致） */
+        .btn-success {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            border: none;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            color: var(--brand-light);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            color: var(--brand-light);
+            border: none;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            color: var(--brand-light);
+        }
+        
+        .btn-info {
+            background: var(--brand-blue);
+            color: var(--brand-light);
+            border: none;
+        }
+        
+        .btn-warning {
+            background: var(--brand-orange);
+            color: var(--brand-light);
+            border: none;
+        }
+        
+        /* 响应式设计（与当期拆解收益测算分析表一致） */
+        @media (max-width: 768px) {
+            .content {
+                padding: 24px 20px;
+            }
+            
+            .header {
+                padding: 32px 20px;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .toolbar-left,
+            .toolbar-right {
+                justify-content: center;
+            }
+            
+            .stats-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .table-container {
+                max-height: 50vh;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .footer-logo {
+                height: 50px;
+                max-width: 100px;
+                min-width: 50px;
+            }
+        }
+        
+        /* 加载动画 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            background: var(--brand-light);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            max-width: 300px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid var(--brand-light-gray);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 页脚Logo样式（品牌色，与当期拆解收益测算分析表一致） */
+        .footer-logo-section {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-blue) 100%);
+            padding: 30px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-logo {
+            height: 60px;
+            max-width: 120px;
+            min-width: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: var(--brand-light);
+            padding: 8px;
+            transition: all 0.3s ease;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .footer-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-text {
+            text-align: center;
+            color: var(--brand-light);
+        }
+        
+        .footer-company-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer-company-english {
+            font-size: 14px;
+            font-style: italic;
+            margin: 0 0 8px 0;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            color: rgba(250, 249, 245, 0.95);
+        }
+        
+        .footer-slogan {
+            font-size: 14px;
+            margin: 0;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container animate__animated animate__fadeIn">
+            <!-- Header -->
+            <div class="header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1>
+                            被减扣数据结果编辑
+                        </h1>
+                        <div class="subtitle">直接编辑计算结果，无需修改参数，编辑后的数据将用于深加工计算</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-light btn-sm" onclick="window.open('/revenue-forecast/data-management', '_blank')">
+                            返回数据管理
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="breadcrumb-nav">
+                    <div class="breadcrumb-dropdown">
+                        <a href="/" class="breadcrumb-home-link">首页</a>
+                        <div class="dropdown-menu">
+                            <a href="/" class="dropdown-item dropdown-level-0">首页 |</a>
+                            
+                            <!-- 数据管理 -->
+                            <div class="dropdown-category">
+                                <div class="dropdown-category-title">数据管理</div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据管理</div>
+                                    <a href="/revenue-forecast/data-management/mapping" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_mapping">内置映射表</a>
+                                    <a href="/revenue-forecast/data-management/product" class="dropdown-item dropdown-level-2" data-page-permission="data_management_product">产品拆解系数管理</a>
+                                    <a href="/revenue-forecast/data-management/deduction" class="dropdown-item dropdown-level-2 has-arrow" data-page-permission="data_management_deduction">减扣规则管理</a>
+                                    <a href="/revenue-forecast/data-management/deep-processing" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deep_processing">深加工数据管理</a>
+                                </div>
+                                <div class="dropdown-subcategory">
+                                    <div class="dropdown-subcategory-title">基础数据编辑</div>
+                                    <a href="/data-management/extracted-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_extracted_data">提取结果编辑</a>
+                                    <a href="/data-management/deducted-data" class="dropdown-item dropdown-level-2" data-page-permission="data_management_deducted_data">被减扣数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/saleable-data-editor" class="dropdown-item dropdown-level-2" data-page-permission="data_management_saleable_data">可销售量数据编辑</a>
+                                    <a href="/revenue-forecast/data-management/price" class="dropdown-item dropdown-level-2" data-page-permission="data_management_price">销售价格</a>
+                                    <a href="/revenue-forecast/data-management/subsidy" class="dropdown-item dropdown-level-2" data-page-permission="data_management_subsidy">基金补贴单价</a>
+                                    <a href="/revenue-forecast/data-management/labor-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_labor_cost">计件人工标准数据</a>
+                                    <a href="/cost-forecast/data-management/salary-accounting" class="dropdown-item dropdown-level-2" data-page-permission="data_management_salary_accounting">薪酬核算基础数据</a>
+                                    <a href="/cost-forecast/data-management/manufacturing-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_manufacturing_cost">制造费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/period-cost" class="dropdown-item dropdown-level-2" data-page-permission="data_management_period_cost">期间费用基础数据</a>
+                                    <a href="/cost-forecast/data-management/tax-surcharge" class="dropdown-item dropdown-level-2" data-page-permission="data_management_tax_surcharge">税金及附加基础数据</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 营业收入预测 -->
+                            <div class="dropdown-category" data-page-permission="home_revenue_forecast">
+                                <div class="dropdown-category-title">营业收入预测</div>
+                                <a href="/revenue-forecast/sales-revenue/" class="dropdown-item dropdown-level-1 has-arrow">销售收入</a>
+                                <a href="/revenue-forecast/subsidy-income/" class="dropdown-item dropdown-level-1 has-arrow">基金补贴收入</a>
+                                <a href="/revenue-forecast/disassembly-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">一次拆解产物产值</a>
+                                <a href="/revenue-forecast/deep-processing-product-output-value/" class="dropdown-item dropdown-level-1 has-arrow">深加工拆解产物产值</a>
+                            </div>
+                            
+                            <!-- 成本预测 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_forecast">
+                                <div class="dropdown-category-title">成本预测</div>
+                                <a href="/cost-forecast/material-cost/" class="dropdown-item dropdown-level-1 has-arrow">拆解物原料成本</a>
+                                <a href="/cost-forecast/piece-rate-wage/" class="dropdown-item dropdown-level-1">直接人工成本</a>
+                                <a href="/cost-forecast/" class="dropdown-item dropdown-level-1">间接人工成本</a>
+                                <a href="/cost-forecast/manufacturing-cost/" class="dropdown-item dropdown-level-1">制造费用成本</a>
+                                <a href="/cost-forecast/screen-cost-allocation/" class="dropdown-item dropdown-level-1">公共费用分摊</a>
+                                <a href="/cost-forecast/period-cost/" class="dropdown-item dropdown-level-1">期间费用</a>
+                            </div>
+                            
+                            <!-- 成本计算 -->
+                            <div class="dropdown-category" data-page-permission="home_cost_calculation">
+                                <div class="dropdown-category-title">成本计算</div>
+                                <a href="/cost-forecast/production-cost-allocation/" class="dropdown-item dropdown-level-1">生产成本分摊</a>
+                                <a href="/cost-forecast/disassembly-product-cost/" class="dropdown-item dropdown-level-1">一次拆解产物成本</a>
+                                <a href="/cost-forecast/deep-processing-product-cost/" class="dropdown-item dropdown-level-1">深加工产物成本</a>
+                                <a href="/cost-forecast/disassembly-profit-analysis/" class="dropdown-item dropdown-level-1 has-arrow">当期拆解收益测算分析表</a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="separator">></span>
+                    <a href="/revenue-forecast/data-management" target="_blank">基础数据管理</a>
+                    <span class="separator">></span>
+                    <span class="current">被减扣数据编辑</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <!-- 数据统计面板 -->
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-records">0</div>
+                        <div class="stat-label">总记录数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="original-weight">0 KG</div>
+                        <div class="stat-label">原始总重量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="current-weight">0 KG</div>
+                        <div class="stat-label">当前总重量</div>
+                    </div>
+                    <div class="stat-card" title="为「当前手工表 计算结果(KG) 合计」减「原始快照合计」，含所有行差异，不单行修改量">
+                        <div class="stat-value" id="weight-difference">0 KG</div>
+                        <div class="stat-label">重量变化 (全表)</div>
+                    </div>
+                    <div class="stat-card" id="modification-status" style="display: none;">
+                        <div class="stat-value text-warning">
+                            已修改
+                        </div>
+                        <div class="stat-label" id="modification-time">修改时间</div>
+                    </div>
+                </div>
+
+                <!-- 数据类型标签页 -->
+                <div class="nav-tabs-container mb-4">
+                    <ul class="nav nav-tabs nav-fill" id="dataTypeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="readonly-tab" data-bs-toggle="tab" data-bs-target="#readonly-pane" type="button" role="tab" aria-controls="readonly-pane" aria-selected="true">
+                                被减扣数据 (只读)
+                                <span class="badge bg-secondary ms-2" id="readonly-count">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item d-none" role="presentation" id="manual-tab-nav-item">
+                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="false">
+                                被减扣数据 (手工)
+                                <span class="badge bg-primary ms-2" id="manual-count">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tab-content" id="dataTypeTabContent">
+                    <!-- 只读数据标签页 -->
+                    <div class="tab-pane fade show active" id="readonly-pane" role="tabpanel" aria-labelledby="readonly-tab">
+                        <div class="alert alert-info">
+                                <strong>只读模式：</strong>未编辑被减扣时与系统被减扣结果一致；已编辑被减扣时，此处为<strong>修改前</strong>的计算结果(KG)快照，原库存数量(TAI)与当前提取结果一致。深加工计算以「被减扣数据(手工)」为准。<br>
+                            <small class="text-muted">未进入手工编辑前，页面仅显示本标签（无「被减扣数据(手工)」）。需要修改计算结果(KG)时，请点击右侧「从只读初始化手工数据」，系统将显示可编辑标签页。</small>
+                        </div>
+                        
+                        <!-- 只读数据的工具栏 -->
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <select id="disposal-filter-readonly" class="form-select">
+                                    <option value="">全部处置类别</option>
+                                    <option value="深加工-塑料一破">深加工-塑料一破</option>
+                                    <option value="深加工-打包铁">深加工-打包铁</option>
+                                    <option value="内转印制板处置">内转印制板处置</option>
+                                    <option value="内转屏处置">内转屏处置</option>
+                                    <option value="内转荧光灯处置">内转荧光灯处置</option>
+                                    <option value="付费处置">付费处置</option>
+                                </select>
+                                <input type="text" id="search-input-readonly" class="form-control" placeholder="搜索产物编码或名称..." style="min-width: 200px;">
+                            </div>
+                            <div class="toolbar-right">
+                                <button class="btn btn-success" onclick="exportToExcel('readonly')">
+                                    导出Excel
+                                </button>
+                                <button class="btn btn-primary" onclick="initializeFromReadonly()" id="init-from-readonly-readonly-pane-btn" type="button" style="display: none;">
+                                    从只读初始化手工数据
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 只读数据表格 -->
+                        <div class="table-container">
+                            <table class="table table-hover" id="readonly-data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">序号</th>
+                                        <th style="width: 120px;">原物料代码</th>
+                                        <th style="width: 180px;">原物料名称</th>
+                                        <th style="width: 120px;">拆解产物编码</th>
+                                        <th style="width: 180px;">拆解产物名称</th>
+                                        <th style="width: 120px;">原库存数量(TAI)</th>
+                                        <th style="width: 140px;">计算结果(KG)</th>
+                                        <th style="width: 120px;">处置类别</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="readonly-tbody">
+                                    <!-- 动态生成的只读数据行 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 手工数据标签页 -->
+                    <div class="tab-pane fade" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab">
+                        <div class="alert alert-success">
+                            <strong>编辑模式：</strong>此数据为手工编辑的被减扣数据，参与深加工计算。
+                            <br><small><strong>保存说明：</strong>修改数据后会自动保存；如需更新深加工数据和可销售量，请返回首页点击“重新计算”。编辑后的数据会被保留，并在下一次首页重算时参与计算。</small>
+                        </div>
+
+                        <!-- 操作工具栏 -->
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <!-- 筛选和搜索 -->
+                                <select id="disposal-filter" class="form-select">
+                                    <option value="">全部处置类别</option>
+                                    <option value="深加工-塑料一破">深加工-塑料一破</option>
+                                    <option value="深加工-打包铁">深加工-打包铁</option>
+                                    <option value="内转印制板处置">内转印制板处置</option>
+                                    <option value="内转屏处置">内转屏处置</option>
+                                    <option value="内转荧光灯处置">内转荧光灯处置</option>
+                                    <option value="付费处置">付费处置</option>
+                                </select>
+                                <input type="text" id="search-input" class="form-control" placeholder="搜索产物编码或名称..." style="min-width: 200px;">
+                            </div>
+                            <div class="toolbar-right">
+                                <!-- Excel操作区域 -->
+                                <div class="excel-operations">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-success" onclick="exportToExcel()">
+                                            导出Excel
+                                        </button>
+                                        <button class="btn btn-info" onclick="downloadTemplate()">
+                                            下载模板
+                                        </button>
+                                    </div>
+                                    <div class="import-section">
+                                        <input type="file" id="excel-import" accept=".xlsx,.xls" style="display: none;" onchange="handleExcelImport(event)">
+                                        <button class="btn btn-warning" onclick="document.getElementById('excel-import').click()">
+                                            导入Excel
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- 其他操作按钮 -->
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-primary" onclick="initializeFromReadonly()" id="init-from-readonly-btn">
+                                        从只读数据初始化
+                                    </button>
+                                    <button class="btn btn-outline-warning" onclick="resetToOriginal()" id="reset-btn" style="display: none;">
+                                        恢复原始数据
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 简化使用说明 -->
+                        <div class="alert alert-light border-0 bg-light-subtle mb-3">
+                            <div class="row g-2 text-sm">
+                                <div class="col-md-4">
+                                    <strong>直接编辑：</strong>点击表格中的计算结果进行修改
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>批量处理：</strong>使用Excel导入导出功能
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>重算入口：</strong>修改后请回首页点击“重新计算”
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 数据编辑表格 -->
+                        <div class="table-container">
+                            <table class="table table-editable table-hover" id="deducted-data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60px;">序号</th>
+                                        <th style="width: 120px;">原物料代码</th>
+                                        <th style="width: 180px;">原物料名称</th>
+                                        <th style="width: 120px;">拆解产物编码</th>
+                                        <th style="width: 180px;">拆解产物名称</th>
+                                        <th style="width: 120px;">原库存数量(TAI)</th>
+                                        <th style="width: 140px;">
+                                            计算结果(KG)
+                                        </th>
+                                        <th style="width: 120px;">处置类别</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="data-tbody">
+                                    <!-- 动态生成的数据行 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- ========== 汇总编辑表（按拆解产物编码合并） ========== -->
+                        <div class="mt-4" id="aggregated-section" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h5 style="margin: 0; color: var(--primary-color); font-weight: 600;">
+                                        汇总编辑（按拆解产物编码合并）
+                                    </h5>
+                                    <small class="text-muted">修改汇总值后点击「保存并回填」，系统将按原占比自动分配回明细行</small>
+                                </div>
+                                <button class="btn btn-primary" onclick="saveAggregatedChanges()" id="btn-save-aggregated">
+                                    保存并回填
+                                </button>
+                            </div>
+
+                            <div class="alert alert-info" style="font-size: 13px;">
+                                <strong>操作说明：</strong>在下方表格中修改<strong>「汇总计算结果(KG)」</strong>列（可点击单元格直接编辑），修改完成后点击右侧「保存并回填」按钮，系统将按照每行原来的占比，自动分配回上方明细表的对应行。
+                            </div>
+
+                            <div class="table-container" id="aggregated-table-container">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 60px;">序号</th>
+                                            <th style="width: 110px;">拆解产物编码</th>
+                                            <th style="width: 160px;">拆解产物名称</th>
+                                            <th style="width: 140px;">
+                                                汇总计算结果(KG)
+                                            </th>
+                                            <th style="width: 120px;">原库存数量(TAI)</th>
+                                            <th style="width: 100px;">明细行数</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="aggregated-tbody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                正在加载...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excel导入预览和确认模态框 -->
+    <div class="modal fade" id="excelImportModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        
+                        Excel数据导入预览
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 导入统计信息 -->
+                    <div class="import-stats-panel mb-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="stat-box text-center">
+                                    <div class="stat-number text-primary" id="import-total-count">0</div>
+                                    <div class="stat-label">导入记录数</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-box text-center">
+                                    <div class="stat-number text-success" id="import-valid-count">0</div>
+                                    <div class="stat-label">有效记录</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-box text-center">
+                                    <div class="stat-number text-warning" id="import-error-count">0</div>
+                                    <div class="stat-label">错误记录</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-box text-center">
+                                    <div class="stat-number text-info" id="current-count">0</div>
+                                    <div class="stat-label">当前数据量</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 导入模式选择 -->
+                    <div class="import-mode-section mb-4">
+                        <h6>导入模式</h6>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="import-mode" id="mode-replace" value="replace" checked>
+                            <label class="form-check-label" for="mode-replace">
+                                <strong>完全覆盖</strong> - 清空现有数据，使用导入数据替换
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="import-mode" id="mode-merge" value="merge">
+                            <label class="form-check-label" for="mode-merge">
+                                <strong>合并更新</strong> - 保留现有数据，更新重复项，新增不存在项
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="import-mode" id="mode-append" value="append">
+                            <label class="form-check-label" for="mode-append">
+                                <strong>追加模式</strong> - 保留现有数据，仅追加新记录
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 错误信息显示 -->
+                    <div id="import-errors-section" class="mb-4" style="display: none;">
+                        <h6 class="text-warning">数据验证错误</h6>
+                        <div class="alert alert-warning">
+                            <div id="import-error-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- 数据预览表格 -->
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-striped" id="import-preview-table">
+                            <thead class="table-dark sticky-top">
+                                <tr id="import-preview-header">
+                                    <th>状态</th>
+                                    <th>序号</th>
+                                    <th>拆解产物编码</th>
+                                                                <th>拆解产物名称</th>
+                            <th>计算结果(KG)</th>
+                            <th>处置类别</th>
+                                    <th>期间</th>
+                                    <th>错误信息</th>
+                                </tr>
+                            </thead>
+                            <tbody id="import-preview-tbody">
+                                <!-- 动态生成预览数据 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        取消导入
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="confirmImport()">
+                        确认导入
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 单行编辑模态框 -->
+    <div class="modal fade" id="editRowModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        编辑计算结果
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-form">
+                        <div class="info-section mb-3">
+                            <h6>基本信息</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">原物料代码</label>
+                                    <input type="text" class="form-control" id="edit-material-code" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">原物料名称</label>
+                                    <input type="text" class="form-control" id="edit-material-name" readonly>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">拆解产物编码</label>
+                                    <input type="text" class="form-control" id="edit-product-code" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">拆解产物名称</label>
+                                    <input type="text" class="form-control" id="edit-product-name" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="edit-section">
+                            <h6>直接编辑计算结果</h6>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label">计算结果 (KG) <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control form-control-lg" id="edit-result" step="0.000001" placeholder="输入新的重量值">
+                                        <span class="input-group-text">KG</span>
+                                    </div>
+                                    <div class="form-text">
+                                        直接输入期望的重量值，该值将用于后续深加工计算
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="result-preview p-3 bg-light rounded">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>原值:</span>
+                                            <strong id="original-result">0.000000 KG</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <span>新值:</span>
+                                            <strong id="new-result" class="text-primary">0.000000 KG</strong>
+                                        </div>
+                                        <hr class="my-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>变化:</span>
+                                            <strong id="result-change" class="text-success">+0.000000 KG</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveRowEdit()">
+                        保存修改
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载动画 -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div id="loading-text">正在处理...</div>
+        </div>
+    </div>
+
+    <!-- 警告提示区域 -->
+    <div id="alert-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+    <!-- 页脚Logo区域 -->
+    <footer class="footer-logo-section">
+        <div class="container">
+            <div class="footer-content">
+                <img src="/logo/logo.png" alt="四川长虹格润环保科技股份有限公司" class="footer-logo">
+                <div class="footer-text">
+                    <p class="footer-company-name">四川长虹格润环保科技股份有限公司</p>
+                    <p class="footer-company-english">Sichuan Changhong Green Environmental Technology Co., Ltd.</p>
+                    <p class="footer-slogan">专业的环保科技解决方案提供商</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+        <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
+    <script src="/static/js/page_permissions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        let currentData = [];
+        let readonlyData = [];
+        let modifiedData = new Map();
+        let editingRowId = null;
+        let activeTab = 'readonly';
+        let deductedDataModified = false;
+        const PAGE_SIZE = 10000;
+        let currentManualPage = 1;
+        let currentReadonlyPage = 1;
+
+        function normalizeProductCode(val) {
+            if (val === null || val === undefined || val === '') return '';
+            return String(val).trim();
+        }
+
+        function refreshAggregatedTable() {
+            if (typeof buildAggregatedData === 'function' && typeof renderAggregatedTable === 'function') {
+                buildAggregatedData();
+                renderAggregatedTable();
+            }
+        }
+
+        function hideImportModal() {
+            const modalEl = document.getElementById('excelImportModal');
+            if (!modalEl) return;
+            const instance = bootstrap.Modal.getInstance(modalEl);
+            if (instance) {
+                instance.hide();
+            } else {
+                modalEl.classList.remove('show');
+                modalEl.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            }
+        }
+
+        async function ensureManualDataForImport() {
+            if (currentData && currentData.length > 0) {
+                return true;
+            }
+            if (!readonlyData || readonlyData.length === 0) {
+                showAlert('error', '没有可回填的明细数据，请先在只读页点击「从只读初始化手工数据」');
+                return false;
+            }
+            showLoading('正在初始化手工数据...');
+            try {
+                const response = await fetch('/api/data-management/deducted-data/initialize-manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    showAlert('error', result.error || result.message || '初始化手工数据失败');
+                    return false;
+                }
+                deductedDataModified = true;
+                await loadAllData();
+                return currentData && currentData.length > 0;
+            } catch (error) {
+                showAlert('error', '初始化手工数据失败: ' + error.message);
+                return false;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function parseJsonResponse(response) {
+            try {
+                return await response.json();
+            } catch (error) {
+                return {
+                    success: false,
+                    error: response.status === 403
+                        ? '仅管理员或指定维护员可编辑基础数据'
+                        : '服务器响应格式错误'
+                };
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('被减扣数据编辑页面初始化');
+            initEventListeners();
+            loadAllData();
+        });
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            // 搜索输入框 - 手工数据
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(filterData, 300));
+            }
+
+            // 搜索输入框 - 只读数据
+            const searchInputReadonly = document.getElementById('search-input-readonly');
+            if (searchInputReadonly) {
+                searchInputReadonly.addEventListener('input', debounce(filterReadonlyData, 300));
+            }
+
+            // 类别筛选 - 手工数据
+            const disposalFilter = document.getElementById('disposal-filter');
+            if (disposalFilter) {
+                disposalFilter.addEventListener('change', filterData);
+            }
+
+            // 类别筛选 - 只读数据
+            const disposalFilterReadonly = document.getElementById('disposal-filter-readonly');
+            if (disposalFilterReadonly) {
+                disposalFilterReadonly.addEventListener('change', filterReadonlyData);
+            }
+            
+            // 注释：移除了全选复选框事件监听器
+            
+            // 标签页切换事件
+            document.querySelectorAll('#dataTypeTabs button[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function(event) {
+                    activeTab = event.target.id === 'readonly-tab' ? 'readonly' : 'manual';
+                    console.log('切换到标签页:', activeTab);
+                });
+            });
+        }
+
+        // 防抖函数
+        function debounce(func, delay) {
+            let timeoutId;
+            return function (...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        function applyDeductedModifiedUI() {
+            const manualNavItem = document.getElementById('manual-tab-nav-item');
+            const roTabEl = document.getElementById('readonly-tab');
+            const manTabEl = document.getElementById('manual-tab');
+            const roPane = document.getElementById('readonly-pane');
+            const manPane = document.getElementById('manual-pane');
+            if (!manualNavItem || !roTabEl || !manTabEl || !roPane || !manPane) return;
+
+            if (!deductedDataModified) {
+                manualNavItem.classList.add('d-none');
+                manTabEl.classList.remove('active');
+                roTabEl.classList.add('active');
+                manPane.classList.remove('show', 'active');
+                roPane.classList.add('show', 'active');
+                roTabEl.setAttribute('aria-selected', 'true');
+                manTabEl.setAttribute('aria-selected', 'false');
+                activeTab = 'readonly';
+            } else {
+                manualNavItem.classList.remove('d-none');
+                roTabEl.classList.remove('active');
+                manTabEl.classList.add('active');
+                roPane.classList.remove('show', 'active');
+                manPane.classList.add('show', 'active');
+                roTabEl.setAttribute('aria-selected', 'false');
+                manTabEl.setAttribute('aria-selected', 'true');
+                activeTab = 'manual';
+            }
+            updateButtonStates();
+        }
+
+        // 加载所有数据
+        async function loadAllData() {
+            try {
+                showLoading('正在加载数据...');
+                const searchReadonly = encodeURIComponent(document.getElementById('search-input-readonly').value || '');
+                const searchManual = encodeURIComponent(document.getElementById('search-input').value || '');
+                const disposalReadonly = encodeURIComponent(document.getElementById('disposal-filter-readonly').value || '');
+                const disposalManual = encodeURIComponent(document.getElementById('disposal-filter').value || '');
+
+                const [readonlyResponse, manualResponse] = await Promise.all([
+                    fetch(`/api/data-management/deducted-data?page=${currentReadonlyPage}&per_page=${PAGE_SIZE}&search=${searchReadonly}&disposal_category=${disposalReadonly}`),
+                    fetch(`/api/data-management/deducted-data-manual?page=${currentManualPage}&per_page=${PAGE_SIZE}&search=${searchManual}&disposal_category=${disposalManual}`)
+                ]);
+
+                const readonlyResult = await readonlyResponse.json();
+                const manualResult = await manualResponse.json();
+                
+                hideLoading();
+                
+                deductedDataModified = readonlyResult.deducted_data_modified === true
+                    || manualResult.deducted_data_modified === true;
+
+                // 处理只读数据
+                if (readonlyResult.success && readonlyResult.data) {
+                    readonlyData = readonlyResult.data;
+                } else {
+                    readonlyData = [];
+                }
+                
+                // 处理手工数据
+                if (manualResult.success && manualResult.data) {
+                    currentData = manualResult.data;
+                } else {
+                    currentData = [];
+                }
+                
+                applyDeductedModifiedUI();
+
+                // 渲染两个表格（按页）
+                renderReadonlyTable(readonlyData);
+                renderTable(currentData);
+                refreshAggregatedTable();
+                
+                // 更新统计和计数
+                updateStatistics();
+                updateTabCounts();
+                await updateComparisonStats(false);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('加载数据失败:', error);
+                showAlert('error', '加载数据失败: ' + error.message);
+            }
+        }
+
+        // 兼容旧调用
+        async function loadDeductedData() {
+            await loadAllData();
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('data-tbody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="text-center text-muted py-4">
+                            暂无被减扣数据<br>
+                            <small>请先进行营业收入预测计算</small>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                const rowId = row.序号 || (index + 1);
+                const originalResult = row['计算结果(KG)'] || 0;
+                const tai = row['原库存数量(TAI)'];
+                
+                tr.innerHTML = `
+                    <td>${rowId}</td>
+                    <td>${row.原物料代码 || ''}</td>
+                    <td title="${row.原物料名称 || ''}">${truncateText(row.原物料名称 || '', 20)}</td>
+                    <td>${row.拆解产物编码 || ''}</td>
+                    <td title="${row.拆解产物名称 || ''}">${truncateText(row.拆解产物名称 || '', 20)}</td>
+                    <td>${tai !== undefined && tai !== null ? formatNumber(tai) : ''}</td>
+                    <td class="editable-result" data-field="计算结果(KG)" data-row-id="${rowId}" data-original="${originalResult}">
+                        <div class="result-display">
+                            <span class="result-value">${formatNumber(originalResult)}</span>
+                            <span class="result-unit">KG</span>
+                            
+                        </div>
+                    </td>
+                    <td>${row.处置类别 || ''}</td>
+
+                `;
+                
+                tbody.appendChild(tr);
+            });
+
+            // 绑定可编辑单元格事件
+            document.querySelectorAll('.editable-cell').forEach(cell => {
+                cell.addEventListener('click', function() {
+                    makeEditable(this);
+                });
+            });
+        }
+
+        // 格式化数字显示
+        function formatNumber(value) {
+            if (value === '' || value === null || value === undefined) return '';
+            if (typeof value === 'string' && value === '-') return '-';
+            const num = parseFloat(value);
+            if (isNaN(num)) return value;
+            return num.toFixed(6);
+        }
+
+        // 截断文本显示
+        function truncateText(text, maxLength) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // 渲染只读表格
+        function renderReadonlyTable(data) {
+            const tbody = document.getElementById('readonly-tbody');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            暂无被减扣数据(只读)<br>
+                            <small>请先进行营业收入预测计算</small>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                const rowId = row.序号 || (index + 1);
+                const result = row['计算结果(KG)'] || 0;
+                const tai = row['原库存数量(TAI)'];
+                
+                tr.innerHTML = `
+                    <td>${rowId}</td>
+                    <td>${row.原物料代码 || ''}</td>
+                    <td title="${row.原物料名称 || ''}">${truncateText(row.原物料名称 || '', 20)}</td>
+                    <td>${row.拆解产物编码 || ''}</td>
+                    <td title="${row.拆解产物名称 || ''}">${truncateText(row.拆解产物名称 || '', 20)}</td>
+                    <td>${tai !== undefined && tai !== null ? formatNumber(tai) : ''}</td>
+                    <td>
+                        <span class="result-value">${formatNumber(result)}</span>
+                        <span class="result-unit">KG</span>
+                    </td>
+                    <td>${row.处置类别 || ''}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 更新标签页计数
+        function updateTabCounts() {
+            document.getElementById('readonly-count').textContent = readonlyData.length;
+            document.getElementById('manual-count').textContent = currentData.length;
+        }
+
+        // 筛选只读数据
+        function filterReadonlyData() {
+            currentReadonlyPage = 1;
+            loadAllData();
+        }
+
+        // 打开编辑模态框
+        function openEditModal(rowId) {
+            editingRowId = rowId;
+            
+            const rowData = currentData.find(row => (row.序号 || 0) == rowId);
+            if (!rowData) {
+                showAlert('error', '未找到行数据');
+                return;
+            }
+            
+            document.getElementById('edit-material-code').value = rowData.原物料代码 || '';
+            document.getElementById('edit-material-name').value = rowData.原物料名称 || '';
+            document.getElementById('edit-product-code').value = rowData.拆解产物编码 || '';
+            document.getElementById('edit-product-name').value = rowData.拆解产物名称 || '';
+            
+            const currentResult = modifiedData.has(rowId) ? 
+                modifiedData.get(rowId)['计算结果(KG)'] : 
+                (rowData['计算结果(KG)'] || 0);
+            
+            const editInput = document.getElementById('edit-result');
+            editInput.value = currentResult;
+            document.getElementById('original-result').textContent = formatNumber(rowData['计算结果(KG)'] || 0) + ' KG';
+            document.getElementById('new-result').textContent = formatNumber(currentResult) + ' KG';
+            updateResultChange();
+            
+            // 先移除旧的再添加，防止每次 openEditModal 累积重复监听器
+            editInput.removeEventListener('input', updateResultPreview);
+            editInput.addEventListener('input', updateResultPreview);
+            
+            const modal = new bootstrap.Modal(document.getElementById('editRowModal'));
+            modal.show();
+        }
+        
+        // 更新结果预览
+        function updateResultPreview() {
+            const newValue = parseFloat(document.getElementById('edit-result').value) || 0;
+            document.getElementById('new-result').textContent = formatNumber(newValue) + ' KG';
+            updateResultChange();
+        }
+        
+        // 更新变化显示
+        function updateResultChange() {
+            const originalValue = parseFloat(document.getElementById('original-result').textContent) || 0;
+            const newValue = parseFloat(document.getElementById('new-result').textContent) || 0;
+            const change = newValue - originalValue;
+            
+            const changeElement = document.getElementById('result-change');
+            const changeText = (change >= 0 ? '+' : '') + formatNumber(change) + ' KG';
+            
+            changeElement.textContent = changeText;
+            changeElement.className = change >= 0 ? 'text-success' : 'text-danger';
+        }
+
+        // 保存行编辑（从模态框）
+        async function saveRowEdit() {
+            if (!editingRowId) {
+                showAlert('error', '没有正在编辑的行');
+                return;
+            }
+            
+            const newResult = parseFloat(document.getElementById('edit-result').value);
+            if (isNaN(newResult)) {
+                showAlert('error', '请输入有效的数值');
+                return;
+            }
+            
+            // 记录修改
+            if (!modifiedData.has(editingRowId)) {
+                modifiedData.set(editingRowId, {});
+            }
+            modifiedData.get(editingRowId)['计算结果(KG)'] = newResult;
+            
+            // 保存修改到后端
+            const result = await saveModificationsToBackend([{
+                序号: editingRowId,
+                '计算结果(KG)': newResult
+            }]);
+            
+            if (result.success) {
+                const savedRowId = editingRowId;
+                // 已落库：同步内存中的「被减扣数据(手工)」，避免 filterData 重绘时仍用旧 currentData
+                modifiedData.delete(savedRowId);
+                const savedRow = currentData.find(r => (r.序号 || 0) == savedRowId);
+                if (savedRow) {
+                    savedRow['计算结果(KG)'] = newResult;
+                }
+                renderTable(currentData);
+                
+                // 关闭模态框
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editRowModal'));
+                modal.hide();
+                
+                // 非阻塞刷新顶部卡片，避免统计接口慢时卡住保存交互
+                updateComparisonStats(true).catch(error => {
+                    console.warn('刷新对比统计失败:', error);
+                });
+                
+                showAlert('success', `第 ${editingRowId} 行计算结果已保存，请返回首页点击“重新计算”使结果链路生效`);
+                editingRowId = null;
+            } else {
+                showAlert('error', result.error || '保存失败');
+            }
+        }
+
+        // 取消行编辑
+        async function cancelRowEdit(rowId) {
+            const cell = document.querySelector(`[data-row-id="${rowId}"]`);
+            const row = cell ? cell.closest('tr') : null;
+            if (!row) return;
+            
+            // 恢复所有修改的单元格到原始值
+            const editableCells = row.querySelectorAll('.editable-cell.modified');
+            editableCells.forEach(cell => {
+                const originalValue = cell.getAttribute('data-original') || '';
+                cell.textContent = formatNumber(originalValue);
+                cell.classList.remove('modified', 'editing');
+            });
+            
+            // 从修改数据中移除该行的修改
+            if (modifiedData.has(rowId)) {
+                modifiedData.delete(rowId);
+            }
+            
+            // 恢复计算结果到原始值
+            const calcCell = row.querySelector('.calc-result');
+            if (calcCell) {
+                const originalCalcValue = calcCell.getAttribute('data-original') || '';
+                calcCell.textContent = formatNumber(originalCalcValue);
+                calcCell.classList.remove('calculated');
+            }
+            
+            // 重新计算该行（使用原始数据）
+            recalculateRow(rowId);
+            
+            // 恢复按钮状态
+            exitRowEditMode(rowId);
+            
+            showAlert('info', `第 ${rowId} 行修改已取消`);
+        }
+
+        // 退出行编辑模式
+        function exitRowEditMode(rowId) {
+            const cell = document.querySelector(`[data-row-id="${rowId}"]`);
+            const row = cell ? cell.closest('tr') : null;
+            if (row) {
+                const saveBtn = row.querySelector('.save-btn');
+                const editBtn = row.querySelector('.edit-btn');
+                const cancelBtn = row.querySelector('.cancel-btn');
+                
+                if (saveBtn) saveBtn.style.display = 'none';
+                if (editBtn) editBtn.style.display = 'inline-block';
+                if (cancelBtn) cancelBtn.style.display = 'none';
+                
+                row.classList.remove('editing-row');
+            }
+        }
+
+        // 使单元格可编辑
+        function makeEditable(cell) {
+            if (cell.classList.contains('editing')) return;
+            
+            const originalValue = cell.textContent.trim();
+            const rowId = cell.dataset.rowId;
+            const fieldName = cell.dataset.field;
+            
+            cell.classList.add('editing');
+            cell.innerHTML = `<input type="number" class="editable-input" value="${originalValue}" step="0.000001">`;
+            
+            const input = cell.querySelector('.editable-input');
+            input.focus();
+            input.select();
+            
+            async function saveEdit() {
+                const newValue = input.value;
+                const numValue = parseFloat(newValue);
+                
+                if (isNaN(numValue)) {
+                    showAlert('error', '请输入有效的数值');
+                    return;
+                }
+                
+                cell.classList.remove('editing');
+                cell.textContent = formatNumber(numValue);
+                
+                // 记录修改
+                if (!modifiedData.has(rowId)) {
+                    modifiedData.set(rowId, {});
+                }
+                modifiedData.get(rowId)[fieldName] = numValue;
+                
+                // 标记为已修改
+                cell.classList.add('modified');
+                cell.classList.remove('saved');
+                
+                // 显示该行的保存和取消按钮
+                const row = cell.closest('tr');
+                if (row && !row.classList.contains('editing-row')) {
+                    const rowId = cell.getAttribute('data-row-id');
+                    editRow(rowId);
+                }
+                
+                // 触发重新计算
+                recalculateRow(rowId);
+                
+            }
+            
+            function cancelEdit() {
+                cell.classList.remove('editing');
+                cell.textContent = originalValue;
+            }
+            
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveEdit();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEdit();
+                }
+            });
+        }
+
+        // 重新计算单行数据
+        function recalculateRow(rowId) {
+            const row = currentData.find(r => (r.序号 || currentData.indexOf(r) + 1) == rowId);
+            if (!row) return;
+            
+            // 获取修改的参数
+            const modifications = modifiedData.get(rowId) || {};
+            
+            // 使用修改后的参数或原始参数
+            const inventory = modifications['原库存数量(TAI)'] || row['原库存数量(TAI)'] || 0;
+            const unitWeight = modifications['单台重量(KG/台)'] || row['单台重量(KG/台)'] || 0;
+            const inputOutputRatio = modifications['投入产出比例'] || row['投入产出比例'] || 0;
+            const disassemblyCoeff = modifications['拆解系数'] || row['拆解系数'] || 0;
+            
+            // 计算新的结果
+            const newResult = inventory * unitWeight * inputOutputRatio * disassemblyCoeff;
+            
+            // 更新计算结果显示
+            const calcCell = document.querySelector(`.calc-result[data-row-id="${rowId}"]`);
+            if (calcCell) {
+                calcCell.textContent = formatNumber(newResult);
+                calcCell.classList.add('calculated');
+            }
+            
+            // 更新内存中的数据
+            row['计算结果(KG)'] = newResult;
+            
+            console.log(`重新计算行 ${rowId}: ${inventory} × ${unitWeight} × ${inputOutputRatio} × ${disassemblyCoeff} = ${newResult.toFixed(6)}`);
+            
+            updateStatistics();
+        }
+
+        // 更新修改数据
+        function updateModifiedData(rowId, field, value) {
+            if (!modifiedData.has(rowId)) {
+                modifiedData.set(rowId, { 序号: rowId });
+            }
+            modifiedData.get(rowId)[field] = value;
+            updateStatistics();
+        }
+
+        // 保存修改到后端
+        async function saveModificationsToBackend(modifiedRecords = null) {
+            try {
+                // 如果没有提供具体的修改记录，使用全部修改数据
+                let recordsToSave;
+                if (modifiedRecords) {
+                    recordsToSave = modifiedRecords;
+                } else {
+                    recordsToSave = [];
+                    modifiedData.forEach((modifications, rowId) => {
+                        recordsToSave.push({
+                            序号: rowId,
+                            ...modifications
+                        });
+                    });
+                }
+                
+                if (recordsToSave.length === 0) {
+                    console.log('没有要保存的修改记录');
+                    return { success: true };
+                }
+                
+                console.log('保存修改记录:', recordsToSave);
+                
+                const response = await fetch('/api/data-management/deducted-data', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        modified_records: recordsToSave
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('保存成功:', result.message);
+                    return result;
+                } else {
+                    console.error('保存失败:', result.error);
+                    showAlert('error', result.error || '保存失败');
+                    return result;
+                }
+            } catch (error) {
+                console.error('保存修改到后端时发生错误:', error);
+                showAlert('error', '保存失败: ' + error.message);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 更新计算预览
+        function updateCalculationPreview(rowId) {
+            const row = currentData.find(r => (r.序号 || currentData.indexOf(r) + 1) == rowId);
+            if (!row) return;
+            
+            const modifiedRow = modifiedData.get(rowId) || {};
+            
+            const inventory = parseFloat(modifiedRow['原库存数量(TAI)'] || row['原库存数量(TAI)'] || 0);
+            const weight = parseFloat(modifiedRow['单台重量(KG/台)'] || row['单台重量(KG/台)'] || 0);
+            const ratio = parseFloat(modifiedRow['投入产出比例'] || row.投入产出比例 || 0);
+            const coefficient = parseFloat(modifiedRow['拆解系数'] || row.拆解系数 || 0);
+            
+            if (inventory === 0 || weight === 0 || inventory === '-') {
+                return;
+            }
+            
+            const result = inventory * weight * ratio * coefficient;
+            const originalValue = parseFloat(row['计算结果(KG)']) || 0;
+            
+            const resultCell = document.querySelector(`.calc-result[data-row-id="${rowId}"]`);
+            if (resultCell) {
+                resultCell.innerHTML = `
+                    <div class="calculation-change">
+                        <span class="old-value">${formatNumber(originalValue)}</span>
+                        <span class="new-value">${formatNumber(result)}</span>
+                        <span class="change-indicator ${result > originalValue ? 'change-positive' : 'change-negative'}">
+                            ${result > originalValue ? '↑' : '↓'} ${formatNumber(Math.abs(result - originalValue))}
+                        </span>
+                    </div>
+                `;
+            }
+        }
+
+        // 更新统计信息（总记录数：未手工编辑时以只读数据集为准，避免 currentData 为空显示 0）
+        function updateStatistics() {
+            let totalRecords = 0;
+            if (deductedDataModified) {
+                totalRecords = currentData.length || readonlyData.length;
+            } else {
+                totalRecords = readonlyData.length || currentData.length;
+            }
+
+            const totalRecordsElement = document.getElementById('total-records');
+            if (totalRecordsElement) {
+                totalRecordsElement.textContent = totalRecords;
+            }
+        }
+
+        // 筛选数据
+        function filterData() {
+            currentManualPage = 1;
+            loadAllData();
+        }
+
+        // Excel导出功能
+        async function exportToExcel(dataType = 'manual') {
+            if (dataType === 'manual' && !deductedDataModified) {
+                showAlert('warning', '未编辑被减扣数据，无手工表可导出。请使用只读导出，或先在只读页点击「从只读初始化手工数据」。');
+                return;
+            }
+            try {
+                showLoading('正在生成Excel文件...');
+                
+                let apiUrl = '/api/export-deducted-data';
+                let filename = '被减扣数据(手工).xlsx';
+                
+                if (dataType === 'readonly') {
+                    // 导出只读数据，使用原始被减扣数据
+                    apiUrl = '/api/export-deducted-data?type=readonly';
+                    filename = '被减扣数据(只读).xlsx';
+                }
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    }
+                });
+
+                if (!response.ok) {
+                    let errMsg = '导出失败';
+                    try {
+                        const ct = response.headers.get('content-type') || '';
+                        if (ct.includes('application/json')) {
+                            const j = await response.json();
+                            errMsg = j.error || j.message || errMsg;
+                        } else {
+                            const t = await response.text();
+                            if (t) errMsg = t.slice(0, 200);
+                        }
+                    } catch (e) { /* ignore */ }
+                    throw new Error(errMsg);
+                }
+
+                // 获取文件名
+                const contentDisposition = response.headers.get('content-disposition');
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (filenameMatch) {
+                        filename = filenameMatch[1].replace(/['"]/g, '');
+                    }
+                }
+
+                // 下载文件
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                hideLoading();
+                showAlert('success', `Excel文件导出成功: ${filename}`);
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '导出失败: ' + error.message);
+            }
+        }
+
+        // 下载Excel模板
+        async function downloadTemplate() {
+            try {
+                const response = await fetch('/api/deducted-data-template');
+                if (!response.ok) {
+                    throw new Error('模板下载失败');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '被减扣数据导入模板.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showAlert('success', '模板下载成功');
+            } catch (error) {
+                showAlert('error', '模板下载失败: ' + error.message);
+            }
+        }
+
+        // Excel文件导入处理
+        async function handleExcelImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 验证文件类型
+            const validTypes = [
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-excel'
+            ];
+            if (!validTypes.includes(file.type)) {
+                showAlert('error', '请选择有效的Excel文件 (.xlsx 或 .xls)');
+                return;
+            }
+
+            // 验证文件大小 (16MB限制)
+            if (file.size > 16 * 1024 * 1024) {
+                showAlert('error', '文件大小不能超过16MB');
+                return;
+            }
+
+            try {
+                showLoading('正在解析Excel文件...');
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/api/parse-deducted-excel', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                hideLoading();
+
+                if (result.success) {
+                    // 显示导入预览
+                    showImportPreview(result.data, result.errors || []);
+                } else {
+                    showAlert('error', result.error || 'Excel文件解析失败');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', 'Excel文件处理失败: ' + error.message);
+            }
+
+            // 清空文件输入
+            event.target.value = '';
+        }
+
+        // 显示导入预览
+        function showImportPreview(data, errors, format) {
+            const importFormat = format || window.pendingImportFormat || 'detail';
+            window.pendingImportFormat = importFormat;
+
+            if (!data || data.length === 0) {
+                showAlert('warning', '文件中没有有效数据');
+                return;
+            }
+
+            const validRows = data.filter(row => !row.error);
+            if (validRows.length === 0) {
+                showAlert('warning', '没有有效的数据可以导入');
+                return;
+            }
+
+            const isAggregated = importFormat === 'aggregated';
+            const importModeSection = document.querySelector('.import-mode-section');
+            if (importModeSection) {
+                importModeSection.style.display = isAggregated ? 'none' : 'block';
+            }
+
+            const modalTitle = document.querySelector('#excelImportModal .modal-title');
+            if (modalTitle) {
+                modalTitle.textContent = isAggregated
+                    ? 'Excel数据导入预览（汇总格式，将按原占比回填）'
+                    : 'Excel数据导入预览';
+            }
+
+            const headerRow = document.getElementById('import-preview-header');
+            if (headerRow) {
+                if (isAggregated) {
+                    headerRow.innerHTML = `
+                        <th>序号</th>
+                        <th>拆解产物编码</th>
+                        <th>拆解产物名称</th>
+                        <th>汇总计算结果(KG)</th>
+                        <th>原库存数量(TAI)</th>
+                        <th>明细行数</th>`;
+                } else {
+                    headerRow.innerHTML = `
+                        <th>状态</th>
+                        <th>序号</th>
+                        <th>拆解产物编码</th>
+                        <th>拆解产物名称</th>
+                        <th>计算结果(KG)</th>
+                        <th>处置类别</th>
+                        <th>期间</th>
+                        <th>错误信息</th>`;
+                }
+            }
+
+            // 更新统计信息
+            document.getElementById('import-total-count').textContent = data.length;
+            document.getElementById('import-valid-count').textContent = validRows.length;
+            document.getElementById('import-error-count').textContent = data.filter(row => row.error).length;
+            document.getElementById('current-count').textContent = currentData.length;
+
+            // 显示错误信息
+            const errorsSection = document.getElementById('import-errors-section');
+            const errorList = document.getElementById('import-error-list');
+            
+            if (errors.length > 0) {
+                errorsSection.style.display = 'block';
+                errorList.innerHTML = errors.map(error => `<div>• ${error}</div>`).join('');
+            } else {
+                errorsSection.style.display = 'none';
+            }
+
+            // 填充预览表格
+            const tbody = document.getElementById('import-preview-tbody');
+            tbody.innerHTML = '';
+
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = row.error ? 'table-danger' : 'table-success';
+
+                if (isAggregated) {
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${normalizeProductCode(row['拆解产物编码']) || ''}</td>
+                        <td>${row['拆解产物名称'] || ''}</td>
+                        <td>${row['汇总计算结果(KG)'] || ''}</td>
+                        <td>${row['原库存数量(TAI)'] || ''}</td>
+                        <td>${row['明细行数'] || ''}</td>`;
+                } else if (row.error) {
+                    tr.innerHTML = `
+                        <td>[!]</td>
+                        <td>${index + 1}</td>
+                        <td>${normalizeProductCode(row['拆解产物编码']) || ''}</td>
+                        <td>${row['拆解产物名称'] || ''}</td>
+                        <td>${row['计算结果(KG)'] || ''}</td>
+                        <td>${row['处置类别'] || ''}</td>
+                        <td>${row['期间'] || ''}</td>
+                        <td class="text-danger">${row.error || ''}</td>`;
+                } else {
+                    tr.innerHTML = `
+                        <td>[OK]</td>
+                        <td>${index + 1}</td>
+                        <td>${normalizeProductCode(row['拆解产物编码']) || ''}</td>
+                        <td>${row['拆解产物名称'] || ''}</td>
+                        <td>${row['计算结果(KG)'] || ''}</td>
+                        <td>${row['处置类别'] || ''}</td>
+                        <td>${row['期间'] || ''}</td>
+                        <td class="text-danger">${row.error || ''}</td>`;
+                }
+                
+                tbody.appendChild(tr);
+            });
+
+            // 显示导入模态框
+            const modal = new bootstrap.Modal(document.getElementById('excelImportModal'));
+            modal.show();
+
+            // 存储导入数据供确认使用
+            window.pendingImportData = validRows;
+        }
+
+        // 确认导入数据
+        async function confirmImport() {
+            if (!window.pendingImportData || window.pendingImportData.length === 0) {
+                showAlert('warning', '没有有效的数据可以导入');
+                return;
+            }
+
+            const importFormat = window.pendingImportFormat || 'detail';
+
+            if (importFormat === 'aggregated') {
+                try {
+                    const ready = await ensureManualDataForImport();
+                    if (!ready) return;
+
+                    const codeToRows = {};
+                    currentData.forEach((row, idx) => {
+                        const code = normalizeProductCode(row['拆解产物编码']);
+                        if (!code) return;
+                        if (!codeToRows[code]) {
+                            codeToRows[code] = { rows: [], totalKg: 0 };
+                        }
+                        const kg = parseFloat(row['计算结果(KG)']) || 0;
+                        codeToRows[code].rows.push({
+                            dataIndex: idx,
+                            rowId: row.序号 || (idx + 1),
+                            originalKg: kg
+                        });
+                        codeToRows[code].totalKg += kg;
+                    });
+
+                    let updatedCount = 0, skippedCount = 0;
+                    for (const aggRow of window.pendingImportData) {
+                        const code = normalizeProductCode(aggRow['拆解产物编码']);
+                        if (!code) continue;
+                        const newTotalKg = parseFloat(aggRow['汇总计算结果(KG)']);
+                        if (isNaN(newTotalKg) || newTotalKg < 0) continue;
+
+                        const group = codeToRows[code];
+                        if (!group || group.rows.length === 0) { skippedCount++; continue; }
+
+                        for (const rowInfo of group.rows) {
+                            let newKg;
+                            if (group.totalKg > 0) {
+                                newKg = newTotalKg * (rowInfo.originalKg / group.totalKg);
+                            } else {
+                                newKg = newTotalKg / group.rows.length;
+                            }
+                            currentData[rowInfo.dataIndex]['计算结果(KG)'] = newKg;
+                            modifiedData.set(rowInfo.rowId, { '计算结果(KG)': newKg });
+                            updatedCount++;
+                        }
+                    }
+
+                    if (updatedCount === 0) {
+                        showAlert('warning', '没有匹配到可回填的明细行，请检查拆解产物编码是否与明细表一致');
+                        return;
+                    }
+
+                    showLoading('正在回填保存...');
+                    const saveResult = await saveModificationsToBackend();
+                    hideLoading();
+
+                    if (!saveResult || !saveResult.success) {
+                        showAlert('error', (saveResult && (saveResult.error || saveResult.message)) || '回填保存失败');
+                        return;
+                    }
+
+                    deductedDataModified = true;
+                    applyDeductedModifiedUI();
+                    renderTable(currentData);
+                    refreshAggregatedTable();
+                    updateStatistics();
+                    updateComparisonStats(false);
+
+                    hideImportModal();
+                    showAlert('success', `汇总导入成功，回填 ${updatedCount} 行` + (skippedCount > 0 ? `，跳过 ${skippedCount} 个未匹配编码` : ''));
+                    delete window.pendingImportData;
+                    delete window.pendingImportFormat;
+                } catch (error) {
+                    hideLoading();
+                    showAlert('error', '回填保存失败: ' + error.message);
+                }
+                return;
+            }
+
+            // 明细格式导入
+            const importMode = document.querySelector('input[name="import-mode"]:checked')?.value || 'replace';
+
+            try {
+                showLoading('正在导入数据...');
+                const response = await fetch('/api/data-management/import-deducted-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: window.pendingImportData,
+                        mode: importMode
+                    })
+                });
+                const result = await parseJsonResponse(response);
+                hideLoading();
+
+                if (result.success) {
+                    hideImportModal();
+                    showAlert('success', `数据导入成功！处理了 ${result.imported_count} 条记录。请返回首页点击“重新计算”`);
+                    await loadAllData();
+                    delete window.pendingImportData;
+                    delete window.pendingImportFormat;
+                    modifiedData.clear();
+                } else {
+                    showAlert('error', result.error || result.message || '数据导入失败');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '数据导入失败: ' + error.message);
+            }
+        }
+
+        // 从只读数据初始化手工数据
+        async function initializeFromReadonly() {
+            try {
+                if (!readonlyData || readonlyData.length === 0) {
+                    showAlert('warning', '没有只读数据可以复制，请先进行自动计算生成被减扣数据');
+                    return;
+                }
+                
+                if (currentData && currentData.length > 0) {
+                    const confirmed = await showConfirmDialog(
+                        '确认操作',
+                        `当前手工数据中有 ${currentData.length} 条记录，确定要用只读数据覆盖吗？此操作不可撤销。`,
+                        '确定覆盖',
+                        '取消'
+                    );
+                    if (confirmed !== 'confirm') {
+                        return;
+                    }
+                }
+                
+                showLoading('正在初始化手工数据...');
+                
+                // 复制只读数据到手工数据
+                const response = await fetch('/api/data-management/deducted-data/initialize-manual', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.success) {
+                    showAlert('success', `手工数据初始化成功！复制了 ${result.copied_count} 条记录。请返回首页点击“重新计算”`);
+                    await loadAllData();
+                    refreshAggregatedTable();
+                } else {
+                    showAlert('error', result.error || '初始化失败');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '初始化失败: ' + error.message);
+            }
+        }
+        
+        // 更新按钮状态
+        function updateButtonStates() {
+            const initBtn = document.getElementById('init-from-readonly-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const initReadonlyBtn = document.getElementById('init-from-readonly-readonly-pane-btn');
+
+            if (!deductedDataModified) {
+                if (initBtn) initBtn.style.display = 'none';
+                if (resetBtn) resetBtn.style.display = 'none';
+                if (initReadonlyBtn) {
+                    initReadonlyBtn.style.display = (readonlyData && readonlyData.length > 0) ? 'inline-block' : 'none';
+                }
+                return;
+            }
+
+            if (initReadonlyBtn) initReadonlyBtn.style.display = 'none';
+
+            if (currentData && currentData.length > 0) {
+                if (initBtn) initBtn.style.display = 'none';
+                if (resetBtn) resetBtn.style.display = 'inline-block';
+            } else if (readonlyData && readonlyData.length > 0) {
+                if (initBtn) initBtn.style.display = 'inline-block';
+                if (resetBtn) resetBtn.style.display = 'none';
+            } else {
+                if (initBtn) initBtn.style.display = 'none';
+                if (resetBtn) resetBtn.style.display = 'none';
+            }
+        }
+
+        // 注释：移除了全选、批量编辑和重新计算功能，因为：
+        // 1. 数据修改后自动保存；重算统一在首页触发
+        // 2. Excel导入功能已提供批量修改能力
+        // 3. 简化界面，避免功能重复
+
+
+
+        // 重置到原始数据
+        async function resetToOriginal() {
+            const confirmResult = await showConfirmDialog(
+                '重置数据', 
+                '此操作将恢复所有数据到原始状态，所有修改将丢失。确定要继续吗？',
+                [
+                    { text: '确定重置', value: 'confirm', class: 'btn-warning' },
+                    { text: '取消', value: 'cancel', class: 'btn-secondary' }
+                ]
+            );
+            
+            if (confirmResult !== 'confirm') {
+                return;
+            }
+            
+            try {
+                showLoading('正在重置数据...');
+                
+                const response = await fetch('/api/data-management/deducted-data/reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.success) {
+                    showAlert('success', (result.message || '重置成功') + ' 请返回首页点击“重新计算”');
+                    modifiedData.clear();
+                    await loadAllData();
+                    await updateComparisonStats();
+                } else {
+                    showAlert('error', result.error);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('error', '重置失败: ' + error.message);
+            }
+        }
+
+        // 更新对比统计信息
+        let comparisonRequestInFlight = false;
+        let comparisonLastRequestAt = 0;
+        async function updateComparisonStats(throttle = true) {
+            try {
+                const now = Date.now();
+                if (throttle && (comparisonRequestInFlight || now - comparisonLastRequestAt < 1500)) {
+                    return;
+                }
+                comparisonRequestInFlight = true;
+                comparisonLastRequestAt = now;
+                console.log('开始获取对比统计信息...');
+                const response = await fetch('/api/data-management/deducted-data/comparison');
+                
+                if (!response.ok) {
+                    console.error('API响应错误:', response.status, response.statusText);
+                    return;
+                }
+                
+                const result = await response.json();
+                console.log('对比统计API响应:', result);
+                
+                if (result.success) {
+                    const stats = result.data;
+                    console.log('统计数据:', stats);
+                    
+                    // 更新统计显示
+                    const originalWeightElement = document.getElementById('original-weight');
+                    const currentWeightElement = document.getElementById('current-weight');
+                    
+                    console.log('原始重量元素:', originalWeightElement);
+                    console.log('当前重量元素:', currentWeightElement);
+                    
+                    if (originalWeightElement) {
+                        originalWeightElement.textContent = (stats.original.total_weight || 0).toFixed(2) + ' KG';
+                    } else {
+                        console.error('找不到原始重量元素 #original-weight');
+                    }
+                    
+                    if (currentWeightElement) {
+                        currentWeightElement.textContent = (stats.current.total_weight || 0).toFixed(2) + ' KG';
+                    } else {
+                        console.error('找不到当前重量元素 #current-weight');
+                    }
+                    
+                    const weightDiff = stats.difference.weight || 0;
+                    const weightDiffElement = document.getElementById('weight-difference');
+                    console.log('重量差异元素:', weightDiffElement);
+                    
+                    if (weightDiffElement) {
+                        weightDiffElement.textContent = (weightDiff >= 0 ? '+' : '') + weightDiff.toFixed(2) + ' KG';
+                        weightDiffElement.className = 'stat-value ' + (weightDiff > 0 ? 'text-success' : weightDiff < 0 ? 'text-danger' : '');
+                    } else {
+                        console.error('找不到重量差异元素 #weight-difference');
+                    }
+                    
+                    // 显示/隐藏修改状态
+                    const modificationStatus = document.getElementById('modification-status');
+                    const resetBtn = document.getElementById('reset-btn');
+                    
+                    if (modificationStatus && resetBtn) {
+                        if (stats.modified) {
+                            modificationStatus.style.display = 'block';
+                            resetBtn.style.display = 'inline-block';
+                            if (stats.modification_timestamp) {
+                                const modTime = new Date(stats.modification_timestamp);
+                                const modificationTimeElement = document.getElementById('modification-time');
+                                if (modificationTimeElement) {
+                                    modificationTimeElement.textContent = '修改于 ' + modTime.toLocaleString('zh-CN');
+                                }
+                            }
+                        } else {
+                            modificationStatus.style.display = 'none';
+                            resetBtn.style.display = 'none';
+                        }
+                    }
+                    
+                    console.log('对比统计更新完成');
+                } else {
+                    console.error('API返回失败:', result.error);
+                }
+            } catch (error) {
+                console.error('获取对比统计失败:', error);
+            } finally {
+                comparisonRequestInFlight = false;
+            }
+        }
+
+        // 后台重算轮询已移除：编辑页不再触发自动重算
+
+        // 注释：移除了"应用到主流程"功能，因为数据修改后已自动应用到主流程
+
+        // 显示确认对话框
+        function showConfirmDialog(title, message, buttons = []) {
+            return new Promise((resolve) => {
+                // 创建模态框
+                const modalId = 'confirm-modal-' + Date.now();
+                const buttonsHtml = buttons.map(btn => 
+                    `<button type="button" class="btn ${btn.class}" onclick="resolveConfirm('${btn.value}')">${btn.text}</button>`
+                ).join('');
+                
+                const modalHtml = `
+                    <div class="modal fade" id="${modalId}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">${title}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    ${message}
+                                </div>
+                                <div class="modal-footer">
+                                    ${buttonsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                const modal = new bootstrap.Modal(document.getElementById(modalId));
+                
+                // 全局解析函数
+                window.resolveConfirm = function(value) {
+                    modal.hide();
+                    resolve(value);
+                    // 清理
+                    setTimeout(() => {
+                        document.getElementById(modalId).remove();
+                        delete window.resolveConfirm;
+                    }, 300);
+                };
+                
+                modal.show();
+                
+                // 处理取消按钮和ESC键
+                document.getElementById(modalId).addEventListener('hidden.bs.modal', () => {
+                    if (window.resolveConfirm) {
+                        resolve('cancel');
+                        delete window.resolveConfirm;
+                    }
+                });
+            });
+        }
+
+        // 显示加载动画
+        function showLoading(text = '正在处理...') {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+        // 隐藏加载动画
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        // 显示警告提示
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertId = 'alert-' + Date.now();
+            
+            const alertHtml = `
+                <div id="${alertId}" class="alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            alertContainer.insertAdjacentHTML('beforeend', alertHtml);
+            
+            // 自动关闭
+            setTimeout(() => {
+                const alert = document.getElementById(alertId);
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+        
+        // 首页下拉菜单交互处理
+        (function() {
+            const dropdown = document.querySelector('.breadcrumb-dropdown');
+            const menu = document.querySelector('.dropdown-menu');
+            const homeLink = document.querySelector('.breadcrumb-home-link');
+            
+            if (!dropdown || !menu || !homeLink) {
+                console.warn('下拉菜单元素未找到');
+                return;
+            }
+            
+            let hoverTimeout;
+            let isMenuHovered = false;
+            let isLinkHovered = false;
+            
+            // 计算菜单位置
+            function updateMenuPosition() {
+                const rect = homeLink.getBoundingClientRect();
+                menu.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+                menu.style.left = (rect.left + window.scrollX) + 'px';
+            }
+            
+            // 显示菜单
+            function showMenu() {
+                clearTimeout(hoverTimeout);
+                updateMenuPosition();
+                menu.classList.add('show');
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                menu.style.transform = 'translateY(0)';
+            }
+            
+            // 隐藏菜单
+            function hideMenu() {
+                hoverTimeout = setTimeout(() => {
+                    if (!isMenuHovered && !isLinkHovered) {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                }, 150);
+            }
+            
+            // 链接悬停
+            homeLink.addEventListener('mouseenter', function() {
+                isLinkHovered = true;
+                showMenu();
+            });
+            
+            homeLink.addEventListener('mouseleave', function() {
+                isLinkHovered = false;
+                hideMenu();
+            });
+            
+            // 菜单悬停
+            menu.addEventListener('mouseenter', function() {
+                isMenuHovered = true;
+                showMenu();
+            });
+            
+            menu.addEventListener('mouseleave', function() {
+                isMenuHovered = false;
+                hideMenu();
+            });
+            
+            // 窗口滚动时更新菜单位置
+            window.addEventListener('scroll', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 窗口大小改变时更新菜单位置
+            window.addEventListener('resize', function() {
+                if (menu.classList.contains('show')) {
+                    updateMenuPosition();
+                }
+            });
+            
+            // 点击菜单项处理
+            const menuItems = menu.querySelectorAll('.dropdown-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
+                        // 如果链接是当前页面，则刷新；否则跳转
+                        if (href === window.location.pathname) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = href;
+                        }
+                    }
+                });
+            });
+            
+            // 移动端点击处理
+            if (window.innerWidth <= 768) {
+                let menuVisible = false;
+                
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuVisible = !menuVisible;
+                    
+                    if (menuVisible) {
+                        showMenu();
+                    } else {
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && menuVisible) {
+                        menuVisible = false;
+                        menu.classList.remove('show');
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+            }
+        })();
+
+        // ========== 汇总编辑表功能 ==========
+        let aggregatedData = [];
+        let aggregatedOriginalBackup = {};
+
+        function buildAggregatedData() {
+            const sourceData = currentData.length > 0 ? currentData : [];
+            if (!sourceData || sourceData.length === 0) {
+                aggregatedData = [];
+                aggregatedOriginalBackup = {};
+                return;
+            }
+
+            const grouped = {};
+            sourceData.forEach((row, idx) => {
+                const code = normalizeProductCode(row['拆解产物编码']);
+                if (!code) return;
+
+                if (!grouped[code]) {
+                    grouped[code] = {
+                        rows: [],
+                        totalKg: 0,
+                        totalTai: 0,
+                        name: row['拆解产物名称'] || ''
+                    };
+                }
+
+                const kg = parseFloat(row['计算结果(KG)']) || 0;
+                const tai = parseFloat(row['原库存数量(TAI)']) || 0;
+
+                grouped[code].rows.push({
+                    dataIndex: idx,
+                    rowId: row.序号 || (idx + 1),
+                    originalKg: kg
+                });
+                grouped[code].totalKg += kg;
+                grouped[code].totalTai += tai;
+
+                if (!grouped[code].name || grouped[code].name === '-') {
+                    grouped[code].name = row['拆解产物名称'] || '';
+                }
+            });
+
+            aggregatedData = [];
+            aggregatedOriginalBackup = {};
+
+            Object.keys(grouped).sort().forEach(code => {
+                const g = grouped[code];
+                aggregatedData.push({
+                    code: code,
+                    name: g.name,
+                    totalKg: g.totalKg,
+                    totalTai: g.totalTai,
+                    rowCount: g.rows.length
+                });
+                aggregatedOriginalBackup[code] = {
+                    rows: g.rows,
+                    totalKg: g.totalKg
+                };
+            });
+        }
+
+        function renderAggregatedTable() {
+            const section = document.getElementById('aggregated-section');
+            const tbody = document.getElementById('aggregated-tbody');
+            if (!section || !tbody) return;
+
+            buildAggregatedData();
+
+            if (aggregatedData.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            tbody.innerHTML = '';
+
+            aggregatedData.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td style="font-weight: 600;">${item.code}</td>
+                    <td>${item.name || '-'}</td>
+                    <td>
+                        <div class="editable-cell aggregated-kg-cell"
+                             data-code="${item.code}"
+                             data-index="${index}"
+                             onclick="editAggregatedWeight(this, ${index})"
+                             title="点击编辑汇总KG值">
+                            ${item.totalKg.toLocaleString(undefined, {minimumFractionDigits: 6})}
+                        </div>
+                    </td>
+                    <td>${item.totalTai.toLocaleString(undefined, {minimumFractionDigits: 6})}</td>
+                    <td><span class="badge bg-secondary">${item.rowCount} 行</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editAggregatedWeight(cell, index) {
+            if (cell.classList.contains('editing')) return;
+            const item = aggregatedData[index];
+            if (!item) return;
+
+            const currentValue = item.totalKg;
+            cell.classList.add('editing');
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.step = '0.000001';
+            input.min = '0';
+            input.value = currentValue;
+            input.className = 'form-control form-control-sm';
+            input.style.cssText = 'width: 130px; display: inline-block; text-align: right;';
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+
+            const finishEdit = () => {
+                const newValue = parseFloat(input.value);
+                if (isNaN(newValue) || newValue < 0) {
+                    cell.classList.remove('editing');
+                    cell.innerHTML = currentValue.toLocaleString(undefined, {minimumFractionDigits: 6});
+                    showAlert('warning', '请输入有效的数值（>=0）');
+                    return;
+                }
+                aggregatedData[index].totalKg = newValue;
+                cell.classList.remove('editing');
+                cell.classList.add('modified');
+                cell.innerHTML = newValue.toLocaleString(undefined, {minimumFractionDigits: 6});
+            };
+
+            input.addEventListener('blur', finishEdit);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+                if (e.key === 'Escape') { input.value = currentValue; input.blur(); }
+            });
+        }
+
+        async function saveAggregatedChanges() {
+            let hasChanges = false;
+            aggregatedData.forEach((item) => {
+                const backup = aggregatedOriginalBackup[item.code];
+                if (backup && Math.abs(item.totalKg - backup.totalKg) > 0.000001) {
+                    hasChanges = true;
+                }
+            });
+
+            if (!hasChanges) {
+                showAlert('warning', '没有检测到修改，无需保存');
+                return;
+            }
+
+            const saveBtn = document.getElementById('btn-save-aggregated');
+            const originalText = saveBtn.textContent;
+            saveBtn.disabled = true;
+            saveBtn.textContent = '正在回填...';
+
+            let totalUpdated = 0;
+            try {
+                for (const item of aggregatedData) {
+                    const backup = aggregatedOriginalBackup[item.code];
+                    if (!backup || backup.rows.length === 0) continue;
+
+                    const newTotal = item.totalKg;
+                    const oldTotal = backup.totalKg;
+                    if (Math.abs(newTotal - oldTotal) < 0.000001) continue;
+
+                    for (const rowInfo of backup.rows) {
+                        let newKg;
+                        if (oldTotal > 0) {
+                            newKg = newTotal * (rowInfo.originalKg / oldTotal);
+                        } else {
+                            newKg = newTotal / backup.rows.length;
+                        }
+                        currentData[rowInfo.dataIndex]['计算结果(KG)'] = newKg;
+                        modifiedData.set(rowInfo.rowId, {
+                            '计算结果(KG)': newKg
+                        });
+                        totalUpdated++;
+                    }
+                }
+
+                await saveModificationsToBackend();
+                deductedDataModified = true;
+                applyDeductedModifiedUI();
+                renderTable(currentData);
+                updateStatistics();
+                updateComparisonStats(false);  // 刷新重量统计卡片
+                buildAggregatedData();
+                renderAggregatedTable();
+
+                showAlert('success', `回填成功，共更新 ${totalUpdated} 行明细数据`);
+            } catch (error) {
+                console.error('回填保存失败:', error);
+                showAlert('error', '回填保存失败: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+            }
+        }
+
+        // Hook into renderTable to auto-refresh aggregated table
+        const _originalRenderTable = renderTable;
+        renderTable = function(data) {
+            _originalRenderTable(data);
+            setTimeout(() => {
+                buildAggregatedData();
+                renderAggregatedTable();
+            }, 100);
+        };
+
+        // ===== Update batch operations for aggregated format =====
+        const _originalExportToExcel = exportToExcel;
+        exportToExcel = async function(dataType) {
+            if (dataType === 'manual' || !dataType) {
+                // 手工标签页导出明细+汇总双sheet
+                try {
+                    showLoading('正在生成Excel文件...');
+                    const resp = await fetch('/api/data-management/deducted-data/export?format=all');
+                    if (!resp.ok) throw new Error('导出失败');
+                    const blob = await resp.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '被减扣数据_完整版.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    hideLoading();
+                    showAlert('success', '导出成功（明细数据 + 汇总编辑数据）');
+                } catch (e) {
+                    hideLoading();
+                    showAlert('error', '导出失败: ' + e.message);
+                }
+                return;
+            }
+            return _originalExportToExcel(dataType);
+        };
+
+        const _originalDownloadTemplate = downloadTemplate;
+        downloadTemplate = async function() {
+            window.open('/api/data-management/deducted-data/template?format=aggregated', '_blank');
+        };
+
+        const _originalHandleExcelImport = handleExcelImport;
+        handleExcelImport = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            event.target.value = '';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const resp = await fetch('/api/data-management/parse-deducted-excel', {
+                    method: 'POST', body: formData
+                });
+                const result = await resp.json();
+                if (!result.success) {
+                    showAlert('error', '文件解析失败: ' + result.error);
+                    return;
+                }
+
+                window.pendingImportFormat = result.format || 'detail';
+                showImportPreview(result.data, [], result.format || 'detail');
+            } catch (e) {
+                showAlert('error', '文件导入失败: ' + e.message);
+            }
+        };
+    </script>
+</body>
+</html> 
