@@ -362,4 +362,66 @@ def parse_deducted_data_excel(file):
         
     except Exception as e:
         errors.append(f"文件解析失败: {str(e)}")
-        return [], errors 
+        return [], errors
+
+
+EXTRACTED_MANUAL_EXPORT_COLUMNS = [
+    '序号', '类别', '期间', '物料代码', '物料描述', '单位',
+    '本期实际投产数量', '初始数据', '本期计划投产数量',
+    '本期计划采购数量', '计划采购单价', '价值', '单价', '库位描述',
+]
+
+EXTRACTED_READONLY_EXPORT_COLUMNS = [
+    '序号', '类别', '期间', '物料代码', '物料描述', '单位',
+    '本期实际投产数量', '价值', '单价', '库位描述',
+]
+
+
+def prepare_extracted_export_df(data, export_type='manual'):
+    """按参考 Excel 格式整理提取结果导出列顺序，丢弃内部列名。"""
+    import pandas as pd
+
+    if data is None or getattr(data, 'empty', True):
+        return pd.DataFrame()
+
+    df = data.copy()
+
+    if '类别' in df.columns:
+        df = df[df['类别'] == '旧机'].copy()
+
+    if '非限制使用的库存' in df.columns:
+        if '本期实际投产数量' not in df.columns:
+            df['本期实际投产数量'] = df['非限制使用的库存']
+        df = df.drop(columns=['非限制使用的库存'])
+
+    if export_type == 'manual':
+        column_order = EXTRACTED_MANUAL_EXPORT_COLUMNS
+        if '初始数据' not in df.columns and '本期实际投产数量' in df.columns:
+            df['初始数据'] = pd.to_numeric(df['本期实际投产数量'], errors='coerce').fillna(0)
+        for col in ['初始数据', '本期计划采购数量', '计划采购单价', '本期计划投产数量']:
+            if col not in df.columns:
+                df[col] = 0.0
+            else:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+    else:
+        column_order = EXTRACTED_READONLY_EXPORT_COLUMNS
+
+    for col in column_order:
+        if col not in df.columns:
+            df[col] = None
+
+    return df[column_order]
+
+
+def auto_width_excel_columns(worksheet, max_width=30):
+    """按内容自动设置 Excel 列宽。"""
+    for col_idx, col in enumerate(worksheet.columns, start=1):
+        if col_idx <= 26:
+            col_letter = chr(64 + col_idx)
+        else:
+            col_letter = 'A' + chr(64 + col_idx - 26)
+        max_len = max((len(str(cell.value or '')) for cell in col), default=10)
+        try:
+            worksheet.column_dimensions[col_letter].width = min(max_len + 4, max_width)
+        except Exception:
+            pass

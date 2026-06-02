@@ -336,42 +336,8 @@ def sync_data_to_users():
                 traceback.print_exc()
                 print(f'保存同步历史失败(user_{target_user_id}): {hist_err}')
 
-            for src in source_datasets:
-                if src.data_key not in data_keys:
-                    continue
-                # 查找或创建目标数据集记录
-                dest = SessionDataset.query.filter_by(
-                    session_id=target_session_id,
-                    data_key=src.data_key
-                ).first()
-                if not dest:
-                    dest = SessionDataset(session_id=target_session_id, data_key=src.data_key)
-                    db.session.add(dest)
-                if src.data_type == 'dataframe':
-                    df = src.get_dataframe_data()
-                    if df is not None and not df.empty:
-                        dest.set_dataframe_data(df)
-                else:
-                    raw = src.get_json_data()
-                    if raw is not None:
-                        dest.set_json_data(raw)
-            # 清除该目标会话在 Redis 中的缓存
+            # 仅投递同步历史与通知；接收方确认刷新时再通过 apply_sync_entry 写入会话
             try:
-                from flask import current_app
-                if hasattr(current_app, 'redis') and current_app.redis:
-                    prefix = current_app.config.get('SESSION_KEY_PREFIX', 'session:')
-                    for key in data_keys:
-                        current_app.redis.delete(f"{prefix}{target_session_id}:{key}")
-            except Exception:
-                pass
-            # 使目标用户的 SessionDataManager 缓存失效，下次访问时会从数据库重新加载已同步的数据
-            SessionDataManagerFactory._managers.pop(target_session_id, None)
-            # 提升目标会话版本，通知其他进程/实例在下一次读取时失效本地缓存
-            try:
-                SessionDataManager.bump_session_version(
-                    target_session_id,
-                    redis_client=getattr(current_app, 'redis', None)
-                )
                 SessionDataManager.set_sync_notification(
                     target_user_id,
                     {
@@ -399,7 +365,7 @@ def sync_data_to_users():
 
         return jsonify({
             'success': True,
-            'message': f'已同步到 {synced} 个用户',
+            'message': f'已推送到 {synced} 个用户，待对方确认刷新后生效',
             'synced_count': synced,
             'target_type': target_type
         })
@@ -5202,51 +5168,56 @@ def download_extracted_data_template():
     try:
         import pandas as pd
         import io
-        from openpyxl import Workbook
         from datetime import datetime
+        from app.utils.excel_utils import EXTRACTED_MANUAL_EXPORT_COLUMNS, auto_width_excel_columns
         
-        # 创建模板数据
         template_data = {
             '序号': [1, 2, 3],
+            '类别': ['旧机', '旧机', '旧机'],
+            '期间': ['202412', '202412', '202412'],
             '物料代码': ['示例代码1', '示例代码2', '示例代码3'],
             '物料描述': ['示例物料1', '示例物料2', '示例物料3'],
-            '初始数据': [100.0, 200.0, 300.0],
-            '本期计划采购数量': [20.0, 20.0, 20.0],
-            '本期计划投产数量': [120.0, 220.0, 320.0],
-            '本期实际投产数量': [120.0, 220.0, 320.0],
             '单位': ['TAI', 'TAI', 'TAI'],
-            '类别': ['旧机', '旧机', '旧机'],
-            '期间': ['202412', '202412', '202412']
+            '本期实际投产数量': [120.0, 220.0, 320.0],
+            '初始数据': [100.0, 200.0, 300.0],
+            '本期计划投产数量': [120.0, 220.0, 320.0],
+            '本期计划采购数量': [20.0, 20.0, 20.0],
+            '计划采购单价': [42.0, 42.0, 42.0],
+            '价值': [5000.0, 9000.0, 13000.0],
+            '单价': [40.0, 40.0, 40.0],
+            '库位描述': ['原料库', '原料库', '原料库'],
         }
         
-        df = pd.DataFrame(template_data)
+        df = pd.DataFrame(template_data)[EXTRACTED_MANUAL_EXPORT_COLUMNS]
         
-        # 创建Excel文件
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, sheet_name='提取结果数据', index=False)
             
-            # 创建导入说明sheet
             instructions = [
                 ['字段名', '说明'],
                 ['序号', '数据行号（自动生成）'],
+                ['类别', '物料分类，导入旧机数据时请保持为「旧机」'],
+                ['期间', '数据所属期间'],
                 ['物料代码', '物料代码标识'],
                 ['物料描述', '物料名称描述'],
-                ['初始数据', '原始库存值（只读）'],
-                ['本期计划采购数量', '计划采购数量（可编辑，数值型）'],
-                ['本期计划投产数量', '计划投产数量（自动计算）'],
-                ['本期实际投产数量', '实际投产数量（可编辑，数值型）'],
                 ['单位', '数量单位'],
-                ['类别', '物料分类'],
-                ['期间', '数据所属期间'],
+                ['本期实际投产数量', '实际投产数量（可编辑，数值型）'],
+                ['初始数据', '原始库存值（只读参考）'],
+                ['本期计划投产数量', '计划投产数量（自动计算：初始数据 + 本期计划采购数量）'],
+                ['本期计划采购数量', '计划采购数量（可编辑，数值型）'],
+                ['计划采购单价', '计划采购单价（可编辑，数值型）'],
+                ['价值', '物料价值（只读参考）'],
+                ['单价', '物料单价（只读参考）'],
+                ['库位描述', '库位描述（只读参考）'],
                 ['', ''],
                 ['计算逻辑', ''],
                 ['步骤1', '编辑"本期计划采购数量" → 自动计算：本期计划投产数量 = 初始数据 + 本期计划采购数量'],
                 ['步骤2', '编辑"本期实际投产数量"（可选） → 手工调整最终投产数量'],
                 ['', ''],
                 ['注意事项', ''],
-                ['1', '本期计划采购数量和本期实际投产数量列为数值型，支持小数点后6位'],
-                ['2', '导入时会覆盖现有手工数据'],
+                ['1', '列顺序须与导出文件一致，共 14 列'],
+                ['2', '导入时会覆盖现有手工旧机数据'],
                 ['3', '建议先导出现有数据作为备份'],
                 ['4', '文件格式支持 .xlsx, .xls'],
             ]
@@ -5254,19 +5225,7 @@ def download_extracted_data_template():
             instruction_df = pd.DataFrame(instructions)
             instruction_df.to_excel(writer, sheet_name='导入说明', index=False, header=False)
             
-            # 设置列宽
-            data_ws = writer.sheets['提取结果数据']
-            data_ws.column_dimensions['A'].width = 10
-            data_ws.column_dimensions['B'].width = 18
-            data_ws.column_dimensions['C'].width = 20
-            data_ws.column_dimensions['D'].width = 20
-            data_ws.column_dimensions['E'].width = 18
-            data_ws.column_dimensions['F'].width = 20
-            data_ws.column_dimensions['G'].width = 20
-            data_ws.column_dimensions['H'].width = 12
-            data_ws.column_dimensions['I'].width = 12
-            data_ws.column_dimensions['J'].width = 12
-            
+            auto_width_excel_columns(writer.sheets['提取结果数据'])
             instruction_ws = writer.sheets['导入说明']
             instruction_ws.column_dimensions['A'].width = 18
             instruction_ws.column_dimensions['B'].width = 60
@@ -5384,65 +5343,31 @@ def parse_extracted_excel():
 def export_extracted_data():
     """导出提取结果数据到Excel"""
     try:
+        from app.utils.excel_utils import prepare_extracted_export_df, auto_width_excel_columns
+
         data_type = request.args.get('type', 'manual')  # 'manual' 或 'readonly'
         app_data = get_session_data_manager()
         
         if data_type == 'manual':
-            # 导出手工数据
             data = app_data.get_data('extracted_data_manual')
             filename_suffix = '手工'
         else:
-            # 导出原始数据（只读）
             data = app_data.get_data('extracted_data')
             filename_suffix = '只读'
         
-        # 筛选只显示旧机类别
-        if data is not None and not data.empty:
-            if '类别' in data.columns:
-                data = data[data['类别'] == '旧机'].copy()
+        data = prepare_extracted_export_df(data, export_type=data_type)
         
-        if data is None or data.empty:
+        if data.empty:
             return jsonify({
                 'success': False,
                 'error': f'没有可导出的提取结果数据({filename_suffix})'
             }), 400
         
-        # 重命名列名：将内部列名"非限制使用的库存"改为用户友好的"本期实际投产数量"
-        if '非限制使用的库存' in data.columns:
-            data = data.rename(columns={'非限制使用的库存': '本期实际投产数量'})
-        
-        # 创建Excel文件（手工导出与综合包 sheet 名一致）
         sheet_name = '提取结果(手工)' if data_type == 'manual' else '提取结果数据'
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            # 写入数据
             data.to_excel(writer, sheet_name=sheet_name, index=False)
-            
-            # 设置列宽
-            worksheet = writer.sheets[sheet_name]
-            
-            # 根据数据类型设置不同的列宽
-            if data_type == 'manual':
-                # 手工数据有10列
-                worksheet.column_dimensions['A'].width = 10  # 序号
-                worksheet.column_dimensions['B'].width = 18  # 物料代码
-                worksheet.column_dimensions['C'].width = 25  # 物料描述
-                worksheet.column_dimensions['D'].width = 20  # 初始数据
-                worksheet.column_dimensions['E'].width = 20  # 本期计划采购数量
-                worksheet.column_dimensions['F'].width = 20  # 本期计划投产数量
-                worksheet.column_dimensions['G'].width = 20  # 本期实际投产数量
-                worksheet.column_dimensions['H'].width = 12  # 单位
-                worksheet.column_dimensions['I'].width = 12  # 类别
-                worksheet.column_dimensions['J'].width = 12  # 期间
-            else:
-                # 只读数据有7列
-                worksheet.column_dimensions['A'].width = 10  # 序号
-                worksheet.column_dimensions['B'].width = 18  # 物料代码
-                worksheet.column_dimensions['C'].width = 25  # 物料描述
-                worksheet.column_dimensions['D'].width = 20  # 本期实际投产数量
-                worksheet.column_dimensions['E'].width = 12  # 单位
-                worksheet.column_dimensions['F'].width = 12  # 类别
-                worksheet.column_dimensions['G'].width = 12  # 期间
+            auto_width_excel_columns(writer.sheets[sheet_name])
         
         output.seek(0)
         filename = f'提取结果数据({filename_suffix})_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'

@@ -7,6 +7,7 @@
     let onAcceptCallback = null;
     let listenersBound = false;
     let latestSyncId = null;
+    let barMode = null; // 'pending' | 'compact' | null
 
     function formatTime(iso) {
         if (!iso) return '-';
@@ -17,9 +18,41 @@
         }
     }
 
+    function getBarActionElements() {
+        return {
+            acceptBtn: document.getElementById('syncNotificationAccept'),
+            chooseBtn: document.getElementById('syncNotificationChoose'),
+            dismissBtn: document.getElementById('syncNotificationDismiss'),
+        };
+    }
+
+    function setBarMode(mode) {
+        barMode = mode;
+        const bar = document.getElementById('syncNotificationBar');
+        const actions = getBarActionElements();
+        if (bar) {
+            if (mode === 'compact') {
+                bar.classList.add('sync-notification-bar--compact');
+            } else {
+                bar.classList.remove('sync-notification-bar--compact');
+            }
+        }
+        if (actions.acceptBtn) {
+            actions.acceptBtn.style.display = mode === 'pending' ? '' : 'none';
+        }
+        if (actions.dismissBtn) {
+            actions.dismissBtn.style.display = mode === 'pending' ? '' : 'none';
+        }
+        if (actions.chooseBtn) {
+            actions.chooseBtn.style.display = '';
+        }
+    }
+
     function hideSyncNotificationBar() {
         const bar = document.getElementById('syncNotificationBar');
         if (bar) bar.style.display = 'none';
+        barMode = null;
+        setBarMode(null);
     }
 
     function showSyncNotificationBar(fromName, syncedAt, syncId) {
@@ -29,8 +62,40 @@
         const name = fromName || '其他用户';
         textEl.textContent = name + ' 向您同步了数据，是否立即刷新查看？';
         bar.style.display = 'flex';
+        setBarMode('pending');
         shownSyncNotificationKey = (fromName || '') + '|' + (syncedAt || '');
         latestSyncId = syncId || null;
+    }
+
+    function showSyncHistoryCompactBar(syncedAt) {
+        const bar = document.getElementById('syncNotificationBar');
+        const textEl = document.getElementById('syncNotificationText');
+        if (!bar || !textEl) return;
+        const timeHint = syncedAt ? '（最近同步 ' + formatTime(syncedAt) + '）' : '';
+        textEl.textContent = '可切换其他同步版本' + timeHint;
+        bar.style.display = 'flex';
+        setBarMode('compact');
+    }
+
+    async function fetchSyncHistoryItems() {
+        try {
+            const response = await fetch('/api/system/session/sync-history');
+            const result = await response.json();
+            if (!result.success) return [];
+            return result.data || [];
+        } catch (e) {
+            console.warn('获取同步历史失败:', e);
+            return [];
+        }
+    }
+
+    async function maybeShowCompactBarFromHistory() {
+        if (barMode === 'pending') return;
+        const items = await fetchSyncHistoryItems();
+        if (items.length === 0) return;
+        const latest = items[0];
+        latestSyncId = latestSyncId || latest.sync_id || null;
+        showSyncHistoryCompactBar(latest.synced_at);
     }
 
     async function loadSyncHistoryList() {
@@ -94,21 +159,35 @@
     }
 
     async function applyAndAcceptSync(selectedSyncId) {
-        if (selectedSyncId && latestSyncId && selectedSyncId !== latestSyncId) {
+        let syncId = selectedSyncId || latestSyncId;
+        if (!syncId) {
+            const items = await fetchSyncHistoryItems();
+            if (items.length > 0) {
+                syncId = items[0].sync_id;
+            }
+        }
+        let appliedSyncedAt = null;
+        if (syncId) {
             const applyResp = await fetch('/api/system/session/sync-history/apply', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sync_id: selectedSyncId })
+                body: JSON.stringify({ sync_id: syncId })
             });
             const applyResult = await applyResp.json();
             if (!applyResult.success) {
                 throw new Error(applyResult.error || applyResult.message || '应用同步版本失败');
             }
+            latestSyncId = syncId;
+            appliedSyncedAt = (applyResult.data && applyResult.data.synced_at) || null;
+            if (!appliedSyncedAt) {
+                const items = await fetchSyncHistoryItems();
+                const matched = items.find(function (it) { return it.sync_id === syncId; });
+                appliedSyncedAt = matched && matched.synced_at;
+            }
         }
         await fetch('/api/system/session/sync-notification/accept', { method: 'POST' });
-        hideSyncNotificationBar();
         shownSyncNotificationKey = null;
-        latestSyncId = null;
+        showSyncHistoryCompactBar(appliedSyncedAt);
         if (typeof applySyncedUserUiSettings === 'function') {
             await applySyncedUserUiSettings();
         }
@@ -128,7 +207,7 @@
                 return;
             }
             const key = (result.data.from_name || '') + '|' + (result.data.synced_at || '');
-            if (key === shownSyncNotificationKey) {
+            if (key === shownSyncNotificationKey && barMode === 'pending') {
                 latestSyncId = result.data.sync_id || latestSyncId;
                 return;
             }
@@ -253,12 +332,18 @@
         options = options || {};
         onAcceptCallback = options.onAccept || null;
         bindSyncNotificationButtons();
+        const runInit = async function () {
+            await pollSyncNotification();
+            if (barMode !== 'pending') {
+                await maybeShowCompactBarFromHistory();
+            }
+        };
         if (listenersBound) {
-            pollSyncNotification();
+            runInit();
             return;
         }
         listenersBound = true;
-        pollSyncNotification();
+        runInit();
         setInterval(function () {
             if (document.visibilityState === 'visible') {
                 pollSyncNotification();

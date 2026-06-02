@@ -667,9 +667,11 @@ def export_data():
             # 1.5. 提取结果(手工) - 存在手工表即导出（含仅初始化未改的情形）
             extracted_data_manual = app_data_manager.get_data('extracted_data_manual')
             if extracted_data_manual is not None and not extracted_data_manual.empty:
-                extracted_data_manual.to_excel(writer, sheet_name='提取结果(手工)', index=False)
+                from app.utils.excel_utils import prepare_extracted_export_df
+                manual_export_df = prepare_extracted_export_df(extracted_data_manual, export_type='manual')
+                manual_export_df.to_excel(writer, sheet_name='提取结果(手工)', index=False)
                 worksheet = writer.sheets['提取结果(手工)']
-                apply_sheet_formatting(worksheet, extracted_data_manual)
+                apply_sheet_formatting(worksheet, manual_export_df)
                 
                 # 提取结果(手工)统计
                 manual_stats_data = create_extraction_statistics(extracted_data_manual)
