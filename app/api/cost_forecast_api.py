@@ -148,97 +148,82 @@ def _build_no_opening_deep_result_kg_map(app_data):
 def calculate_material_cost(manual_data):
     """
     计算拆解物原料成本
-    
-    计算规则：
-    - 如果编辑过数据（本期计划采购数量 > 0）:
-      单位投料成本 = (价值 + 本期计划采购数量 × 计划采购单价) ÷ (初始数据 + 本期计划采购数量)
+
+    计算规则（统一公式，适用于所有旧机类别行）：
+      材料成本差异 = 本期计划采购数量 × 计划采购单价 × 0.005530417
+      本期实际投产数量 ≠ 0 时：
+        单位投料成本 = (价值 + 本期计划采购数量 × 计划采购单价) ÷ (初始数据 + 本期计划采购数量)
+                      + 材料成本差异 ÷ 本期实际投产数量
+      本期实际投产数量 = 0 时：
+        单位投料成本 = (价值 + 本期计划采购数量 × 计划采购单价 + 材料成本差异)
+                      ÷ (初始数据 + 本期计划采购数量)
       拆解物原料成本 = 本期实际投产数量 × 单位投料成本
-    - 如果没有编辑过数据（本期计划采购数量 = 0）:
-      单位投料成本 = 提取结果（单价列）
-      拆解物原料成本 = 本期实际投产数量 × 单位投料成本
-    
+
     注意：本期实际投产数量对应"非限制使用的库存"字段
-    
+
     Args:
         manual_data: DataFrame，包含提取结果手工数据
-        
+
     Returns:
         DataFrame，包含计算后的成本数据
     """
     if manual_data is None or manual_data.empty:
         return pd.DataFrame()
-    
+
     # 创建结果DataFrame的副本
     result_df = manual_data.copy()
-    
+
     # 确保必需的列存在
     required_cols = ['价值', '单价', '初始数据', '本期计划采购数量', '计划采购单价', '非限制使用的库存']
     for col in required_cols:
         if col not in result_df.columns:
-            if col in ['价值', '单价']:
-                # 如果缺少价值或单价，填充为0
-                result_df[col] = 0.0
-            else:
-                # 其他列填充为0
-                result_df[col] = 0.0
-    
+            result_df[col] = 0.0
+
     # 确保数值类型
     numeric_cols = ['价值', '单价', '初始数据', '本期计划采购数量', '计划采购单价', '非限制使用的库存']
     for col in numeric_cols:
         result_df[col] = pd.to_numeric(result_df[col], errors='coerce').fillna(0)
-    
+
     # 初始化计算列
     result_df['单位投料成本'] = 0.0
     result_df['拆解物原料成本'] = 0.0
-    
+    result_df['材料成本差异'] = 0.0
+
     # 只处理旧机类别
     if '类别' in result_df.columns:
         mask_old_machine = result_df['类别'] == '旧机'
-        
-        # 判断是否编辑过数据
-        # 如果"本期计划采购数量" > 0，说明用户编辑过采购数量，需要使用加权平均计算单位投料成本
-        # 如果"本期计划采购数量" = 0 且"计划采购单价"也被编辑过（不等于单价），也认为是编辑过
-        # 但为了简化判断，我们主要看"本期计划采购数量"是否 > 0
-        # 因为如果用户编辑了"计划采购单价"，通常也会编辑"本期计划采购数量"
-        has_edited = result_df.loc[mask_old_machine, '本期计划采购数量'] > 0
-        
-        # 编辑过数据的情况
-        edited_mask = mask_old_machine & has_edited
-        if edited_mask.any():
-            # 计算单位投料成本 = (价值 + 本期计划采购数量 × 计划采购单价) ÷ (初始数据 + 本期计划采购数量)
-            numerator = result_df.loc[edited_mask, '价值'] + \
-                       (result_df.loc[edited_mask, '本期计划采购数量'] * 
-                        result_df.loc[edited_mask, '计划采购单价'])
-            denominator = result_df.loc[edited_mask, '初始数据'] + \
-                         result_df.loc[edited_mask, '本期计划采购数量']
-            
-            # 避免除零
-            denominator = denominator.replace(0, 1)
-            
-            result_df.loc[edited_mask, '单位投料成本'] = numerator / denominator
-            
-            # 计算拆解物原料成本 = 本期实际投产数量 × 单位投料成本
-            # 本期实际投产数量对应"非限制使用的库存"字段
-            result_df.loc[edited_mask, '拆解物原料成本'] = \
-                result_df.loc[edited_mask, '非限制使用的库存'] * \
-                result_df.loc[edited_mask, '单位投料成本']
-        
-        # 没有编辑过数据的情况
-        not_edited_mask = mask_old_machine & ~has_edited
-        if not_edited_mask.any():
-            # 单位投料成本 = 提取结果（单价列）
-            result_df.loc[not_edited_mask, '单位投料成本'] = \
-                result_df.loc[not_edited_mask, '单价']
-            
-            # 拆解物原料成本 = 本期实际投产数量 × 单位投料成本
-            # 本期实际投产数量对应"非限制使用的库存"字段
-            result_df.loc[not_edited_mask, '拆解物原料成本'] = \
-                result_df.loc[not_edited_mask, '非限制使用的库存'] * \
-                result_df.loc[not_edited_mask, '单位投料成本']
-        
-        print(f"[成本计算] 已编辑数据: {edited_mask.sum()} 条")
-        print(f"[成本计算] 未编辑数据: {not_edited_mask.sum()} 条")
-    
+
+        # 计算材料成本差异 = 本期计划采购数量 × 计划采购单价 × 0.005530417
+        result_df.loc[mask_old_machine, '材料成本差异'] = \
+            result_df.loc[mask_old_machine, '本期计划采购数量'] * \
+            result_df.loc[mask_old_machine, '计划采购单价'] * 0.005530417
+
+        # 单位投料成本按本期实际投产数量是否为 0 分支
+        numerator = result_df.loc[mask_old_machine, '价值'] + \
+                   (result_df.loc[mask_old_machine, '本期计划采购数量'] *
+                    result_df.loc[mask_old_machine, '计划采购单价'])
+        denominator = result_df.loc[mask_old_machine, '初始数据'] + \
+                     result_df.loc[mask_old_machine, '本期计划采购数量']
+        denominator = denominator.replace(0, 1)
+
+        cost_diff = result_df.loc[mask_old_machine, '材料成本差异']
+        real_qty = result_df.loc[mask_old_machine, '非限制使用的库存']
+        zero_qty = real_qty == 0
+
+        # 投产 ≠ 0：(价值+采购金额)/分母 + 材料成本差异/实际投产数量
+        unit_cost_nonzero = numerator / denominator + cost_diff / real_qty.mask(zero_qty)
+        # 投产 = 0：(价值+采购金额+材料成本差异)/分母
+        unit_cost_zero = (numerator + cost_diff) / denominator
+
+        result_df.loc[mask_old_machine, '单位投料成本'] = unit_cost_nonzero.where(~zero_qty, unit_cost_zero)
+
+        # 拆解物原料成本 = 本期实际投产数量 × 单位投料成本
+        result_df.loc[mask_old_machine, '拆解物原料成本'] = \
+            result_df.loc[mask_old_machine, '非限制使用的库存'] * \
+            result_df.loc[mask_old_machine, '单位投料成本']
+
+        print(f"[成本计算] 旧机类别数据: {mask_old_machine.sum()} 条")
+
     return result_df
 
 
@@ -2112,7 +2097,7 @@ def export_material_cost():
         # 选择要导出的列（排除一些内部列）
         export_columns = [
             '序号', '物料代码', '物料描述', '初始数据', '本期计划采购数量',
-            '计划采购单价', '非限制使用的库存', '单位投料成本', '拆解物原料成本'
+            '计划采购单价', '非限制使用的库存', '材料成本差异', '单位投料成本', '拆解物原料成本'
         ]
         
         # 只保留存在的列
@@ -2124,7 +2109,7 @@ def export_material_cost():
             export_df = export_df.rename(columns={'非限制使用的库存': '本期实际投产数量'})
         
         # 追加合计行：单价/单位成本等比率列显示 "-"，其余数值列求和
-        _sum_cols_mc = {'初始数据', '本期计划采购数量', '本期实际投产数量', '拆解物原料成本'}
+        _sum_cols_mc = {'初始数据', '本期计划采购数量', '本期实际投产数量', '材料成本差异', '拆解物原料成本'}
         _dash_cols_mc = {'计划采购单价', '单位投料成本'}
         _total_row_mc = {c: '' for c in export_df.columns}
         _label_placed_mc = False
@@ -8066,6 +8051,10 @@ def calculate_deep_processing_product_cost(app_data, prediction_period=1):
                                     mapping_category = orig_cat
                                     break
                         
+                        # 屏/印制板归入电视（与销售收入页一致）
+                        if mapping_category in ('屏', '印制板'):
+                            four_category = '电视'
+                        
                         # 使用(四机一脑类别, 深加工产物编码)作为key
                         key = (four_category, deep_product_code)
                         if key not in output_value_data:
@@ -8440,41 +8429,7 @@ def calculate_deep_processing_product_cost(app_data, prediction_period=1):
         # 使用(深加工产物编码, 四机一脑类别)作为key
         sales_quantity_by_code_category = {}  # {(深加工产物编码, 四机一脑类别): 销售数量(KG)}
         
-        # 四机一脑分类映射函数
-        def map_to_category_for_sales(material_name):
-            """根据原物料名称映射到四机一脑分类"""
-            if not material_name or pd.isna(material_name):
-                return None
-            name = str(material_name)
-            
-            # 优先匹配"显示器"（电脑类）
-            if '显示器' in name:
-                return '电脑'
-            if ('电脑' in name or '笔记本' in name or 
-                '主机' in name or '废旧金属黑色金属-铁及其合金-电子枪' in name):
-                return '电脑'
-            
-            # 电视映射规则
-            if ('CRT其它机壳破碎塑料' in name or '线路板边框破碎塑料' in name or 
-                '废旧玻璃电子枪' in name or '废旧金属荫罩压块铁' in name or 
-                '黑白' in name):
-                return '电视'
-            if ('电视' in name or '彩电' in name or '等离子' in name):
-                return '电视'
-            
-            # 冰箱
-            if '冰箱' in name or '冰柜' in name:
-                return '冰箱'
-            
-            # 空调
-            if '空调' in name:
-                return '空调'
-            
-            # 洗衣机
-            if '洗衣机' in name or '双缸' in name:
-                return '洗衣机'
-            
-            return None
+        from app.api.statistics_api import map_material_to_four_category
         
         # 确定使用的数据源（与销售收益页面逻辑完全一致）
         revenue_data = None
@@ -8510,11 +8465,16 @@ def calculate_deep_processing_product_cost(app_data, prediction_period=1):
                     if not product_code:
                         continue
                     
-                    # 获取原物料名称
-                    material_name = str(row.get('原物料名称', '')).strip()
+                    material_name = row.get('原物料名称', '')
+                    row_category = str(row.get('类别', '')).strip() if pd.notna(row.get('类别', '')) else ''
+                    product_category = row_category if row_category else None
+                    # 合并时类别默认为「深加工产物」，回查映射表获取屏/印制板等真实类别
+                    if row_category == '深加工产物':
+                        r3_cat = r3_to_category.get(product_code, '')
+                        if r3_cat:
+                            product_category = r3_cat
                     
-                    # 根据原物料名称映射到四机一脑类别
-                    four_category = map_to_category_for_sales(material_name)
+                    four_category = map_material_to_four_category(material_name, product_category)
                     if not four_category:
                         continue
                     
@@ -9260,13 +9220,13 @@ def export_all_cost_forecast():
                     if not export_data.empty:
                         export_columns = [
                             '序号', '物料代码', '物料描述', '初始数据', '本期计划采购数量',
-                            '计划采购单价', '非限制使用的库存', '单位投料成本', '拆解物原料成本'
+                            '计划采购单价', '非限制使用的库存', '材料成本差异', '单位投料成本', '拆解物原料成本'
                         ]
                         available_columns = [col for col in export_columns if col in export_data.columns]
                         export_df = export_data[available_columns].copy()
                         if '非限制使用的库存' in export_df.columns:
                             export_df = export_df.rename(columns={'非限制使用的库存': '本期实际投产数量'})
-                        
+
                         export_df.to_excel(writer, sheet_name='拆解物原料成本', index=False)
                         worksheet = writer.sheets['拆解物原料成本']
                         for col in range(1, len(export_df.columns) + 1):

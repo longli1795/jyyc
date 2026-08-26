@@ -820,13 +820,14 @@
                                     <th style="min-width: 140px; white-space: nowrap;">本期计划采购数量</th>
                                     <th style="min-width: 120px; white-space: nowrap;">计划采购单价</th>
                                     <th style="min-width: 140px; white-space: nowrap;">本期实际投产数量</th>
+                                    <th style="min-width: 130px; white-space: nowrap;">材料成本差异</th>
                                     <th style="min-width: 120px; white-space: nowrap;">单位投料成本</th>
                                     <th style="min-width: 140px; white-space: nowrap;">拆解物原料成本</th>
                                 </tr>
                             </thead>
                             <tbody id="material-cost-tbody">
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted py-4">
+                                    <td colspan="10" class="text-center text-muted py-4">
                                         <i class="fas fa-info-circle"></i> 暂无数据，请先编辑提取结果数据
                                     </td>
                                 </tr>
@@ -913,7 +914,7 @@
             if (!data || data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="9" class="text-center text-muted py-4">
+                        <td colspan="10" class="text-center text-muted py-4">
                             <i class="fas fa-info-circle"></i> 暂无数据，请先编辑提取结果数据
                         </td>
                     </tr>
@@ -931,6 +932,7 @@
                     <td>${formatNumber(row['本期计划采购数量'] || 0)}</td>
                     <td>${formatNumber(row['计划采购单价'] || 0)}</td>
                     <td>${formatNumber(row['非限制使用的库存'] || 0)}</td>
+                    <td class="calculated-value">${formatNumber((row['本期计划采购数量'] || 0) * (row['计划采购单价'] || 0) * 0.005530417)}</td>
                     <td class="calculated-value">${formatNumber(row['单位投料成本'] || 0)}</td>
                     <td class="calculated-value">${formatNumber(row['拆解物原料成本'] || 0)}</td>
                 `;
@@ -938,11 +940,12 @@
             });
             
             // 追加合计行：单价/单位成本等比率列显示 "-"，其余数值列求和
-            let sumInitial = 0, sumPlanQty = 0, sumRealQty = 0, sumMaterialCost = 0;
+            let sumInitial = 0, sumPlanQty = 0, sumRealQty = 0, sumCostDiff = 0, sumMaterialCost = 0;
             data.forEach(row => {
                 sumInitial += parseFloat(row['初始数据'] || 0) || 0;
                 sumPlanQty += parseFloat(row['本期计划采购数量'] || 0) || 0;
                 sumRealQty += parseFloat(row['非限制使用的库存'] || 0) || 0;
+                sumCostDiff += (parseFloat(row['本期计划采购数量'] || 0) || 0) * (parseFloat(row['计划采购单价'] || 0) || 0) * 0.005530417;
                 sumMaterialCost += parseFloat(row['拆解物原料成本'] || 0) || 0;
             });
             const totalTr = document.createElement('tr');
@@ -955,6 +958,7 @@
                 <td>${formatNumber(sumPlanQty)}</td>
                 <td style="text-align:center;">-</td>
                 <td>${formatNumber(sumRealQty)}</td>
+                <td class="calculated-value">${formatNumber(sumCostDiff)}</td>
                 <td class="calculated-value" style="text-align:center;">-</td>
                 <td class="calculated-value">${formatNumber(sumMaterialCost)}</td>
             `;
