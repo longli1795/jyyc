@@ -3,6 +3,11 @@ data/persistent/opening_inventory.*
 data/persistent/opening_inventory_meta.json
 data/persistent/backups/*
 
+# SAP 取数导出（勿提交业务文件与凭据）
+secrets.ini
+data/sap_exports/*
+!data/sap_exports/.gitkeep
+
 # 销售价格 Excel 自动备份（勿提交仓库）
 data/backups/销售价格_backup_*.xlsx
 

@@ -747,6 +747,14 @@
             color: #1e3a5f;
             border-left: 4px solid var(--info-color);
         }
+
+        .alert-custom span {
+            flex: 1;
+        }
+
+        .alert-custom .btn-close {
+            margin-left: auto;
+        }
         
         .hidden {
             display: none !important;
@@ -910,7 +918,7 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
         
-        /* 操作工具栏样式 */
+        /* 操作工具栏样式：标题独立成行，按钮区随容器宽度缩放并保持单行 */
         .operation-toolbar {
             background: linear-gradient(135deg, var(--brand-light) 0%, var(--brand-light-gray) 100%);
             border: 1px solid var(--border-color);
@@ -918,11 +926,12 @@
             padding: 16px 24px;
             margin-bottom: 24px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
             box-shadow: var(--shadow);
+            container-type: inline-size;
+            container-name: toolbar;
         }
         
         .toolbar-title {
@@ -940,21 +949,30 @@
         }
         
         .toolbar-buttons {
+            --toolbar-scale: 1;
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            width: 100%;
+            min-width: 0;
             align-items: center;
+            gap: calc(clamp(4px, 0.7cqw, 12px) * var(--toolbar-scale));
+        }
+
+        .toolbar-buttons [data-page-permission] {
+            display: contents;
         }
 
         .toolbar-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
+            flex-shrink: 0;
+            gap: calc(clamp(4px, 0.55cqw, 8px) * var(--toolbar-scale));
+            padding: calc(clamp(4px, 0.55cqw, 10px) * var(--toolbar-scale)) calc(clamp(8px, 1.15cqw, 18px) * var(--toolbar-scale));
             border-radius: 8px;
-            font-size: 14px;
+            font-size: calc(clamp(11px, 1.05cqw, 14px) * var(--toolbar-scale));
             font-weight: 500;
             text-decoration: none;
+            white-space: nowrap;
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid var(--border-color);
@@ -1003,27 +1021,38 @@
         }
         
         .toolbar-btn i {
-            font-size: 14px;
+            font-size: calc(clamp(11px, 1cqw, 14px) * var(--toolbar-scale));
         }
         
         .toolbar-divider {
             width: 1px;
-            height: 24px;
+            height: calc(clamp(16px, 1.8cqw, 24px) * var(--toolbar-scale));
             background: var(--border-color);
-            margin: 0 4px;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 769px) {
+            @container toolbar (max-width: 1180px) {
+                .toolbar-divider {
+                    display: none;
+                }
+            }
         }
         
         .toolbar-period {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
+            flex-shrink: 0;
+            gap: calc(clamp(4px, 0.55cqw, 8px) * var(--toolbar-scale));
+            padding: calc(clamp(4px, 0.55cqw, 10px) * var(--toolbar-scale)) calc(clamp(8px, 0.9cqw, 12px) * var(--toolbar-scale));
             border-radius: 8px;
             border: 2px solid var(--border-color);
             background: var(--brand-light);
-            font-size: 14px;
+            font-size: calc(clamp(11px, 1.05cqw, 14px) * var(--toolbar-scale));
             font-weight: 500;
             color: var(--text-primary);
+            white-space: nowrap;
             transition: all 0.3s ease;
         }
         
@@ -1034,7 +1063,7 @@
         
         .toolbar-period i {
             color: var(--primary-color);
-            font-size: 14px;
+            font-size: calc(clamp(11px, 1cqw, 14px) * var(--toolbar-scale));
         }
         
         .toolbar-period label {
@@ -1044,11 +1073,11 @@
         }
         
         .toolbar-period input {
-            width: 72px;
-            padding: 6px 8px;
+            width: calc(clamp(44px, 5cqw, 72px) * var(--toolbar-scale));
+            padding: calc(4px * var(--toolbar-scale)) calc(6px * var(--toolbar-scale));
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            font-size: 14px;
+            font-size: calc(clamp(11px, 1.05cqw, 14px) * var(--toolbar-scale));
             font-weight: 600;
             color: var(--text-primary);
             background: #fff;
@@ -1120,15 +1149,26 @@
             
             .toolbar-buttons {
                 flex-direction: column;
+                flex-wrap: wrap;
                 width: 100%;
+                --toolbar-scale: 1;
+                gap: 12px;
             }
             
             .toolbar-btn {
                 justify-content: center;
                 width: 100%;
+                font-size: 14px;
+                padding: 10px 18px;
+                gap: 8px;
+            }
+
+            .toolbar-btn i {
+                font-size: 14px;
             }
             
             .toolbar-divider {
+                display: block;
                 width: 100%;
                 height: 1px;
                 margin: 4px 0;
@@ -1137,6 +1177,19 @@
             .toolbar-period {
                 justify-content: center;
                 width: 100%;
+                font-size: 14px;
+                padding: 6px 12px;
+                gap: 8px;
+            }
+
+            .toolbar-period i {
+                font-size: 14px;
+            }
+
+            .toolbar-period input {
+                width: 72px;
+                padding: 6px 8px;
+                font-size: 14px;
             }
             
             .footer-content {
@@ -1209,6 +1262,7 @@
                 <script>window.allowedPages = {{ (allowed_pages or []) | tojson }};</script>
                 <script src="/static/js/page_permissions.js"></script>
                 <script src="/static/js/user_ui_settings.js"></script>
+                <script src="/static/js/opening_inventory.js"></script>
                 <script src="/static/js/sync_notification.js"></script>
                 <div id="alertArea"></div>
                 {% if user_is_read_only and not status_info.has_persistent_data %}
@@ -1228,6 +1282,10 @@
                         <button class="toolbar-btn" id="uploadBtn" title="上传期初库存Excel或CSV文件">
                             <i class="fas fa-upload"></i>
                             <span>期初库存文件上传</span>
+                        </button>
+                        <button class="toolbar-btn" id="sapExportBtn" title="从 SAP 导出上个月库存并写入期初库存">
+                            <i class="fas fa-cloud-download-alt"></i>
+                            <span>从 SAP 取数</span>
                         </button>
                         <button class="toolbar-btn primary" id="autoProcessBtn" {% if not status_info.can_run_calculation %}disabled{% endif %} title="加载数据并执行计算">
                             <i class="fas fa-sync-alt"></i>
@@ -2055,8 +2113,12 @@
                     <i class="fas fa-file-excel"></i>
                     <span id="openingInventoryPersistHint">
                         {% if status_info.has_opening_inventory_file and status_info.opening_inventory_meta %}
-                        已固化：{{ status_info.opening_inventory_meta.original_filename or 'opening_inventory' }}
-                        {% if status_info.opening_inventory_meta.uploaded_at %}（{{ status_info.opening_inventory_meta.uploaded_at[:10] }}）{% endif %}
+                        {% set oi_meta = status_info.opening_inventory_meta %}
+                        {% if oi_meta.source == 'sap' %}
+                        已固化：SAP {{ oi_meta.sap_period or '' }}{% if oi_meta.uploaded_at %} 更新于 {{ oi_meta.uploaded_at[:16]|replace('T', ' ') }}{% endif %}
+                        {% else %}
+                        已固化：{{ oi_meta.original_filename or 'opening_inventory' }}{% if oi_meta.uploaded_at %} 更新于 {{ oi_meta.uploaded_at[:16]|replace('T', ' ') }}{% endif %}
+                        {% endif %}
                         <a href="/api/opening-inventory/download" title="下载固化文件">下载</a>
                         {% endif %}
                     </span>
@@ -2152,7 +2214,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted small mb-3">从以下历史同步记录中选择要应用的版本，应用后将刷新当前页面数据。</p>
+                    <p class="text-muted small mb-3">从以下历史同步记录中选择要应用的版本，应用后将刷新当前页面数据。不需要的版本可点击右侧删除，仅清除本机历史包，不影响发布方数据。</p>
                     <div class="list-group" id="syncHistoryList" style="max-height:320px;overflow-y:auto;"></div>
                     <div id="syncHistoryResult" class="mt-2 small"></div>
                 </div>
@@ -2282,6 +2344,7 @@
         
         // DOM 元素（只读用户时部分按钮不存在）
         const uploadBtn = document.getElementById('uploadBtn');
+        const sapExportBtn = document.getElementById('sapExportBtn');
         const fileInput = document.getElementById('fileInput');
         const autoProcessBtn = document.getElementById('autoProcessBtn');
         const exportBtn = document.getElementById('exportBtn');
@@ -2304,7 +2367,68 @@
                     onSuccess: resetCostForecastDisplay
                 });
             }
+            initToolbarFit();
         });
+
+        function fitToolbarButtons() {
+            const el = document.querySelector('.toolbar-buttons');
+            if (!el) return;
+            if (window.matchMedia('(max-width: 768px)').matches) {
+                el.style.setProperty('--toolbar-scale', '1');
+                return;
+            }
+            let scale = 1;
+            el.style.setProperty('--toolbar-scale', '1');
+            const minScale = 0.82;
+            while (el.scrollWidth > el.clientWidth + 1 && scale > minScale) {
+                scale = Math.max(minScale, Math.round((scale - 0.02) * 100) / 100);
+                el.style.setProperty('--toolbar-scale', String(scale));
+            }
+        }
+
+        function initToolbarFit() {
+            const el = document.querySelector('.toolbar-buttons');
+            if (!el) return;
+            let fitting = false;
+            let childObserver = null;
+            const observeChildren = function() {
+                if (!childObserver) return;
+                el.querySelectorAll('.toolbar-btn, .toolbar-period, .toolbar-divider').forEach(function(child) {
+                    childObserver.observe(child);
+                });
+            };
+            const runFit = function() {
+                if (fitting) return;
+                fitting = true;
+                try {
+                    fitToolbarButtons();
+                } finally {
+                    requestAnimationFrame(function() {
+                        fitting = false;
+                    });
+                }
+            };
+            if (typeof ResizeObserver !== 'undefined') {
+                childObserver = new ResizeObserver(runFit);
+                childObserver.observe(el);
+                if (el.parentElement) {
+                    childObserver.observe(el.parentElement);
+                }
+                observeChildren();
+            }
+            window.addEventListener('resize', runFit);
+            const mo = new MutationObserver(function() {
+                observeChildren();
+                runFit();
+            });
+            mo.observe(el, { childList: true, subtree: true, characterData: true });
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(runFit);
+            }
+            window.addEventListener('load', runFit);
+            runFit();
+            setTimeout(runFit, 300);
+        }
         
         // 设置事件监听器
         function setupEventListeners() {
@@ -2312,6 +2436,9 @@
             if (uploadBtn && fileInput) {
                 uploadBtn.addEventListener('click', () => fileInput.click());
                 fileInput.addEventListener('change', handleFileSelect);
+            }
+            if (sapExportBtn) {
+                sapExportBtn.addEventListener('click', handleSapExport);
             }
             if (autoProcessBtn) {
                 autoProcessBtn.addEventListener('click', handleAutoProcess);
@@ -2380,6 +2507,18 @@
         }
         
         // 文件上传处理
+        let autoProcessRunning = false;
+
+        function maybeAutoRecalcFromOpeningInventory(statusInfo) {
+            if (autoProcessRunning || !autoProcessBtn) return;
+            if (typeof OpeningInventoryUI === 'undefined') return;
+            const meta = statusInfo && statusInfo.opening_inventory_meta;
+            const canRun = statusInfo && (statusInfo.can_run_calculation || statusInfo.has_opening_inventory_file);
+            if (!canRun || !meta || !OpeningInventoryUI.isStale(meta)) return;
+            showAlert('info', '期初库存已更新，正在按新数据重新计算利润测算汇总表...');
+            handleAutoProcess();
+        }
+
         function handleFileUpload(file) {
             // 验证文件类型
             const allowedTypes = ['xlsx', 'xls', 'csv'];
@@ -2421,7 +2560,7 @@
             .then(data => {
                 hideLoading();
                 if (data.success) {
-                    showAlert('success', data.message);
+                    showAlert('success', data.message + '，正在按新期初库存重新计算...');
                     currentData.source = data.sample_data;
                     if (autoProcessBtn) autoProcessBtn.disabled = false;
                     if (data.opening_inventory_meta) {
@@ -2429,6 +2568,7 @@
                     } else {
                         updateButtonsVisibility();
                     }
+                    handleAutoProcess();
                     
                     // 显示数据摘要信息
                     if (data.data_summary && data.data_summary.source_data) {
@@ -2573,6 +2713,8 @@
         
         // 自动处理
         function handleAutoProcess() {
+            if (autoProcessRunning) return;
+            autoProcessRunning = true;
             showProfitSummaryProgress('正在重新计算...', { scrollIntoView: true });
             startProfitSummaryStatusPoll();
             autoProcessBtn.disabled = true;
@@ -2584,28 +2726,40 @@
             .then(data => {
                 stopProfitSummaryStatusPoll();
                 if (data.success) {
-                    // 检查是否需要引导用户到手工编辑页面
-                    if (data.results && data.results.needs_manual_editing && data.results.next_step) {
-                        const nextStep = data.results.next_step;
-                        showAlert('info', `
-                            ${data.message}<br><br>
-                            <strong>${nextStep.message}</strong><br>
-                            <button class="btn btn-primary btn-sm mt-2" onclick="window.open('${nextStep.url}', '_blank')">
-                                <i class="fas fa-edit"></i> ${nextStep.button_text}
-                            </button>
-                        `);
+                    const finish = function () {
+                        autoProcessRunning = false;
+                        if (autoProcessBtn) autoProcessBtn.disabled = false;
+                    };
+                    const afterMark = function () {
+                        finish();
+                        if (data.results && data.results.needs_manual_editing && data.results.next_step) {
+                            const nextStep = data.results.next_step;
+                            showAlert('info', `
+                                ${data.message}<br><br>
+                                <strong>${nextStep.message}</strong><br>
+                                <button class="btn btn-primary btn-sm mt-2" onclick="window.open('${nextStep.url}', '_blank')">
+                                    <i class="fas fa-edit"></i> ${nextStep.button_text}
+                                </button>
+                            `);
+                        } else {
+                            showAlert('success', data.message);
+                        }
+                        runAfterAutoProcessSuccess('home_auto_process');
+                    };
+                    if (typeof OpeningInventoryUI !== 'undefined') {
+                        OpeningInventoryUI.markCalculatedFromStatus().then(afterMark);
                     } else {
-                        showAlert('success', data.message);
+                        afterMark();
                     }
-                    
-                    runAfterAutoProcessSuccess('home_auto_process');
                 } else {
+                    autoProcessRunning = false;
                     hideProfitSummaryProgress();
                     showAlert('danger', data.message);
+                    if (autoProcessBtn) autoProcessBtn.disabled = false;
                 }
-                autoProcessBtn.disabled = false;
             })
             .catch(error => {
+                autoProcessRunning = false;
                 stopProfitSummaryStatusPoll();
                 hideProfitSummaryProgress();
                 showAlert('danger', '自动处理失败: ' + error.message);
@@ -2613,6 +2767,83 @@
             });
         }
         
+        function formatOpeningInventoryHintHtml(meta) {
+            if (typeof OpeningInventoryUI !== 'undefined') {
+                return OpeningInventoryUI.formatHintHtml(meta);
+            }
+            if (!meta) return '';
+            const source = meta.source || 'upload';
+            let name;
+            if (source === 'sap') {
+                const period = meta.sap_period || '';
+                name = period ? ('SAP ' + period) : (meta.original_filename || 'SAP取数');
+            } else {
+                name = meta.original_filename || 'opening_inventory';
+            }
+            const raw = meta.uploaded_at || '';
+            const timeStr = raw ? String(raw).replace('T', ' ').slice(0, 16) : '';
+            return `已固化：${name}${timeStr ? ' 更新于 ' + timeStr : ''} <a href="/api/opening-inventory/download" title="下载固化文件">下载</a>`;
+        }
+
+        function handleSapExport() {
+            if (!confirm('将从 SAP 导出上个月库存并覆盖当前期初库存（覆盖前会备份旧文件），完成后自动重新计算。是否继续？')) {
+                return;
+            }
+            if (sapExportBtn) sapExportBtn.disabled = true;
+            showLoading('正在从 SAP 取数，可能需要数分钟，请勿关闭页面...');
+            fetch('/api/sap/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(async (response) => {
+                const data = await response.json().catch(() => ({}));
+                if (response.status === 409) {
+                    pollSapExportStatus();
+                    return;
+                }
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+                pollSapExportStatus();
+            })
+            .catch((error) => {
+                hideLoading();
+                if (sapExportBtn) sapExportBtn.disabled = false;
+                showAlert('danger', '启动 SAP 取数失败: ' + error.message);
+            });
+        }
+
+        function pollSapExportStatus() {
+            const timer = setInterval(() => {
+                fetch('/api/sap/status')
+                    .then((response) => response.json())
+                    .then((payload) => {
+                        const status = (payload && payload.data) || {};
+                        if (status.running) {
+                            showLoading(status.message || 'SAP 取数进行中...');
+                            return;
+                        }
+                        clearInterval(timer);
+                        hideLoading();
+                        if (sapExportBtn) sapExportBtn.disabled = false;
+                        if (status.phase === 'done') {
+                            showAlert('success', status.message || 'SAP 取数完成，正在按新期初库存重新计算...');
+                            updateButtonsVisibility();
+                            handleAutoProcess();
+                        } else if (status.phase === 'error') {
+                            showAlert('danger', 'SAP 取数失败: ' + (status.message || status.error || '未知错误'));
+                        }
+                    })
+                    .catch((error) => {
+                        clearInterval(timer);
+                        hideLoading();
+                        if (sapExportBtn) sapExportBtn.disabled = false;
+                        showAlert('danger', '查询 SAP 取数状态失败: ' + error.message);
+                    });
+            }, 3000);
+        }
+
         function updateOpeningInventoryHint(statusInfo) {
             const bar = document.getElementById('openingInventoryPersistBar');
             const hint = document.getElementById('openingInventoryPersistHint');
@@ -2623,9 +2854,7 @@
                 bar.style.display = 'none';
                 return;
             }
-            const name = meta.original_filename || 'opening_inventory';
-            const dateStr = meta.uploaded_at ? String(meta.uploaded_at).slice(0, 10) : '';
-            hint.innerHTML = `已固化：${name}${dateStr ? '（' + dateStr + '）' : ''} <a href="/api/opening-inventory/download" title="下载固化文件">下载</a>`;
+            hint.innerHTML = formatOpeningInventoryHintHtml(meta);
             bar.style.display = '';
         }
 
@@ -2657,6 +2886,8 @@
                             btnText.textContent = hasCalcData ? '重新计算' : '加载数据并自动计算';
                         }
                     }
+                    maybeAutoRecalcFromOpeningInventory(statusInfo);
+                    fitToolbarButtons();
                 })
                 .catch(error => {
                     console.error('获取状态信息失败:', error);
@@ -2688,6 +2919,7 @@
                     clearDataBtn.style.display = 'none';
                 }
             }
+            fitToolbarButtons();
         }
         
         // 更新收入预测区域的按钮
@@ -3502,26 +3734,46 @@
             });
         }
         
-        // 显示加载状态
+        // 显示加载状态（顶部横幅，与成功提示同一位置）
         function showLoading(message) {
-            statusText.textContent = message;
-            loadingSpinner.classList.remove('hidden');
+            if (loadingSpinner) loadingSpinner.classList.add('hidden');
+            const existing = alertArea && alertArea.querySelector('.alert-loading span');
+            if (existing) {
+                existing.textContent = message;
+                return;
+            }
+            showAlert('info', message, { persist: true, loading: true });
         }
         
         // 隐藏加载状态
         function hideLoading() {
-            loadingSpinner.classList.add('hidden');
+            if (loadingSpinner) loadingSpinner.classList.add('hidden');
+            const loadingAlert = alertArea && alertArea.querySelector('.alert-loading');
+            if (loadingAlert) loadingAlert.remove();
         }
+
+        let alertHideTimer = null;
         
         // 显示提示信息
-        function showAlert(type, message) {
+        function showAlert(type, message, options) {
+            const opts = options || {};
+            const persist = !!opts.persist || !!opts.loading;
+            const isLoading = !!opts.loading;
             const alertClass = `alert-${type}-custom`;
-            const iconClass = type === 'success' ? 'fas fa-check-circle' : 
+            const iconClass = isLoading ? 'fas fa-spinner fa-spin' :
+                             type === 'success' ? 'fas fa-check-circle' : 
                              type === 'danger' ? 'fas fa-exclamation-circle' : 
                              'fas fa-info-circle';
+            const loadingClass = isLoading ? ' alert-loading' : '';
+            const alertId = 'homeAlert_' + Date.now();
             
+            if (alertHideTimer) {
+                clearTimeout(alertHideTimer);
+                alertHideTimer = null;
+            }
+
             const alertHtml = `
-                <div class="alert alert-custom ${alertClass} animate__animated animate__fadeIn">
+                <div class="alert alert-custom ${alertClass}${loadingClass} animate__animated animate__fadeIn" data-alert-id="${alertId}">
                     <i class="${iconClass}"></i>
                     <span>${message}</span>
                     <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
@@ -3530,14 +3782,16 @@
             
             alertArea.innerHTML = alertHtml;
             
-            // 5秒后自动删除
-            setTimeout(() => {
-                const alert = alertArea.querySelector('.alert');
-                if (alert) {
-                    alert.classList.add('animate__fadeOut');
-                    setTimeout(() => alert.remove(), 500);
-                }
-            }, 5000);
+            if (!persist) {
+                alertHideTimer = setTimeout(() => {
+                    const alert = alertArea.querySelector('[data-alert-id="' + alertId + '"]');
+                    if (alert) {
+                        alert.classList.add('animate__fadeOut');
+                        setTimeout(() => alert.remove(), 500);
+                    }
+                    alertHideTimer = null;
+                }, 5000);
+            }
         }
         
         // 加载成本预测数据

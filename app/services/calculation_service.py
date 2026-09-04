@@ -10,7 +10,7 @@ class CalculationService:
         self.app_data = AppDataManager.get_instance(session_id)
         self.data_processor = DataProcessor(session_id)
         self.calculation_engine = CalculationEngine(session_id)
-        print(f"🔑 CalculationService使用会话ID: {session_id}")
+        print(f"[INFO] CalculationService使用会话ID: {session_id}")
     
     def auto_process_all(self):
         """一键自动处理所有步骤"""

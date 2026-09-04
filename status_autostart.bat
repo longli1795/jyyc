@@ -3,6 +3,7 @@ setlocal EnableExtensions
 cd /d "%~dp0"
 
 set "TASK_NAME=BusinessForecastProduction"
+set "SAP_TASK=BusinessForecastSapMonthlyExport"
 set "STARTUP_LNK=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\BusinessForecastProduction.lnk"
 
 echo ========================================================================
@@ -16,6 +17,16 @@ if errorlevel 1 (
 ) else (
     echo.
     echo Scheduled task: INSTALLED
+)
+
+echo.
+echo --- SAP monthly export (%SAP_TASK%) ---
+schtasks /Query /TN "%SAP_TASK%" >nul 2>&1
+if errorlevel 1 (
+    echo SAP export task: NOT installed
+) else (
+    echo SAP export task: INSTALLED
+    schtasks /Query /TN "%SAP_TASK%" /FO LIST /V | findstr /I "TaskName Status Next Run Time Task To Run"
 )
 
 if exist "%STARTUP_LNK%" (
@@ -34,6 +45,14 @@ if exist logs\service.log (
     powershell -NoProfile -Command "Get-Content -Path 'logs\service.log' -Tail 10"
 ) else (
     echo logs\service.log not found
+)
+
+echo.
+echo Recent SAP export log:
+if exist logs\sap_export.log (
+    powershell -NoProfile -Command "Get-Content -Path 'logs\sap_export.log' -Tail 8 -ErrorAction SilentlyContinue"
+) else (
+    echo logs\sap_export.log not found
 )
 
 echo ========================================================================

@@ -170,13 +170,13 @@ mark.hl{background:#ffd54f;color:var(--brand-dark);border-radius:2px;padding:0 2
 <article class="chapter" id="ch2">
 <div class="ch-header"><h2>二、上传期初库存文件</h2><span class="ch-toggle">&#9660;</span></div>
 <div class="ch-body"><div class="ch-body-inner">
-  <p class="desc">每月4号后从SAP系统导出物料数据并上传至平台，作为预测分析的期初库存基准。</p>
+  <p class="desc">每月 4 日 03:00（北京时间）系统自动从 SAP 导出上个月物料库存作为期初库存；也可随时手工上传 Excel，或点击「从 SAP 取数」。自动取数不会执行计算，仍需点击「加载数据并自动计算」。</p>
   <div class="path-badge"><i>&#128193;</i> 首页</div>
   <h4>操作步骤</h4>
-<ol class="step-list"><li>每月4号后，从SAP系统使用代码 <strong>ZMMR0010N_Y</strong> 导出物料明细报表，筛选 <strong>8004</strong> 和 <strong>8005</strong> 仓库数据，删除消耗类、包装类物料数据</li>
-<li>在企业经营预测分析平台首页，点击 <strong>期初库存文件上传</strong> 按钮，选择整理好的文件进行上传</li>
-<li>上传完成后，点击 <strong>读取数据并自动计算</strong> 按钮，系统自动完成数据处理</li></ol>
-  <div class="note">如果非首次上传，数据源不会改变，每月上传一次即可。上传后数据源已固定，后续上传只需点击“读取数据并自动计算”。</div>
+<ol class="step-list"><li>正常情况下无需每月手工导 SAP：计划任务会在每月 4 日 03:00 导出上个月 <strong>ZMMR0010N_Y</strong> 数据并写入期初库存。首页状态条会显示来源为「SAP 期间」。</li>
+<li>取数失败或需要补跑时，在首页点击 <strong>从 SAP 取数</strong>；或继续使用 <strong>期初库存文件上传</strong> 覆盖当前文件。</li>
+<li>期初库存更新后，点击 <strong>加载数据并自动计算</strong>（或「重新计算」），系统再完成数据处理。</li></ol>
+  <div class="note">如果非首次上传，数据源不会改变，每月更新一次即可。SAP 自动取数与手工上传都会先备份旧文件再覆盖。上传/取数后请再点击“加载数据并自动计算”。定时任务须在手工跑通整条链路后再安装；每日备份仍为 02:00。</div>
   <div class="figure-grid"><figure data-lightbox="0"><img src="images/image2.png" alt="图2：首页 — 期初库存文件上传"><figcaption>图2：首页 — 期初库存文件上传</figcaption></figure></div>
 </div></div>
 </article>

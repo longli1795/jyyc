@@ -1049,6 +1049,10 @@
                             <i class="fas fa-upload"></i>
                             <span>期初库存上传</span>
                         </button>
+                        <button type="button" class="header-toolbar-btn" id="sapExportBtn" title="从 SAP 导出上个月库存并写入期初库存">
+                            <i class="fas fa-cloud-download-alt"></i>
+                            <span>从 SAP 取数</span>
+                        </button>
                         <button type="button" class="header-toolbar-btn primary" id="autoProcessBtn"
                             {% if not status_info.can_run_calculation %}disabled{% endif %}
                             title="加载数据并执行计算">
@@ -1186,8 +1190,12 @@
                     <i class="fas fa-file-excel"></i>
                     <span id="openingInventoryHintText">
                         {% if status_info.has_opening_inventory_file and status_info.opening_inventory_meta %}
-                        已固化：{{ status_info.opening_inventory_meta.original_filename or 'opening_inventory' }}
-                        {% if status_info.opening_inventory_meta.uploaded_at %}（{{ status_info.opening_inventory_meta.uploaded_at[:10] }}）{% endif %}
+                        {% set oi_meta = status_info.opening_inventory_meta %}
+                        {% if oi_meta.source == 'sap' %}
+                        已固化：SAP {{ oi_meta.sap_period or '' }}{% if oi_meta.uploaded_at %} 更新于 {{ oi_meta.uploaded_at[:16]|replace('T', ' ') }}{% endif %}
+                        {% else %}
+                        已固化：{{ oi_meta.original_filename or 'opening_inventory' }}{% if oi_meta.uploaded_at %} 更新于 {{ oi_meta.uploaded_at[:16]|replace('T', ' ') }}{% endif %}
+                        {% endif %}
                         <a href="/api/opening-inventory/download" title="下载固化文件">下载</a>
                         {% endif %}
                     </span>
@@ -1499,6 +1507,7 @@
         <script>window.allowedPages = {{ allowed_pages | tojson }};</script>
     <script src="/static/js/page_permissions.js"></script>
     <script src="/static/js/user_ui_settings.js"></script>
+    <script src="/static/js/opening_inventory.js"></script>
     <script src="/static/js/sync_notification.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/sync_data.js"></script>
@@ -1507,6 +1516,7 @@
     
     <script>
         const uploadBtn = document.getElementById('uploadBtn');
+        const sapExportBtn = document.getElementById('sapExportBtn');
         const fileInput = document.getElementById('fileInput');
         const autoProcessBtn = document.getElementById('autoProcessBtn');
         const alertArea = document.getElementById('alertArea');
@@ -1546,6 +1556,36 @@
             }
         }
 
+        let autoProcessRunning = false;
+
+        function maybeAutoRecalcFromOpeningInventory(statusInfo) {
+            if (autoProcessRunning || !autoProcessBtn) return;
+            if (typeof OpeningInventoryUI === 'undefined') return;
+            const meta = statusInfo && statusInfo.opening_inventory_meta;
+            const canRun = statusInfo && (statusInfo.can_run_calculation || statusInfo.has_opening_inventory_file);
+            if (!canRun || !meta || !OpeningInventoryUI.isStale(meta)) return;
+            showAlert('info', '<i class="fas fa-spinner fa-spin me-2"></i>期初库存已更新，正在按新数据重新计算...');
+            handleAutoProcess();
+        }
+
+        function formatOpeningInventoryHintHtml(meta) {
+            if (typeof OpeningInventoryUI !== 'undefined') {
+                return OpeningInventoryUI.formatHintHtml(meta);
+            }
+            if (!meta) return '';
+            const source = meta.source || 'upload';
+            let name;
+            if (source === 'sap') {
+                const period = meta.sap_period || '';
+                name = period ? ('SAP ' + period) : (meta.original_filename || 'SAP取数');
+            } else {
+                name = meta.original_filename || 'opening_inventory';
+            }
+            const raw = meta.uploaded_at || '';
+            const timeStr = raw ? String(raw).replace('T', ' ').slice(0, 16) : '';
+            return `已固化：${name}${timeStr ? ' 更新于 ' + timeStr : ''} <a href="/api/opening-inventory/download" title="下载固化文件">下载</a>`;
+        }
+
         function updateOpeningInventoryHint(statusInfo) {
             const bar = document.getElementById('openingInventoryPersistBar');
             const hint = document.getElementById('openingInventoryHintText');
@@ -1556,10 +1596,64 @@
                 bar.style.display = 'none';
                 return;
             }
-            const name = meta.original_filename || 'opening_inventory';
-            const dateStr = meta.uploaded_at ? String(meta.uploaded_at).slice(0, 10) : '';
-            hint.innerHTML = `已固化：${name}${dateStr ? '（' + dateStr + '）' : ''} <a href="/api/opening-inventory/download" title="下载固化文件">下载</a>`;
+            hint.innerHTML = formatOpeningInventoryHintHtml(meta);
             bar.style.display = '';
+        }
+
+        function handleSapExport() {
+            if (!confirm('将从 SAP 导出上个月库存并覆盖当前期初库存（覆盖前会备份旧文件），完成后自动重新计算。是否继续？')) {
+                return;
+            }
+            if (sapExportBtn) sapExportBtn.disabled = true;
+            showAlert('info', '<i class="fas fa-spinner fa-spin me-2"></i>正在从 SAP 取数，可能需要数分钟...');
+            fetch('/api/sap/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(async (response) => {
+                const data = await response.json().catch(() => ({}));
+                if (response.status === 409) {
+                    pollSapExportStatus();
+                    return;
+                }
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+                pollSapExportStatus();
+            })
+            .catch((error) => {
+                if (sapExportBtn) sapExportBtn.disabled = false;
+                showAlert('danger', '启动 SAP 取数失败: ' + error.message);
+            });
+        }
+
+        function pollSapExportStatus() {
+            const timer = setInterval(() => {
+                fetch('/api/sap/status')
+                    .then((response) => response.json())
+                    .then((payload) => {
+                        const status = (payload && payload.data) || {};
+                        if (status.running) {
+                            showAlert('info', '<i class="fas fa-spinner fa-spin me-2"></i>' + (status.message || 'SAP 取数进行中...'));
+                            return;
+                        }
+                        clearInterval(timer);
+                        if (sapExportBtn) sapExportBtn.disabled = false;
+                        if (status.phase === 'done') {
+                            showAlert('success', status.message || 'SAP 取数完成，正在按新期初库存重新计算...');
+                            updateAutoProcessButton();
+                            handleAutoProcess();
+                        } else if (status.phase === 'error') {
+                            showAlert('danger', 'SAP 取数失败: ' + (status.message || status.error || '未知错误'));
+                        }
+                    })
+                    .catch((error) => {
+                        clearInterval(timer);
+                        if (sapExportBtn) sapExportBtn.disabled = false;
+                        showAlert('danger', '查询 SAP 取数状态失败: ' + error.message);
+                    });
+            }, 3000);
         }
 
         function updateFirstRunHint(canRunCalc) {
@@ -1587,6 +1681,7 @@
                     if (clearDataBtn) {
                         clearDataBtn.style.display = hasCalcData ? '' : 'none';
                     }
+                    maybeAutoRecalcFromOpeningInventory(statusInfo);
                 })
                 .catch(error => {
                     console.error('获取状态失败:', error);
@@ -1639,8 +1734,9 @@
             })
             .then(data => {
                 if (data.success) {
-                    showAlert('success', data.message || '期初库存已固化并加载');
+                    showAlert('success', (data.message || '期初库存已固化并加载') + '，正在按新数据重新计算...');
                     updateAutoProcessButton();
+                    handleAutoProcess();
                 } else {
                     showAlert('danger', data.message || '文件上传失败');
                 }
@@ -1673,6 +1769,8 @@
 
         function handleAutoProcess() {
             if (!autoProcessBtn) return;
+            if (autoProcessRunning) return;
+            autoProcessRunning = true;
 
             showAlert('info', '<i class="fas fa-spinner fa-spin me-2"></i>正在自动处理数据...');
             autoProcessBtn.disabled = true;
@@ -1683,19 +1781,29 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert('success', data.message || '自动处理完成！');
-                    loadDataInfo();
-                    sessionStorage.setItem('profit_summary_needs_reload', 'true');
-                    localStorage.setItem('profit_summary_needs_reload', Date.now().toString());
-                    localStorage.setItem('disassembly_profit_analysis_data_updated', Date.now().toString());
-                    notifyCostPagesUpdated();
-                    updateAutoProcessButton();
+                    const finishOk = function () {
+                        autoProcessRunning = false;
+                        showAlert('success', data.message || '自动处理完成！');
+                        loadDataInfo();
+                        sessionStorage.setItem('profit_summary_needs_reload', 'true');
+                        localStorage.setItem('profit_summary_needs_reload', Date.now().toString());
+                        localStorage.setItem('disassembly_profit_analysis_data_updated', Date.now().toString());
+                        notifyCostPagesUpdated();
+                        updateAutoProcessButton();
+                    };
+                    if (typeof OpeningInventoryUI !== 'undefined') {
+                        OpeningInventoryUI.markCalculatedFromStatus().then(finishOk);
+                    } else {
+                        finishOk();
+                    }
                 } else {
+                    autoProcessRunning = false;
                     showAlert('danger', data.message || '自动处理失败');
                     updateAutoProcessButton();
                 }
             })
             .catch(error => {
+                autoProcessRunning = false;
                 showAlert('danger', '自动处理失败: ' + error.message);
                 updateAutoProcessButton();
             });
@@ -1710,6 +1818,9 @@
             if (uploadBtn && fileInput) {
                 uploadBtn.addEventListener('click', () => fileInput.click());
                 fileInput.addEventListener('change', handleFileSelect);
+            }
+            if (sapExportBtn) {
+                sapExportBtn.addEventListener('click', handleSapExport);
             }
             if (autoProcessBtn) {
                 autoProcessBtn.addEventListener('click', handleAutoProcess);
@@ -2264,7 +2375,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted small mb-3">从以下历史同步记录中选择要应用的版本，应用后将刷新当前页面数据。</p>
+                    <p class="text-muted small mb-3">从以下历史同步记录中选择要应用的版本，应用后将刷新当前页面数据。不需要的版本可点击右侧删除，仅清除本机历史包，不影响发布方数据。</p>
                     <div class="list-group" id="syncHistoryList" style="max-height:320px;overflow-y:auto;"></div>
                     <div id="syncHistoryResult" class="mt-2 small"></div>
                 </div>

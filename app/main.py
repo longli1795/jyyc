@@ -47,7 +47,7 @@ def _clear_all_sessions_data(app):
         from app.models.database import db, SessionDataset
         from app.models.session_data_manager import SessionDataManagerFactory
 
-        app.logger.info("🔄 程序启动：正在清除所有会话数据...")
+        app.logger.info("程序启动：正在清除所有会话数据...")
 
         # 1. 先批量删除 SessionDataset 中所有记录（一次性清空，避免逐会话 set_data）
         try:
@@ -76,7 +76,7 @@ def _clear_all_sessions_data(app):
         except Exception as e:
             app.logger.warning(f"清空会话管理器缓存失败: {e}")
 
-        app.logger.info("✅ 程序启动：已清除所有会话数据，等同于首页'清除数据'按钮功能")
+        app.logger.info("程序启动：已清除所有会话数据，等同于首页'清除数据'按钮功能")
     except Exception as e:
         app.logger.error(f"清除所有会话数据失败: {e}")
         import traceback

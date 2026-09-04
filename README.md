@@ -36,7 +36,7 @@ start_production.bat
 ## 生产部署
 
 ```bash
-# 开机自启
+# 开机自启（含每月 4 日 03:00 SAP 取数；每日备份仍为 02:00）
 install_autostart.bat          # 安装
 uninstall_autostart.bat        # 卸载
 

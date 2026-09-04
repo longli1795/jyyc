@@ -7,7 +7,7 @@ class DataService:
     
     def __init__(self, session_id: str = None):
         self.app_data = AppDataManager.get_instance(session_id)
-        print(f"🔑 DataService使用会话ID: {session_id}")
+        print(f"[INFO] DataService使用会话ID: {session_id}")
     
     def load_source_data(self, file_path):
         """加载源数据文件"""
@@ -32,11 +32,14 @@ class DataService:
                     sheet_names = excel_file.sheet_names
                     print(f"📋 Excel文件中的sheet列表: {sheet_names}")
                     
-                    if '提取结果' in sheet_names:
+                    if '物料库存' in sheet_names:
+                        print("✅ 找到'物料库存'sheet，从该sheet读取数据")
+                        data = pd.read_excel(file_path, sheet_name='物料库存')
+                    elif '提取结果' in sheet_names:
                         print("✅ 找到'提取结果'sheet，从该sheet读取数据")
                         data = pd.read_excel(file_path, sheet_name='提取结果')
                     else:
-                        print("⚠️ 未找到'提取结果'sheet，从第一个sheet读取数据")
+                        print("⚠️ 未找到'物料库存'或'提取结果'sheet，从第一个sheet读取数据")
                         data = pd.read_excel(file_path)
                 except Exception as e:
                     print(f"⚠️ 读取Excel文件时出错: {e}，尝试读取第一个sheet")

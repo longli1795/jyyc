@@ -148,11 +148,79 @@ def save_uploaded_file(file_storage, uploaded_by_user_id: Optional[int] = None) 
         'original_filename': original_filename,
         'stored_filename': stored_filename,
         'file_ext': file_ext,
+        'source': 'upload',
         'uploaded_at': datetime.now().isoformat(timespec='seconds'),
         'uploaded_by_user_id': uploaded_by_user_id,
         'file_size_bytes': file_size,
         'stored_path': dest_path,
     }
+    _atomic_write_json(get_meta_path(), meta)
+    return True, f'期初库存已固化: {stored_filename}', meta
+
+
+def save_from_local_path(
+    src_path: str,
+    original_filename: Optional[str] = None,
+    extra_meta: Optional[Dict[str, Any]] = None,
+    uploaded_by_user_id: Optional[int] = None,
+) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
+    """
+    将本地 xlsx 固化为期初库存（覆盖前备份）。供 SAP 取数接入使用。
+    """
+    if not src_path or not os.path.isfile(src_path):
+        return False, f'源文件不存在: {src_path}', None
+
+    file_size = os.path.getsize(src_path)
+    if file_size == 0:
+        return False, '文件为空，请检查文件内容', None
+    if file_size > 50 * 1024 * 1024:
+        return False, '文件过大，请选择小于50MB的文件', None
+
+    original_filename = original_filename or os.path.basename(src_path)
+    file_ext = original_filename.lower().split('.')[-1] if '.' in original_filename else ''
+    if file_ext not in ALLOWED_EXTENSIONS:
+        return False, f'不支持的文件格式: .{file_ext}', None
+
+    persistent_dir = get_persistent_dir()
+    stored_filename = f'{STORED_BASENAME}.{file_ext}'
+    dest_path = os.path.join(persistent_dir, stored_filename)
+
+    for old_ext in ALLOWED_EXTENSIONS:
+        old_path = os.path.join(persistent_dir, f'{STORED_BASENAME}.{old_ext}')
+        if os.path.exists(old_path) and os.path.abspath(old_path) != os.path.abspath(dest_path):
+            _backup_existing_file(old_path)
+            try:
+                os.remove(old_path)
+            except OSError:
+                pass
+
+    if os.path.exists(dest_path) and os.path.abspath(dest_path) != os.path.abspath(src_path):
+        _backup_existing_file(dest_path)
+
+    tmp_path = f'{dest_path}.{os.getpid()}.tmp'
+    try:
+        shutil.copy2(src_path, tmp_path)
+        os.replace(tmp_path, dest_path)
+    except OSError as e:
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+        return False, f'文件保存失败: {e}', None
+
+    meta = {
+        'original_filename': original_filename,
+        'stored_filename': stored_filename,
+        'file_ext': file_ext,
+        'source': (extra_meta or {}).get('source', 'sap'),
+        'uploaded_at': datetime.now().isoformat(timespec='seconds'),
+        'uploaded_by_user_id': uploaded_by_user_id,
+        'file_size_bytes': os.path.getsize(dest_path),
+        'stored_path': dest_path,
+    }
+    if extra_meta:
+        meta.update(extra_meta)
     _atomic_write_json(get_meta_path(), meta)
     return True, f'期初库存已固化: {stored_filename}', meta
 

@@ -12,5 +12,8 @@ pandas>=3.0.1
 numpy>=2.0
 openpyxl>=3.1.5
 
+# SAP GUI Scripting（仅 Windows）
+pywin32>=306
+
 # 系统监控
 psutil>=5.9

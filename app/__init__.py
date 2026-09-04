@@ -178,6 +178,7 @@ def create_app(config_name=None):
     from app.api.auth_api import auth_bp
     from app.api.admin_api import admin_bp
     from app.api.snapshot_api import snapshot_bp
+    from app.api.sap_api import sap_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
@@ -188,6 +189,7 @@ def create_app(config_name=None):
     app.register_blueprint(system_bp, url_prefix='/api/system')
     app.register_blueprint(cost_forecast_bp)
     app.register_blueprint(snapshot_bp, url_prefix='/api/snapshot')
+    app.register_blueprint(sap_bp)
 
     @app.context_processor
     def inject_allowed_pages():
@@ -221,6 +223,8 @@ def create_app(config_name=None):
 
 def register_scheduled_tasks(app):
     """注册定时任务"""
+    if os.environ.get('SKIP_SCHEDULED_TASKS', '').strip() in ('1', 'true', 'yes'):
+        return
     from threading import Timer
     from app.models.session_data_manager import SessionDataManagerFactory
     import atexit
